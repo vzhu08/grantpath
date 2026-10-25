@@ -5,7 +5,7 @@ Status: prepared for a later implementation break. **Do not dispatch this chat y
 ## Launch gate for the orchestrator
 
 - Finish and merge the current selected implementation batch: tasks 02–09 that are in the active pipeline, including task 08 after its researched handoff. Required runtime predecessors, checks and local review handoffs must pass. Task 10 is skipped.
-- Close release-blocking infrastructure findings and verify the latest main build, health/readiness and local review URL. Confirm every existing frontend writer has relinquished its scope.
+- Complete the infrastructure review itself, disposition all findings, close release-blocking issues and verify the latest main build, health/readiness and local review URL. Confirm every existing frontend writer has relinquished its scope.
 - Reserve an implementation break for the redesign. Pause competing frontend/shared-style/layout writers and new product implementation; backend contracts remain stable. Do not start research 11–13 until the UI baseline is accepted and merged, and those tasks' own required implementations are merged.
 - Start a **new implementation chat** with useful agents, separate writer checkouts/branches, GPT-6.1 Sol / Extra High unless the human changes the model preference, and Standard speed/Fast off. Assign the requesting user as human owner and the UI lead as steward for layout, global styles, fonts, shared components and any necessary manifest changes.
 - Supply the exact merged main SHA, working local URL, current acceptance commands and explicit file/resource lease. This is implementation authorization under the human's requested UI task; routine design choices do not need another approval round.
@@ -99,7 +99,7 @@ Identify the three most consequential observed weaknesses, fix them and inspect 
 
 Deliver `docs/DESIGN_SYSTEM.md` and `docs/UI_COMPONENT_MAP.md` referencing the actual implemented tokens, components, layouts and interaction/state patterns. Explain how a new feature joins navigation, uses the evidence inspector, handles dense data/forms, reports errors and preserves dirty state. Include practical examples from the code, accessibility/motion rules and the rationale for the chosen palette/type hierarchy.
 
-Supply the parent with the exact instruction update needed to make these files mandatory for future frontend work. Subsequent implementations, including 11–13 after their gates, must consume this design system and shared primitives instead of adding a competing palette or independent screen shell. Treat changes to the design system as shared-scope work with a steward.
+Supply the parent with the exact instruction update needed to make these files mandatory for future frontend work. The redesign is complete only when the implemented UI, these design-system documents and the corresponding `AGENTS.md` consumption requirement are checked and merged into main. Subsequent implementations, including 11–13 after their gates, must consume this design system and shared primitives instead of adding a competing palette or independent screen shell. Treat changes to the design system as shared-scope work with a steward.
 
 ### Final handoff
 
