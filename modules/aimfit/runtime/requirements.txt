@@ -1,0 +1,3 @@
+# Candidate numerical runtime version pins only; artifact-hash/packaging gate is open.
+numpy==2.1.3
+scipy==1.15.3
