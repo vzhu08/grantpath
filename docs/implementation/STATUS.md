@@ -8,6 +8,8 @@ Actual task checks passed: locked install, TypeScript,253 tests/30 suites, final
 
 The required CI job now repeats award acceptance after existing regression journeys.05released shared/heavy ownership;06owns shared SOURCE from the frozen handoff while parent completes05 main integration/build.06must stack resulting checkedmain before final acceptance;08follows. UI is planning-only, and its implementation still needs the final combined functional/rendered GO.
 
+Parent integration is now complete: PR10 exact checked head `fb6d42fda01e1f43f5f4281e75498929504d1d88` passed required CI and merged as `bde0de3e2d6e829abd52e554b25b873dfba4f2e9`. The local production build tree matched exactly; `npm run review` and explicit health/readiness verified mainbde0de3/build `uvCJGg7Dl4AB6yAV8s0Gx`, expected instance and schema5 at `http://127.0.0.1:3000`. Original workspace bytes were backed up and retained collection IDs checked after migration.06 received that exact main plus shared/heavy ownership; no full06 or new-core application integration is claimed.
+
 ## Roadmap 03 resubmission response matrix
 
 Final checked feature handoff `506ce80619cbdfa6613b075c66cfc5e487cf23b0`, application code `ca8e5882eb2dc1598879e582efab52dd3add3a79`, stacks checked main22404. Schema4 preserves vault/proposal data and frozen payloads while adding submitted baselines, independent target cycles, exact reviewer quotations, concerns/actions/evidence/response histories, targeted human-review staleness, comparisons and immutable internal Markdown/JSON response packets. See [release evidence](03_RESUBMISSION_RESPONSE_MATRIX_RELEASE.md).
