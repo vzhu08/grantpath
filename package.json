@@ -14,15 +14,19 @@
     "typecheck": "tsc --noEmit",
     "test": "node scripts/test.mjs",
     "test:browser": "node scripts/e2e.mjs",
-    "check": "npm run typecheck && npm test && npm run build"
+    "check": "npm run typecheck && npm test && npm run build",
+    "test:exports": "node --import tsx scripts/verify-proposal-exports.ts",
+    "review": "node scripts/local-server.mjs"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "4.0.78",
     "@ai-sdk/openai": "4.0.91",
     "ai": "7.0.136",
+    "docx": "9.14.0",
     "mammoth": "1.13.0",
     "next": "16.4.3",
     "papaparse": "5.7.0",
+    "pdf-lib": "1.17.1",
     "pdfjs-dist": "6.4.299",
     "react": "19.3.0",
     "react-dom": "19.3.0",
@@ -34,6 +38,7 @@
     "@types/papaparse": "5.5.2",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
+    "fflate": "0.8.3",
     "tsx": "4.23.15",
     "typescript": "6.0.3",
     "vitest": "5.0.3"
