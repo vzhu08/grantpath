@@ -1,5 +1,7 @@
 import { chromium, expect } from "@playwright/test";
 import { spawn } from "node:child_process";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
 import { once } from "node:events";
 import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -245,28 +247,77 @@ try {
   );
   await expect(page.getByText("0 blockers", { exact: true })).toBeVisible();
   // Saving one editor must not clear another editor's unsaved state.
-  const significance=drafts.nth(1);
-  await summary.locator('textarea.draft-text').fill(savedTexts[0]+' Reviewed wording.');
-  await significance.locator('textarea.draft-text').fill(savedTexts[1]+' Pending manual edit.');
-  await saveClick(summary.getByRole('button',{name:'Save manual revision',exact:true}));
-  await expect(page.getByRole('button',{name:'Export packet',exact:false})).toBeDisabled();
-  page.once('dialog',dialog=>dialog.dismiss());
-  await navigate('Opportunities');
-  await expect(significance.locator('textarea.draft-text')).toHaveValue(savedTexts[1]+' Pending manual edit.');
-  await significance.locator('textarea.draft-text').fill(savedTexts[1]);
-  await saveClick(significance.getByRole('button',{name:'Save manual revision',exact:true}));
-  await summary.locator('textarea.draft-text').fill(savedTexts[0]);
+  const significance = drafts.nth(1);
+  await summary
+    .locator("textarea.draft-text")
+    .fill(savedTexts[0] + " Reviewed wording.");
+  await significance
+    .locator("textarea.draft-text")
+    .fill(savedTexts[1] + " Pending manual edit.");
+  await saveClick(
+    summary.getByRole("button", { name: "Save manual revision", exact: true }),
+  );
+  await expect(
+    page.getByRole("button", { name: "Export packet", exact: false }),
+  ).toBeDisabled();
+  page.once("dialog", (dialog) => dialog.dismiss());
+  await navigate("Opportunities");
+  await expect(significance.locator("textarea.draft-text")).toHaveValue(
+    savedTexts[1] + " Pending manual edit.",
+  );
+  await significance.locator("textarea.draft-text").fill(savedTexts[1]);
+  await saveClick(
+    significance.getByRole("button", {
+      name: "Save manual revision",
+      exact: true,
+    }),
+  );
+  await summary.locator("textarea.draft-text").fill(savedTexts[0]);
   // A competing saved draft updates the concurrency base without replacing this buffer.
-  let concurrent=await (await fetch(origin+'/api/workspace')).json();
-  const currentDraft=concurrent.applications.find(a=>a.id===applicationId).sections[0];
-  const competing=await fetch(origin+'/api/workspace',{method:'POST',headers:{origin,'content-type':'application/json'},body:JSON.stringify({expectedRevision:concurrent.revision,command:{type:'saveDraft',applicationId,sectionKey:'summary',label:currentDraft.label,wordLimit:currentDraft.wordLimit,text:'Competing saved text.',sourceIds:currentDraft.revisions.at(-1).selectedSources.map(s=>s.sourceId),citations:currentDraft.revisions.at(-1).citations}})});
-  assert.equal(competing.status,200);
-  const conflict=page.waitForResponse(r=>r.url().endsWith('/api/workspace')&&r.request().method()==='POST');
-  await summary.getByRole('button',{name:'Save manual revision',exact:true}).click();
-  assert.equal((await conflict).status(),409);
-  await page.getByRole('button',{name:'Use latest save revision (keep editor text)',exact:true}).click();
-  await expect(summary.locator('textarea.draft-text')).toHaveValue(savedTexts[0]);
-  await saveClick(summary.getByRole('button',{name:'Save manual revision',exact:true}));
+  let concurrent = await (await fetch(origin + "/api/workspace")).json();
+  const currentDraft = concurrent.applications.find(
+    (a) => a.id === applicationId,
+  ).sections[0];
+  const competing = await fetch(origin + "/api/workspace", {
+    method: "POST",
+    headers: { origin, "content-type": "application/json" },
+    body: JSON.stringify({
+      expectedRevision: concurrent.revision,
+      command: {
+        type: "saveDraft",
+        applicationId,
+        sectionKey: "summary",
+        label: currentDraft.label,
+        wordLimit: currentDraft.wordLimit,
+        text: "Competing saved text.",
+        sourceIds: currentDraft.revisions
+          .at(-1)
+          .selectedSources.map((s) => s.sourceId),
+        citations: currentDraft.revisions.at(-1).citations,
+      },
+    }),
+  });
+  assert.equal(competing.status, 200);
+  const conflict = page.waitForResponse(
+    (r) =>
+      r.url().endsWith("/api/workspace") && r.request().method() === "POST",
+  );
+  await summary
+    .getByRole("button", { name: "Save manual revision", exact: true })
+    .click();
+  assert.equal((await conflict).status(), 409);
+  await page
+    .getByRole("button", {
+      name: "Use latest save revision (keep editor text)",
+      exact: true,
+    })
+    .click();
+  await expect(summary.locator("textarea.draft-text")).toHaveValue(
+    savedTexts[0],
+  );
+  await saveClick(
+    summary.getByRole("button", { name: "Save manual revision", exact: true }),
+  );
   await summary
     .getByText("Optional AI draft proposal", { exact: true })
     .click();
@@ -401,6 +452,57 @@ try {
     }),
   ).toBeDisabled();
   assert.deepEqual(pageErrors, [], "No uncaught browser errors");
+  // The persistent review helper must exit cleanly and reuse its own server.
+  const reviewDirectory = path.join(data, "review-helper"),
+    reviewPort = port + 1;
+  const reviewEnvironment = {
+    ...process.env,
+    PORT: String(reviewPort),
+    GRANTPATH_DATA_DIR: reviewDirectory,
+  };
+  let reviewRecord;
+  try {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const result = await promisify(execFile)(
+        process.execPath,
+        ["scripts/local-server.mjs"],
+        { env: reviewEnvironment, windowsHide: true, timeout: 20000 },
+      );
+      assert.match(
+        result.stdout,
+        new RegExp(`http://127\\.0\\.0\\.1:${reviewPort}`),
+      );
+      const record = JSON.parse(
+        await readFile(
+          path.join(reviewDirectory, `local-server-${reviewPort}.json`),
+          "utf8",
+        ),
+      );
+      if (reviewRecord)
+        assert.equal(
+          record.instance,
+          reviewRecord.instance,
+          "Repeated review startup reuses the owned current build",
+        );
+      reviewRecord = record;
+      const status = await (
+        await fetch(`http://127.0.0.1:${reviewPort}/api/health`)
+      ).json();
+      assert.equal(status.instance, record.instance);
+    }
+  } finally {
+    if (!reviewRecord) {
+      try {
+        reviewRecord = JSON.parse(
+          await readFile(
+            path.join(reviewDirectory, `local-server-${reviewPort}.json`),
+            "utf8",
+          ),
+        );
+      } catch {}
+    }
+    if (reviewRecord) process.kill(reviewRecord.pid);
+  }
   await writeFile(
     path.join(artifacts, "browser-result.json"),
     JSON.stringify(
@@ -423,6 +525,7 @@ try {
           "regeneration preserves unsaved text",
           "independent dirty editors and navigation guard",
           "competing draft conflict preserves local buffer",
+          "persistent local review helper starts, exits cleanly and reuses its server",
         ],
         pageErrors,
       },
