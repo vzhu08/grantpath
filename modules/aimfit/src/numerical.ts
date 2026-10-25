@@ -29,7 +29,7 @@ export function createPythonPort(config: RuntimeConfig): NumericalPort {
     try {
       return await new Promise<NumericOutcome>(resolve => {
         // Explicit env excludes provider credentials/PYTHONPATH; -I ignores user site/config.
-        const env: NodeJS.ProcessEnv = { OPENBLAS_NUM_THREADS: "1", OMP_NUM_THREADS: "1", MKL_NUM_THREADS: "1" };
+        const env: NodeJS.ProcessEnv = { NODE_ENV: "production", OPENBLAS_NUM_THREADS: "1", OMP_NUM_THREADS: "1", MKL_NUM_THREADS: "1" };
         for (const key of ["SystemRoot","WINDIR","TEMP","TMP"]) if (process.env[key]) env[key] = process.env[key];
         const child = spawn(executable,["-I","-B",worker],{ shell: false,windowsHide: true,cwd: config.cwd,env,stdio: ["pipe","pipe","pipe"] });
         const chunks: Buffer[] = []; let bytes = 0, errors = 0, failure: z.infer<typeof FailureCode> | null = null, done = false;
