@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1420" viewBox="0 0 1600 1420" role="img" aria-labelledby="title desc">
+<title id="title">Evidence Desk: dense data, mobile reading and recovery states</title>
+<desc id="desc">Static planning plate with a financial register, a single-plane mobile source sheet and explicit conflict, empty, insufficient-context and unknown states. Illustrative display examples are not feature results or fixtures.</desc>
+<defs><style>text{font-family:'Segoe UI',Arial,sans-serif;fill:#15213B}.h{font:34px Georgia,serif}.t{font:25px Georgia,serif}.body{font-size:18px}.small{font-size:16px}.label{font-size:14px;font-weight:600}.muted{fill:#52617A}.blue{fill:#2447D8}.amber{fill:#805100}.red{fill:#A7323D}.money{font:17px Consolas,'Courier New',monospace;text-anchor:end}.line{stroke:#CCD5E4;stroke-width:1}</style></defs>
+<rect width="1600" height="1420" fill="#EFF3F9"/>
+<text x="40" y="57" class="h">Dense where useful. Readable where consequential.</text>
+<text x="40" y="92" class="small muted">STATIC PLANNING PLATE / ILLUSTRATIVE DISPLAY VALUES ONLY / NO GENERATED FINANCE OR SCIENTIFIC RESULTS</text>
+<!-- table -->
+<rect x="40" y="124" width="1018" height="503" fill="#FFFFFF"/>
+<text x="64" y="164" class="t">Financial register / exact scope before amounts</text>
+<text x="64" y="201" class="small muted">Pinned terms · confirmed period · cutoff · USD · paid basis · local internal review</text>
+<rect x="64" y="225" width="970" height="46" fill="#15213B"/>
+<text x="80" y="255" class="label" style="fill:#E9EFFB">Record</text><text x="489" y="255" class="label" style="fill:#E9EFFB">Paid actual</text><text x="654" y="255" class="label" style="fill:#E9EFFB">Commitment</text><text x="815" y="255" class="label" style="fill:#E9EFFB">Forecast</text><text x="933" y="255" class="label" style="fill:#E9EFFB">Origin</text>
+<text x="80" y="307" class="body">Recorded expense</text><text x="595" y="307" class="money">250.00</text><text x="758" y="307" class="money">—</text><text x="909" y="307" class="money">—</text><text x="933" y="307" class="small blue">Open →</text><path d="M64 325H1034" class="line"/>
+<rect x="64" y="326" width="970" height="54" fill="#F6F8FC"/><text x="80" y="360" class="body">Refund / reduction</text><text x="595" y="360" class="money">−50.00</text><text x="758" y="360" class="money">—</text><text x="909" y="360" class="money">—</text><text x="933" y="360" class="small blue">Open →</text>
+<text x="80" y="414" class="body">Recorded unpaid commitment</text><text x="595" y="414" class="money">—</text><text x="758" y="414" class="money">120.00</text><text x="909" y="414" class="money">Unknown</text><text x="933" y="414" class="small blue">Open →</text><path d="M64 434H1034" class="line"/>
+<text x="80" y="471" class="small muted">Unknown stays unknown. “—” means not this column; it is not an inferred zero.</text>
+<rect x="64" y="493" width="970" height="72" fill="#FFF1D5"/><text x="80" y="522" class="label amber">PREVIEW IS NOT POSTED</text><text x="80" y="550" class="small amber">Show duplicates, excluded rows and exact scope. Any edited input requires a new preview.</text>
+<text x="64" y="601" class="small muted">Original data stays lossless in JSON; CSV display escaping and frozen bytes follow actual contracts.</text>
+<!-- mobile -->
+<rect x="1082" y="124" width="478" height="1070" fill="#FFFFFF"/>
+<text x="1106" y="164" class="t">390px / one reading plane</text>
+<rect x="1126" y="191" width="390" height="923" fill="#F6F8FC" stroke="#8392AC"/>
+<rect x="1126" y="191" width="390" height="61" fill="#15213B"/><text x="1142" y="227" class="body" style="fill:#E9EFFB">Menu / GrantPath</text>
+<text x="1142" y="285" class="small">Application / target cycle</text><text x="1142" y="314" class="label">Working revision · Unsaved edits</text><path d="M1142 334H1500" class="line"/>
+<text x="1142" y="367" class="body blue">Concerns ↓ / Methods evidence</text>
+<text x="1142" y="414" class="t">Review the changed input</text>
+<rect x="1142" y="435" width="358" height="75" fill="#FFF1D5"/><text x="1154" y="464" class="label amber">NEEDS REVIEW</text><text x="1154" y="493" class="small amber">Retained version stays unchanged.</text>
+<text x="1142" y="551" class="body">One full-width passage at a time.</text><text x="1142" y="580" class="body">The hidden editor remains mounted.</text>
+<rect x="1142" y="607" width="358" height="46" rx="4" fill="#FFFFFF" stroke="#2447D8"/><text x="1157" y="637" class="small blue">Open exact source →</text>
+<!-- sheet specimen -->
+<rect x="1126" y="683" width="390" height="431" fill="#FFFFFF" stroke="#8392AC"/>
+<rect x="1126" y="683" width="390" height="5" fill="#2447D8"/>
+<text x="1142" y="722" class="label">SOURCE SHEET</text><text x="1449" y="722" class="small blue">Close</text>
+<text x="1142" y="761" class="body" font-weight="600">Pinned v2 used by this action</text><text x="1142" y="794" class="small muted">Exact quote / retained file version</text>
+<path d="M1142 817V933" stroke="#2447D8" stroke-width="3"/><text x="1156" y="845" class="body">Read retained material in full</text><text x="1156" y="874" class="body">width. Latest supplied text is</text><text x="1156" y="903" class="body">a separate read-only view.</text>
+<text x="1142" y="976" class="small blue">Download cited original →</text><text x="1142" y="1018" class="small muted">Close restores focus to its trigger.</text><text x="1142" y="1048" class="small muted">Escape never discards edited text.</text><text x="1142" y="1085" class="small muted">Sheet plan; no live interaction here.</text>
+<text x="1106" y="1157" class="small muted">16px gutters, wrapping actions/IDs.</text>
+<!-- Recovery states -->
+<rect x="40" y="651" width="1018" height="543" fill="#FFFFFF"/>
+<text x="64" y="691" class="t">Useful recovery is part of the composition</text>
+<rect x="64" y="718" width="970" height="114" fill="#FFF1D5"/><text x="80" y="747" class="label amber">409 / SAVED DATA CHANGED</text><text x="80" y="778" class="body amber">Your edits are kept. Inspect the saved version, reconcile, then explicitly retry.</text><text x="80" y="811" class="small blue">Inspect saved reference →      Keep editing      Discard local edits / use saved</text>
+<text x="64" y="871" class="label">EMPTY / ACTUAL INPUT IS MISSING</text><text x="64" y="902" class="body">No original submission captured. Capture and attest the real selected baseline.</text>
+<path d="M64 925H1034" class="line"/>
+<text x="64" y="958" class="label">INSUFFICIENT CONTEXT / ADVISORY REVIEW</text><text x="64" y="989" class="body">Not scored · name the missing passage or criterion context; keep manual review.</text>
+<path d="M64 1012H1034" class="line"/>
+<text x="64" y="1045" class="label red">UNAVAILABLE ORIGINAL / INTEGRITY FAILURE</text><text x="64" y="1076" class="body">Keep the retained identity. Never substitute latest bytes into this quotation.</text>
+<path d="M64 1099H1034" class="line"/>
+<text x="64" y="1132" class="label">UNKNOWN / DATE, MONEY OR PDF MEASUREMENT</text><text x="64" y="1163" class="body">Show Unknown with its reason. No invented midnight, zero amount or page pass.</text>
+<!-- final design notes -->
+<text x="40" y="1250" class="label">READING AND ACCESS</text><text x="40" y="1282" class="body">16px body / 24px line height · 14px dense data · 44px controls · visible focus · text + color state.</text>
+<text x="40" y="1315" class="body">At 200% zoom, layout reflows. Long tables scroll locally or stack; page-wide overflow is a failure.</text>
+<text x="40" y="1348" class="body">Reduced motion removes movement. Loading, failed saves and historical scope remain understandable as text.</text>
+<text x="40" y="1385" class="small muted">Proposed plan only. Actual contrast, keyboard, source anchoring, dirty-buffer recovery and rendered output are phase-2 gates.</text>
+</svg>

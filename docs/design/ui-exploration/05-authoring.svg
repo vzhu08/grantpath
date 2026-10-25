@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1366" height="1640" viewBox="0 0 1366 1640" role="img" aria-labelledby="title desc">
+<title id="title">Evidence Desk: fourteen-section authoring and source inspection</title>
+<desc id="desc">Static authoring plan with a 1366 by 768 working viewport, a grouped Sections menu specimen below, independent unsaved sections, long prose, table controls and a retained source folio. No application or frontend fixture is implemented.</desc>
+<defs><style>text{font-family:'Segoe UI',Arial,sans-serif;fill:#15213B}.h{font:28px Georgia,serif}.t{font:24px Georgia,serif}.body{font-size:16px}.small{font-size:14px}.label{font-size:14px;font-weight:600}.muted{fill:#52617A}.blue{fill:#2447D8}.amber{fill:#805100}.white{fill:#E9EFFB}.line{stroke:#CCD5E4;stroke-width:1}</style></defs>
+<rect width="1366" height="1640" fill="#EFF3F9"/>
+<!-- first viewport -->
+<rect width="176" height="768" fill="#15213B"/><text x="16" y="43" style="font:27px Georgia,serif;fill:#FFFFFF">GrantPath</text><text x="16" y="72" class="small white">EVIDENCE DESK</text>
+<text x="16" y="135" class="body white">Project &amp; sources</text><text x="16" y="183" class="body white">Opportunities</text><text x="16" y="231" class="body white">Application plan</text><rect x="0" y="255" width="176" height="48" fill="#2447D8"/><text x="16" y="286" class="body white">Proposal</text><text x="16" y="341" class="body white">Revision &amp; review</text><text x="16" y="389" class="body white">Award &amp; progress</text><text x="16" y="437" class="body white">Finance &amp; reports</text><text x="16" y="724" class="small white">Synthetic example</text>
+<rect x="176" y="0" width="1190" height="72" fill="#FFFFFF"/><text x="200" y="27" class="small muted">Selected application / target cycle / NSF preparation</text><text x="200" y="55" class="body" font-weight="600">Proposal / working revision</text><text x="1094" y="28" class="small amber">Unsaved: Methods, References</text><text x="1094" y="55" class="small muted">Local edits kept independently</text>
+<rect x="200" y="92" width="132" height="44" rx="4" fill="#FFFFFF" stroke="#8392AC"/><text x="218" y="120" class="label blue">Sections ↓</text><text x="353" y="120" class="small muted">Description / Proposed Methods</text>
+<text x="200" y="174" class="h">Proposed Methods</text><text x="200" y="203" class="small amber">Unsaved edits · saved revision remains separate</text>
+<rect x="811" y="151" width="147" height="44" rx="4" fill="#2447D8"/><text x="831" y="179" class="label white">Save section</text>
+<rect x="200" y="225" width="758" height="519" fill="#FFFFFF"/>
+<text x="224" y="255" class="label">PARAGRAPH / ILLUSTRATIVE AUTHORING TEXT</text>
+<text x="224" y="291" class="body">Researcher-written prose keeps a comfortable reading width. A long</text><text x="224" y="319" class="body">paragraph wraps naturally rather than shrinking to fit a permanent</text><text x="224" y="347" class="body">section outline. The source companion opens beside the editor while</text><text x="224" y="375" class="body">the selected blocks, citations and cursor remain owned by this editor.</text>
+<path d="M224 398H934" class="line"/>
+<text x="224" y="430" class="label">TABLE BLOCK / KEYBOARD-OPERABLE CONTROLS</text>
+<rect x="224" y="448" width="710" height="38" fill="#F6F8FC"/><text x="239" y="473" class="label">Item</text><text x="461" y="473" class="label">Researcher-entered plan</text><text x="749" y="473" class="label">Support</text>
+<path d="M224 448H934V539H224ZM445 448V539M733 448V539M224 486H934" fill="none" stroke="#8392AC"/>
+<text x="239" y="518" class="body">Planned analysis</text><text x="461" y="518" class="body">Editable text / no invented result</text><text x="749" y="518" class="body">Missing input</text>
+<rect x="224" y="556" width="114" height="44" rx="4" fill="#FFFFFF" stroke="#8392AC"/><text x="243" y="584" class="small blue">Add row</text><rect x="350" y="556" width="144" height="44" rx="4" fill="#FFFFFF" stroke="#8392AC"/><text x="367" y="584" class="small blue">Remove row</text><text x="516" y="584" class="small blue">Move block up / down</text>
+<path d="M224 620H934" class="line"/><text x="224" y="650" class="label">CITATIONS / SELECTED SOURCES</text><text x="224" y="680" class="small blue">Retained source v2 → inspect without changing the saved citation</text><text x="224" y="719" class="small muted">References has its own unsaved buffer; selecting it does not discard this one.</text>
+<!-- source companion -->
+<rect x="982" y="96" width="360" height="648" fill="#FFFFFF" stroke="#8392AC"/><rect x="982" y="96" width="360" height="5" fill="#2447D8"/><text x="1006" y="132" class="label">SOURCE FOLIO</text><text x="1289" y="132" class="small blue">Close</text><text x="1006" y="176" class="t">Retained evidence v2</text><text x="1006" y="210" class="small muted">Section-revision citation / exact range</text>
+<path d="M1006 236H1318" class="line"/><text x="1006" y="271" class="body">Source text is read-only inspection.</text><text x="1006" y="301" class="body">Opening this folio preserves all</text><text x="1006" y="331" class="body">section editors, including hidden</text><text x="1006" y="361" class="body">sections with unsaved changes.</text>
+<rect x="1006" y="393" width="312" height="84" fill="#FFF1D5"/><text x="1020" y="424" class="label amber">CITATION SCOPE</text><text x="1020" y="451" class="small amber">No invented sentence-level link.</text>
+<text x="1006" y="521" class="small blue">Inspect original file version →</text><text x="1006" y="557" class="small muted">Latest supplied version is separate.</text><text x="1006" y="621" class="small muted">The Sections list opens temporarily;</text><text x="1006" y="649" class="small muted">it never becomes a fourth column.</text><text x="1006" y="709" class="small muted">Only explicit save mutates draft text.</text>
+<path d="M0 768H1366" stroke="#2447D8" stroke-width="3"/>
+<!-- planning annotations, outside the viewport -->
+<text x="24" y="809" class="label">END OF 1366 × 768 VIEWPORT / MENU SPECIMEN AND ANNOTATIONS BELOW</text><text x="24" y="850" class="t">Sections / full grouped contents shown for planning</text><text x="24" y="881" class="small muted">Actual popover has bounded scroll (max 70vh); narrow screens use a sheet. Selecting closes it and restores editing focus.</text>
+<rect x="24" y="907" width="820" height="684" fill="#FFFFFF" stroke="#8392AC"/>
+<text x="44" y="938" class="label">SUMMARY</text>
+<text x="44" y="974" class="body">Overview</text><text x="600" y="974" class="small muted">Reviewed</text>
+<text x="44" y="1009" class="body">Intellectual Merit</text><text x="600" y="1009" class="small muted">Needs review</text>
+<text x="44" y="1044" class="body">Summary / Broader Impacts</text><text x="600" y="1044" class="small muted">Needs review</text>
+<path d="M44 1063H824" class="line"/><text x="44" y="1092" class="label">DESCRIPTION</text>
+<text x="44" y="1128" class="body">Objectives and Significance</text><text x="600" y="1128" class="small muted">Needs review</text>
+<text x="44" y="1163" class="body">Scientific Context</text><text x="600" y="1163" class="small muted">Reviewed</text>
+<rect x="25" y="1176" width="818" height="35" fill="#EDF1FF"/><text x="44" y="1199" class="body blue">Proposed Methods / selected</text><text x="600" y="1199" class="small amber">Unsaved edits</text>
+<text x="44" y="1234" class="body">Evaluation and Timeline</text><text x="600" y="1234" class="small muted">Optional / not reviewed</text>
+<text x="44" y="1269" class="body">Description / Broader Impacts</text><text x="600" y="1269" class="small muted">Needs review</text>
+<text x="44" y="1304" class="body">Results from Prior NSF Support</text><text x="600" y="1304" class="small muted">Conditional / unresolved</text>
+<path d="M44 1323H824" class="line"/><text x="44" y="1352" class="label">STANDALONE COMPONENTS</text>
+<text x="44" y="1388" class="body">References Cited</text><text x="600" y="1388" class="small amber">Unsaved edits</text>
+<text x="44" y="1423" class="body">Budget Justification</text><text x="600" y="1423" class="small muted">Needs review</text>
+<text x="44" y="1458" class="body">Facilities Equipment and Other Resources</text><text x="600" y="1458" class="small muted">Needs review</text>
+<text x="44" y="1493" class="body">Mentoring Plan</text><text x="600" y="1493" class="small muted">Conditional / unresolved</text>
+<text x="44" y="1528" class="body">DMSP Preparation Worksheet</text><text x="600" y="1528" class="small muted">Preparation only</text>
+<text x="44" y="1569" class="small muted">Applicability and review labels here are illustrative; final UI reads actual manifest/saved state.</text>
+<text x="884" y="952" class="label">CHOSEN PATTERN</text><text x="884" y="987" class="body">One labeled Sections button.</text><text x="884" y="1017" class="body">One grouped temporary list.</text><text x="884" y="1047" class="body">No permanent extra outline.</text>
+<text x="884" y="1111" class="label">BUFFER IDENTITIES</text><text x="884" y="1146" class="body">Application + cycle + section.</text><text x="884" y="1176" class="body">Retain blocks, citations and scroll.</text><text x="884" y="1206" class="body">Never key by workspace revision.</text>
+<text x="884" y="1270" class="label">KEYBOARD AND NARROW WIDTH</text><text x="884" y="1305" class="body">Visible focus; select by keyboard.</text><text x="884" y="1335" class="body">Escape closes the list or inspector.</text><text x="884" y="1365" class="body">Neither discards edited text.</text><text x="884" y="1395" class="body">At 390px use one reading plane.</text>
+<text x="884" y="1460" class="label">SCOPE</text><text x="884" y="1495" class="body">Planning text, not a product fixture.</text><text x="884" y="1525" class="body">No 11–13 UI or results.</text><text x="884" y="1555" class="body">Rendered checks wait for phase 2.</text>
+<text x="24" y="1621" class="small muted">STATIC PHASE-1 PLAN / system fonts, controls, focus, overflow and retained buffers remain subject to real browser verification.</text>
+</svg>

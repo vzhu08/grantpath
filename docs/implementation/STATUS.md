@@ -1,5 +1,9 @@
 # Actual implementation status
 
+## Roadmap11–13 independent core checkpoints
+
+Parent source review accepted11 `d72bcb8`,12 `a94be15` and corrected13 `2c78ef0`; exclusive core/release/config paths are collected on the integration branch for exact-head required CI. Reported focused results are45,23 and94 TypeScript tests respectively, scoped types for all, plus six12 Python protocol cases.13's initial source-copy consistency P1 was repaired and independently re-reviewed.12 numerical outputs remain `r-pending` until the actual official R comparison; pinned Linux CI provisioning/artifact capture is being added, while packaged host/runtime and actual05/06 reconciliation remain separate gates. These source milestones do not add UI, routes, shared persistence or a locally deployed application feature. See the three core release notes for implemented contracts and explicit open gates.
+
 ## Roadmap05 awards and progress worksheets
 
 Final checked feature handoff `3abe165ba5a3ce2b8f7cfb6329bb5a906ae4b173`, application code `6c7ad9118130bb7d2388a1b9d30c35b7442e64cb`, stacks checked main2da6a31. Schema5 preserves prior histories and adds source-confirmed award terms/amendments, exact originating application/submission evidence, separately retained proposed/approved money, milestones, actual progress, reviewed NSF annual narrative worksheets and immutable Markdown/JSON evidence closures. See [release details](05_AWARD_OBLIGATIONS_PROGRESS_REPORTS_RELEASE.md).
@@ -7,6 +11,8 @@ Final checked feature handoff `3abe165ba5a3ce2b8f7cfb6329bb5a906ae4b173`, applic
 Actual task checks passed: locked install, TypeScript,253 tests/30 suites, final production build; documents/extraction examples; full award HTTP/UI/process-restart and saved-byte tests; baseline/proposal, vault and resubmission journeys plus ordered-packet restart; dev smoke. Parent independently reviewed the migration/receipt/atomic/retention/finance-context seams and final UI/intake delta, and verified private `http://127.0.0.1:3005` at app6c7ad91/build `nGNJFMjUnaTg-QjKGO56i`, expected instance, ready/schema5. Parent's exact-head CI/main build/local refresh is a separate integration gate, not inferred from the feature server. No liveAI/paid/provider/sponsor/public deployment is claimed.
 
 The required CI job now repeats award acceptance after existing regression journeys.05released shared/heavy ownership;06owns shared SOURCE from the frozen handoff while parent completes05 main integration/build.06must stack resulting checkedmain before final acceptance;08follows. UI is planning-only, and its implementation still needs the final combined functional/rendered GO.
+
+Parent integration is now complete: PR10 exact checked head `fb6d42fda01e1f43f5f4281e75498929504d1d88` passed required CI and merged as `bde0de3e2d6e829abd52e554b25b873dfba4f2e9`. The local production build tree matched exactly; `npm run review` and explicit health/readiness verified mainbde0de3/build `uvCJGg7Dl4AB6yAV8s0Gx`, expected instance and schema5 at `http://127.0.0.1:3000`. Original workspace bytes were backed up and retained collection IDs checked after migration.06 received that exact main plus shared/heavy ownership; no full06 or new-core application integration is claimed.
 
 ## Roadmap 03 resubmission response matrix
 

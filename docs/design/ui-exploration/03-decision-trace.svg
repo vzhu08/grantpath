@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1370" viewBox="0 0 1600 1370" role="img" aria-labelledby="title desc">
+<title id="title">Six-beat decision trace storyboard</title>
+<desc id="desc">Static plan grounded in persisted resubmission associations: concern quotation, action with two independent branches, response and human completion, changed dependency and immutable historical packet. Missing evidence remains open.</desc>
+<defs><style>text{font-family:'Segoe UI',Arial,sans-serif;fill:#15213B}.h{font:34px Georgia,serif}.t{font:24px Georgia,serif}.body{font-size:18px}.small{font-size:16px}.label{font-size:15px;font-weight:600}.blue{fill:#2447D8}.muted{fill:#52617A}.amber{fill:#805100}.line{stroke:#CCD5E4;stroke-width:2}</style><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="none" stroke="#8392AC"/></marker></defs>
+<rect width="1600" height="1370" fill="#EFF3F9"/>
+<text x="40" y="57" class="h">A decision trace, not a decorative graph</text>
+<text x="40" y="91" class="small muted">PHASE 1 STORYBOARD / STATIC PLAN / ILLUSTRATIVE SYNTHETIC LABELS / NO GENERATED PRODUCT RESULTS</text>
+<!-- row 1 -->
+<rect x="40" y="125" width="744" height="330" fill="#FFFFFF"/>
+<rect x="40" y="125" width="744" height="5" fill="#2447D8"/>
+<text x="64" y="166" class="t">1 / Select the actual decision</text>
+<text x="64" y="203" class="small muted">Selected application / distinct target cycle / attested original</text>
+<rect x="64" y="226" width="696" height="54" fill="#EDF1FF"/><text x="80" y="260" class="body blue">Concern: Methods evidence · Needs review</text>
+<text x="80" y="313" class="body">Another concern · In progress</text><text x="80" y="359" class="body">Unfinished experiment · In progress</text>
+<text x="64" y="420" class="small muted">Use current derived state, not a retained completion checkbox.</text>
+<rect x="816" y="125" width="744" height="330" fill="#FFFFFF"/>
+<rect x="816" y="125" width="744" height="5" fill="#2447D8"/>
+<text x="840" y="166" class="t">2 / Open the retained quotation</text>
+<text x="840" y="205" class="label">FEEDBACK V2 · PINNED BY THIS CONCERN</text>
+<path d="M840 227V308" stroke="#2447D8" stroke-width="4"/><text x="858" y="253" class="body">Exact reviewer text from the saved normalized version.</text><text x="858" y="284" class="body">Its source identity and range remain unchanged.</text>
+<path d="M840 329H1536" class="line"/>
+<text x="840" y="366" class="body blue">Latest supplied feedback v3 → inspect separately</text>
+<text x="840" y="420" class="small muted">Browsing ≠ reanchoring. Feedback ≠ scientific evidence.</text>
+<!-- row 2 -->
+<rect x="40" y="479" width="744" height="382" fill="#FFFFFF"/>
+<text x="64" y="522" class="t">3 / Follow only recorded associations</text>
+<text x="64" y="562" class="body" font-weight="600">Shared action / kind / reviewed outcome</text>
+<path d="M85 583V725M85 611H117M85 697H117" fill="none" stroke="#8392AC" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="134" y="611" class="label">EVIDENCE BRANCH</text><text x="134" y="642" class="body">Claim + classification/date + exact source/file origin</text>
+<text x="134" y="697" class="label">TARGET BRANCH</text><text x="134" y="728" class="body">Saved section/revision/digest + optional exact passage</text>
+<text x="64" y="778" class="small muted">Two branches do not assert that the source generated the revision.</text>
+<text x="64" y="815" class="small amber">New-data/new-analysis: missing required observed-result support stays open.</text>
+<rect x="816" y="479" width="744" height="382" fill="#FFFFFF"/>
+<text x="840" y="522" class="t">4 / Inspect response and human decision</text>
+<text x="840" y="563" class="label">SAVED RESPONSE REVISION</text><text x="840" y="598" class="body">Actual response text, citations and missing inputs.</text>
+<path d="M840 622H1536" class="line"/>
+<text x="840" y="658" class="body">Human completion / exact input fingerprint</text>
+<rect x="840" y="683" width="696" height="74" fill="#FFF1D5"/><text x="857" y="713" class="label amber">REVIEW CONDITIONS STAY EXPLICIT</text><text x="857" y="739" class="small amber">Saving or exporting never resolves a concern by itself.</text>
+<text x="840" y="815" class="small muted">Recorded associations do not establish scientific entailment.</text>
+<!-- row 3 -->
+<rect x="40" y="885" width="744" height="341" fill="#FFFFFF"/>
+<text x="64" y="928" class="t">5 / Show the changed dependency</text>
+<rect x="64" y="954" width="336" height="118" fill="#F6F8FC"/><text x="80" y="986" class="label">PINNED TARGET</text><text x="80" y="1020" class="body">Methods / retained revision</text><text x="80" y="1051" class="small muted">Used by prior human decision</text>
+<rect x="416" y="954" width="344" height="118" fill="#FFF1D5"/><text x="432" y="986" class="label amber">CURRENT TARGET</text><text x="432" y="1020" class="body amber">New saved revision</text><text x="432" y="1051" class="small amber">Inspect before re-review</text>
+<text x="64" y="1113" class="small">Affected decision: Needs review. Other rows follow real dependencies.</text>
+<text x="64" y="1145" class="small muted">Project/call changes can invalidate more broadly.</text>
+<text x="64" y="1191" class="small muted">If cause is not reported, show observable differences, not a guessed cause.</text>
+<rect x="816" y="885" width="744" height="341" fill="#FFFFFF"/>
+<text x="840" y="928" class="t">6 / Review again; preserve history</text>
+<text x="840" y="976" class="body">Explicit save / reanchor / human review commands</text>
+<text x="840" y="1016" class="body">Current working inputs remain separate from frozen history.</text>
+<path d="M840 1040H1536" class="line"/>
+<text x="840" y="1080" class="label">RETAINED INTERNAL PACKET</text><text x="840" y="1114" class="body blue">Original Markdown / JSON bytes →</text>
+<text x="840" y="1153" class="small muted">Old packet is not regenerated from current text.</text>
+<text x="840" y="1191" class="small muted">Return to the editor with buffers, source scope and focus intact.</text>
+<text x="40" y="1280" class="label">REAL CONTRACTS</text><text x="40" y="1312" class="small muted">Concern citations · RevisionAction.fields.concernIds · EvidenceLink · RevisionLink · Response / Completion</text>
+<text x="40" y="1344" class="small muted">Ordinary proposal citations are section-level; this plan does not invent sentence-level evidence edges or new backend truth.</text>
+</svg>

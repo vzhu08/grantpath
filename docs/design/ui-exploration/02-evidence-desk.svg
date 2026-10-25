@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1366" height="1030" viewBox="0 0 1366 1030" role="img" aria-labelledby="title desc">
+<title id="title">Evidence Desk: actual 1366 by 768 viewport study</title>
+<desc id="desc">Static planning wireframe with a 768-pixel-high application viewport above a separate annotation band. The next action and saved response/human decision summary fit in the first viewport. Illustrative synthetic text only.</desc>
+<defs><style>text{font-family:'Segoe UI',Arial,sans-serif;fill:#15213B}.h{font:28px Georgia,serif}.body{font-size:16px}.small{font-size:14px}.label{font-size:14px;font-weight:600}.white{fill:#E9EFFB}.muted{fill:#52617A}.blue{fill:#2447D8}.amber{fill:#805100}.line{stroke:#CCD5E4;stroke-width:1}</style></defs>
+<rect width="1366" height="1030" fill="#EFF3F9"/>
+<!-- application viewport: exactly 1366x768 -->
+<rect width="176" height="768" fill="#15213B"/>
+<text x="16" y="43" style="font:27px Georgia,serif;fill:#FFFFFF">GrantPath</text><text x="16" y="72" class="small white">EVIDENCE DESK</text>
+<path d="M16 94H160" stroke="#52617A"/>
+<text x="16" y="135" class="body white">Project &amp; sources</text><text x="16" y="183" class="body white">Opportunities</text><text x="16" y="231" class="body white">Application plan</text><text x="16" y="279" class="body white">Proposal</text>
+<rect x="0" y="303" width="176" height="48" fill="#2447D8"/><text x="16" y="334" class="body white">Revision &amp; review</text>
+<text x="16" y="389" class="body white">Award &amp; progress</text><text x="16" y="437" class="body white">Finance &amp; reports</text>
+<text x="16" y="692" class="small white">Synthetic example</text><text x="16" y="724" class="small white">Local · single user</text>
+<rect x="176" y="0" width="1190" height="72" fill="#FFFFFF"/>
+<text x="200" y="27" class="small muted">Waterway sensors / Waterways Seed Research Award</text><text x="200" y="55" class="body" font-weight="600">Target cycle / Working revision</text><text x="710" y="55" class="small muted">Original: attested snapshot</text><text x="1170" y="28" class="small">Saved workspace</text><text x="1170" y="55" class="small muted">Local · Preparing</text>
+<path d="M176 72H1366" class="line"/>
+<text x="200" y="106" class="label blue">CONCERNS ↓</text><text x="337" y="106" class="small muted">Methods evidence / selected concern</text>
+<text x="200" y="151" class="h">Recheck the Methods response</text>
+<rect x="725" y="124" width="233" height="44" rx="4" fill="#2447D8"/><text x="744" y="152" class="label white">Inspect newer revision →</text>
+<rect x="200" y="185" width="758" height="52" fill="#FFF1D5"/><rect x="200" y="185" width="4" height="52" fill="#805100"/>
+<text x="220" y="207" class="label amber">NEEDS REVIEW</text><text x="220" y="228" class="small amber">A saved target revision differs from this recorded decision. Inspect before re-review.</text>
+<rect x="200" y="253" width="758" height="491" fill="#FFFFFF"/>
+<text x="224" y="282" class="small muted">RETAINED REVIEWER QUOTATION · FEEDBACK V2</text><path d="M224 296V349" stroke="#2447D8" stroke-width="3"/>
+<text x="240" y="320" style="font:20px Georgia,serif">“Illustrative reviewer passage about the methods.”</text><text x="240" y="345" class="small blue">Inspect retained quotation →</text>
+<path d="M224 366H934" class="line"/>
+<text x="224" y="396" class="body" font-weight="600">Recorded shared action / clarify the method</text>
+<path d="M236 413V506M236 438H265M236 488H265" fill="none" stroke="#8392AC" stroke-width="2"/>
+<text x="278" y="438" class="label">EVIDENCE</text><text x="278" y="461" class="body blue">Exact source passage v2 / retained file v1 →</text>
+<text x="278" y="494" class="label">PINNED TARGET</text><text x="278" y="517" class="body blue">Methods / saved revision →</text>
+<path d="M224 538H934" class="line"/>
+<text x="224" y="568" class="body" font-weight="600">Saved response / human decision</text><text x="224" y="596" class="body">Concise saved response summary; open full text for reading or editing.</text><text x="224" y="624" class="small amber">Prior human decision needs review against current inputs.</text>
+<text x="224" y="658" class="small blue">Open full response →         Inspect completion conditions →</text><path d="M224 678H934" class="line"/>
+<text x="224" y="711" class="small blue">Retained internal packet / original Markdown and JSON →</text>
+<text x="224" y="733" class="small muted">A saved response or download never resolves a concern by itself.</text>
+<rect x="982" y="96" width="360" height="648" fill="#FFFFFF" stroke="#8392AC"/><rect x="982" y="96" width="360" height="5" fill="#2447D8"/>
+<text x="1006" y="132" class="label">SOURCE FOLIO</text><text x="1289" y="132" class="small blue">Close</text>
+<text x="1006" y="172" style="font:24px Georgia,serif">Retained evidence</text><text x="1006" y="205" class="body" font-weight="600">Pinned v2 used by this action</text><text x="1006" y="232" class="small muted">Reviewed excerpt / original file v1</text>
+<path d="M1006 251H1318" class="line"/><text x="1006" y="281" class="label">EXACT NORMALIZED PASSAGE</text><path d="M1006 298V425" stroke="#2447D8" stroke-width="3"/>
+<text x="1020" y="326" class="body">Illustrative retained source text.</text><text x="1020" y="354" class="body">The saved range opens in its</text><text x="1020" y="382" class="body">retained version, never the latest</text><text x="1020" y="410" class="body">replacement by silent substitution.</text>
+<text x="1006" y="458" class="small blue">Download cited original →</text><text x="1006" y="491" class="small muted">Exact origin / hash / offsets ↓</text><path d="M1006 513H1318" class="line"/>
+<text x="1006" y="545" class="label">LATEST SUPPLIED VERSION</text><text x="1006" y="577" class="body">v3 / inspect separately</text>
+<rect x="1006" y="600" width="312" height="44" rx="4" fill="#FFFFFF" stroke="#8392AC"/><text x="1020" y="628" class="label blue">Compare retained and latest</text>
+<text x="1006" y="678" class="small muted">Browsing does not change a saved link.</text><text x="1006" y="710" class="small muted">Explicit reanchor/save remains separate.</text>
+<path d="M0 768H1366" stroke="#2447D8" stroke-width="3"/>
+<text x="24" y="808" class="label">END OF 1366 × 768 APPLICATION VIEWPORT / ANNOTATIONS BELOW</text>
+<text x="24" y="845" style="font:27px Georgia,serif">Static phase-1 planning study</text>
+<text x="24" y="882" class="body">Next action, exact concern, two support branches and response/decision summary are visible before scrolling.</text>
+<text x="24" y="913" class="body">176px rail + 24px gutters · 758px active work + 24px gap + 360px optional source folio.</text>
+<text x="24" y="944" class="body">One temporary local index. No fourth column. Full passages/history can continue below the first viewport.</text>
+<text x="24" y="975" class="small muted">Illustrative synthetic labels. Only accepted features appear at implementation. No live app, fixture or runtime proof.</text>
+<text x="24" y="1006" class="small muted">Actual first-viewport fit, fallback font metrics, focus and dirty-buffer behavior remain phase-2 rendered checks.</text>
+</svg>
