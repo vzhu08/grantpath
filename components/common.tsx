@@ -158,7 +158,7 @@ export function CitationView({
             {version.fileOrigin.manualEdit
               ? "Manually edited evidence; original origin retained"
               : "Reviewed original-file excerpt"}{" "}
-            � reviewed by {version.fileOrigin.reviewedBy}. Full extraction
+             -  reviewed by {version.fileOrigin.reviewedBy}. Full extraction
             offsets [{version.fileOrigin.start}, {version.fileOrigin.end}).
           </p>
           <a

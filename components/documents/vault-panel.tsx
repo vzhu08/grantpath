@@ -407,14 +407,14 @@ function VersionView(props: Props & { document: Document; versionId: string }) {
                 const origin = v.fileOrigin!;
                 return (
                   <p key={v.version}>
-                    Evidence source v{v.version} � extraction{" "}
-                    {origin.parseAttemptId} � offsets {origin.start}�
-                    {origin.end} � reviewed by {origin.reviewedBy}
+                    Evidence source v{v.version}  -  extraction{" "}
+                    {origin.parseAttemptId}  -  offsets {origin.start} - 
+                    {origin.end}  -  reviewed by {origin.reviewedBy}
                     {origin.manualEdit
-                      ? " � manually edited source revision"
-                      : " � exact reviewed excerpt"}
+                      ? "  -  manually edited source revision"
+                      : "  -  exact reviewed excerpt"}
                     {origin.reviewedHeadId !== props.document.versionIds.at(-1)
-                      ? " � original file head changed; review required"
+                      ? "  -  original file head changed; review required"
                       : ""}
                   </p>
                 );
