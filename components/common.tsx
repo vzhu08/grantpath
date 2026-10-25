@@ -10,7 +10,7 @@ import {
   useState,
   type ReactElement,
 } from "react";
-import { latest, sourceDocument } from "../lib/evidence";
+import { latest, sourceDocument, citationStale } from "../lib/evidence";
 import {
   DeadlineSchema,
   unknownDeadline,
@@ -152,6 +152,31 @@ export function CitationView({
         ){latest(source).version !== citation.version ? " · STALE" : ""}
       </summary>
       <blockquote>{citation.quote}</blockquote>
+      {version.fileOrigin && (
+        <div className="muted">
+          <p>
+            {version.fileOrigin.manualEdit
+              ? "Manually edited evidence; original origin retained"
+              : "Reviewed original-file excerpt"}{" "}
+            � reviewed by {version.fileOrigin.reviewedBy}. Full extraction
+            offsets [{version.fileOrigin.start}, {version.fileOrigin.end}).
+          </p>
+          <a
+            href={`/api/documents/${version.fileOrigin.documentId}/versions/${version.fileOrigin.documentVersionId}/download`}
+          >
+            Download the cited original file version
+          </a>
+          <details>
+            <summary>File extraction trace</summary>
+            <p>Extraction attempt: {version.fileOrigin.parseAttemptId}</p>
+            <p style={{ overflowWrap: "anywhere" }}>
+              Full-artifact SHA-256: {version.fileOrigin.artifactSha256}
+            </p>
+            <p>{version.fileOrigin.reason}</p>
+          </details>
+        </div>
+      )}
+
       <p className="muted">
         Hash {citation.hash}. Provenance, not independent verification.
       </p>

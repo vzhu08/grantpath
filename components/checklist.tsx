@@ -1,4 +1,7 @@
 "use client";
+import { AttachmentPicker } from "./documents/attachment-picker";
+import { HandoffPanel } from "./handoffs/handoff-panel";
+import { PhaseSchema } from "../lib/vault/schema";
 import { useEffect, useState } from "react";
 import { cite } from "../lib/evidence";
 import { calendarEvent, agendaStatus, deadlineLabel } from "../lib/calendar";
@@ -64,6 +67,23 @@ function RequirementEditor(
   function edit(key: string, value: unknown) {
     setItem({ ...item, [key]: value });
     markDirty(true);
+  }
+  function editVault(key: string, value: unknown) {
+    edit("vault", {
+      delivery: "unknown",
+      phase: "unknown",
+      requiredDate: null,
+      allowedMime: [],
+      maxBytes: null,
+      maxPages: null,
+      manualRules: "",
+      ethicsRecordId: null,
+      settingsSource: "",
+      officialUrl: "",
+      checkedDate: null,
+      ...item.vault,
+      [key]: value,
+    });
   }
   async function save(e: React.FormEvent) {
     e.preventDefault();
@@ -161,6 +181,128 @@ function RequirementEditor(
           />
         </Field>
       </div>
+      <fieldset className="form-stack">
+        <legend>Delivery, phase and attachment rules</legend>
+        <p className="muted">
+          Save the call instruction or a visible manual choice. A Ready label
+          never supplies a file.
+        </p>
+        <Field label="Delivery method">
+          <select
+            value={item.vault?.delivery ?? "unknown"}
+            onChange={(e) => editVault("delivery", e.target.value)}
+          >
+            {[
+              "unknown",
+              "file-upload",
+              "portal-text",
+              "external-record",
+              "task",
+            ].map((v) => (
+              <option key={v}>{v}</option>
+            ))}
+          </select>
+        </Field>
+        <Field label="Required phase">
+          <select
+            value={item.vault?.phase ?? "unknown"}
+            onChange={(e) => editVault("phase", e.target.value)}
+          >
+            {PhaseSchema.options.map((v) => (
+              <option key={v}>{v}</option>
+            ))}
+          </select>
+        </Field>
+        <Field label="Required date if specific">
+          <input
+            type="date"
+            value={item.vault?.requiredDate ?? ""}
+            onChange={(e) => editVault("requiredDate", e.target.value || null)}
+          />
+        </Field>
+        <Field label="Allowed attachment format">
+          <select
+            value={item.vault?.allowedMime[0] ?? ""}
+            onChange={(e) =>
+              editVault("allowedMime", e.target.value ? [e.target.value] : [])
+            }
+          >
+            <option value="">Unspecified / manual check</option>
+            <option value="application/pdf">PDF required</option>
+            <option value="application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+              DOCX required
+            </option>
+            <option value="text/plain">TXT required</option>
+            <option value="text/markdown">Markdown required</option>
+          </select>
+        </Field>
+        <Field label="Maximum bytes">
+          <input
+            type="number"
+            min="1"
+            max="10000000"
+            value={item.vault?.maxBytes ?? ""}
+            onChange={(e) =>
+              editVault("maxBytes", numberOrNull(e.target.value))
+            }
+          />
+        </Field>
+        <Field label="Maximum PDF pages">
+          <input
+            type="number"
+            min="1"
+            max="100"
+            value={item.vault?.maxPages ?? ""}
+            onChange={(e) =>
+              editVault("maxPages", numberOrNull(e.target.value))
+            }
+          />
+        </Field>
+        <Field label="Manual format checks (fonts, margins, signatures, content)">
+          <textarea
+            value={item.vault?.manualRules ?? ""}
+            onChange={(e) => editVault("manualRules", e.target.value)}
+          />
+        </Field>
+        <Field label="Saved instruction or manual override basis">
+          <textarea
+            value={item.vault?.settingsSource ?? ""}
+            onChange={(e) => editVault("settingsSource", e.target.value)}
+          />
+        </Field>
+        <Field label="Official instruction URL">
+          <input
+            type="url"
+            value={item.vault?.officialUrl ?? ""}
+            onChange={(e) => editVault("officialUrl", e.target.value)}
+          />
+        </Field>
+        <Field label="Date instruction checked">
+          <input
+            type="date"
+            value={item.vault?.checkedDate ?? ""}
+            onChange={(e) => editVault("checkedDate", e.target.value || null)}
+          />
+        </Field>
+        <Field label="Linked ethics record">
+          <select
+            value={item.vault?.ethicsRecordId ?? ""}
+            onChange={(e) =>
+              editVault("ethicsRecordId", e.target.value || null)
+            }
+          >
+            <option value="">None</option>
+            {props.state.ethicsRecords
+              .filter((r) => r.projectId === props.app.projectId)
+              .map((r) => (
+                <option key={r.id} value={r.id}>
+                  {r.revisions.at(-1)?.category} �{" "}
+                  {r.revisions.at(-1)?.reference}
+                </option>
+              ))}
+          </select>
+        </Field>
+      </fieldset>
       <Field
         label="Exact call quotation"
         hint="Paste exact normalized source text. Unsupported overrides remain visibly user-entered."
@@ -367,6 +509,14 @@ export function Checklist(
                   <RequirementEditor {...props} item={req} key={req.id} />
                 </details>
               </div>
+              {req.category === "document" && (
+                <AttachmentPicker {...props} requirement={req} />
+              )}
+              {req.vault && (
+                <p className="muted">
+                  {req.vault.delivery} � needed {req.vault.phase}
+                </p>
+              )}
               {req.note && <p className="muted">Note: {req.note}</p>}
             </article>
           ))}
@@ -432,54 +582,57 @@ export function Checklist(
           </details>
         )}
       </section>
-      <section className="card agenda">
-        <p className="eyebrow">DATES & NEXT STEPS</p>
-        <h2>Application agenda</h2>
-        <p className="muted">
-          Date display basis: {WORKSPACE_TIMEZONE}. Reminders are in-app entries
-          only. Calendar import is a one-time snapshot.
-        </p>
-        {["Overdue", "Upcoming", "Unresolved date"].map((group) => (
-          <div className="agenda-group" key={group}>
-            <h3>{group}</h3>
-            {events
-              .filter((e) => agendaStatus(e.deadline) === group)
-              .map((event) => (
-                <article key={event.id}>
-                  <strong>{event.title}</strong>
-                  <p>{deadlineLabel(event.deadline)}</p>
-                  {event.deadline.kind !== "unknown" ? (
-                    <button
-                      className="text-button"
-                      onClick={() =>
-                        exportEvent(
-                          event.id,
-                          event.title,
-                          event.description,
-                          event.deadline,
-                        )
-                      }
-                    >
-                      Export this event (.ics) ↗
-                    </button>
-                  ) : (
-                    <span className="muted">
-                      Confirm date before calendar export
-                    </span>
-                  )}
-                </article>
-              ))}
-            {!events.some((e) => agendaStatus(e.deadline) === group) && (
-              <p className="muted">No items.</p>
-            )}
-          </div>
-        ))}
-        {error && (
-          <p className="error" role="alert">
-            {error}
+      <div>
+        <HandoffPanel {...props} />
+        <section className="card agenda">
+          <p className="eyebrow">DATES & NEXT STEPS</p>
+          <h2>Application agenda</h2>
+          <p className="muted">
+            Date display basis: {WORKSPACE_TIMEZONE}. Reminders are in-app
+            entries only. Calendar import is a one-time snapshot.
           </p>
-        )}
-      </section>
+          {["Overdue", "Upcoming", "Unresolved date"].map((group) => (
+            <div className="agenda-group" key={group}>
+              <h3>{group}</h3>
+              {events
+                .filter((e) => agendaStatus(e.deadline) === group)
+                .map((event) => (
+                  <article key={event.id}>
+                    <strong>{event.title}</strong>
+                    <p>{deadlineLabel(event.deadline)}</p>
+                    {event.deadline.kind !== "unknown" ? (
+                      <button
+                        className="text-button"
+                        onClick={() =>
+                          exportEvent(
+                            event.id,
+                            event.title,
+                            event.description,
+                            event.deadline,
+                          )
+                        }
+                      >
+                        Export this event (.ics) ↗
+                      </button>
+                    ) : (
+                      <span className="muted">
+                        Confirm date before calendar export
+                      </span>
+                    )}
+                  </article>
+                ))}
+              {!events.some((e) => agendaStatus(e.deadline) === group) && (
+                <p className="muted">No items.</p>
+              )}
+            </div>
+          ))}
+          {error && (
+            <p className="error" role="alert">
+              {error}
+            </p>
+          )}
+        </section>
+      </div>
     </div>
   );
 }

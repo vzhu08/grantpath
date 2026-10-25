@@ -1,4 +1,9 @@
-import { RequirementVaultSchema, FileOriginSchema, VaultCollections, VaultCommandOptions } from "./vault/schema";
+import {
+  RequirementVaultSchema,
+  FileOriginSchema,
+  VaultCollections,
+  VaultCommandOptions,
+} from "./vault/schema";
 import { z } from "zod";
 import { ProposalBlockSchema } from "./proposals/blocks";
 import {
@@ -453,7 +458,10 @@ export const V2StateSchema = z.object({
   packetSnapshots: z.array(PacketSnapshotSchema).default([]),
   proposalExports: z.array(ProposalExportSchema).default([]),
 });
-export const StateSchema = V2StateSchema.extend({ schemaVersion: z.literal(3), ...VaultCollections });
+export const StateSchema = V2StateSchema.extend({
+  schemaVersion: z.literal(3),
+  ...VaultCollections,
+});
 export type State = z.infer<typeof StateSchema>;
 export const ProposalSchema = z.object({
   text: text.min(1),

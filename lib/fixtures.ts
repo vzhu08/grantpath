@@ -144,7 +144,14 @@ export function createDemo(): State {
   });
   return {
     schemaVersion: 3,
-    documents: [], documentVersions: [], parseAttempts: [], attachmentSelections: [], ethicsRecords: [], ethicsTasks: [], handoffs: [], operationReceipts: [],
+    documents: [],
+    documentVersions: [],
+    parseAttempts: [],
+    attachmentSelections: [],
+    ethicsRecords: [],
+    ethicsTasks: [],
+    handoffs: [],
+    operationReceipts: [],
     contentLibrary: [],
     packetSnapshots: [],
     proposalExports: [],

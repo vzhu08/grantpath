@@ -1,3 +1,4 @@
+import { sourceFileStale } from "./vault/domain";
 import { normalizeText } from "../modules/documents/src/index";
 import { validateCitation } from "../packages/contracts/src/index";
 import {
@@ -62,7 +63,8 @@ export function citationStale(c: Citation, state: State) {
   return (
     !source ||
     latest(source).version !== c.version ||
-    latest(source).hash !== c.hash
+    latest(source).hash !== c.hash ||
+    sourceFileStale(source, state)
   );
 }
 export function newSource(input: {
