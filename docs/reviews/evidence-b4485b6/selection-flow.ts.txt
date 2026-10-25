@@ -1,0 +1,30 @@
+import assert from 'node:assert/strict';
+import { readFile,writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { attachmentIssues } from '../../lib/vault/domain';
+const root='.test-data/infra-review-b4485b6';
+const result=JSON.parse(await readFile(`${root}/result.json`,'utf8'));
+const origin='http://127.0.0.1:3120';
+async function get(){const r=await fetch(origin+'/api/workspace');assert.equal(r.status,200);return r.json();}
+async function mutate(command:any){const s=await get();const r=await fetch(origin+'/api/workspace',{method:'POST',headers:{origin,'content-type':'application/json'},body:JSON.stringify({expectedRevision:s.revision,command})});assert.equal(r.status,200,await r.clone().text());return (await r.json()).state;}
+let s=await get();const appId=result.workflow.appId;const app=s.applications.find((a:any)=>a.id===appId);const req=app.requirements.find((r:any)=>r.category==='document');
+await mutate({type:'saveRequirement',applicationId:appId,requirement:{...req,review:'confirmed',status:'Ready',vault:{delivery:'file-upload',phase:'application',requiredDate:null,allowedMime:['text/plain'],maxBytes:10000000,maxPages:null,manualRules:'Synthetic reviewer checked original',ethicsRecordId:null,settingsSource:'Synthetic test instruction',officialUrl:'',checkedDate:null}}});
+s=await mutate({type:'selectAttachment',applicationId:appId,requirementId:req.id,documentVersionId:result.workflow.versionId});
+const sel=s.attachmentSelections.at(-1);
+s=await mutate({type:'reviewAttachment',applicationId:appId,selectionId:sel.id,decision:'accepted',readable:true,relevant:true,manualRulesChecked:true,by:'Synthetic reviewer',reason:'Reviewed selected original against synthetic file rule'});
+assert.deepEqual(attachmentIssues(s,s.applications.find((a:any)=>a.id===appId),s.applications.find((a:any)=>a.id===appId).requirements.find((r:any)=>r.id===req.id)),[]);
+const bytes=Buffer.from('Third synthetic version makes pinned review stale.');
+const meta={projectId:'demo-project',documentId:result.workflow.documentId,filename:'evidence.txt',claimedMime:'text/plain',title:'Infrastructure synthetic evidence',category:'Methods',owner:'Synthetic reviewer',expectedRevision:s.revision,idempotencyKey:'infra-text-three'};
+const ur=await fetch(origin+'/api/documents',{method:'POST',headers:{origin,'content-type':'application/octet-stream','x-upload-metadata':Buffer.from(JSON.stringify(meta)).toString('base64url')},body:bytes});assert.equal(ur.status,201);
+for(let i=0;i<100;i++){s=await get();if(!s.parseAttempts.some((p:any)=>['pending','running'].includes(p.status)))break;await new Promise(r=>setTimeout(r,100));}
+assert(!s.parseAttempts.some((p:any)=>['pending','running'].includes(p.status)));
+const issues=attachmentIssues(s,s.applications.find((a:any)=>a.id===appId),s.applications.find((a:any)=>a.id===appId).requirements.find((r:any)=>r.id===req.id));assert(issues.some(x=>x.includes('newer version')));
+const hr=await fetch(`${origin}/api/applications/${appId}/handoffs`,{method:'POST',headers:{origin,'content-type':'application/json'},body:JSON.stringify({expectedRevision:s.revision,phase:'application',idempotencyKey:'infra-handoff-pinned'})});assert.equal(hr.status,201);const h=await hr.json();
+const mr=await fetch(`${origin}/api/applications/${appId}/handoffs/${h.handoffId}`);assert.equal(mr.status,200);const manifest=await mr.json();assert.equal(manifest.snapshot.files[0].documentVersionId,result.workflow.versionId);
+const fileUrl=`/api/applications/${appId}/handoffs/${h.handoffId}/${result.workflow.versionId}/download?requirementId=${encodeURIComponent(req.id)}`;
+const dr=await fetch(origin+fileUrl);assert.equal(dr.status,200);const hash=createHash('sha256').update(Buffer.from(await dr.arrayBuffer())).digest('hex');assert.equal(hash,result.workflow.firstSha256);
+const foreign=await fetch(origin+fileUrl.replace(encodeURIComponent(req.id),'foreign'));assert.equal(foreign.status,404);
+result.selection={requirementId:req.id,selectionId:sel.id,pinnedVersionId:result.workflow.versionId,documentVersions:3,reviewBeforeReplacement:'accepted',reviewAfterReplacement:issues,handoffId:h.handoffId,downloadPath:fileUrl,sha256:hash,foreignRequirementStatus:foreign.status};
+await writeFile(`${root}/result.json`,JSON.stringify(result,null,2));
+await writeFile(`${root}/before-restart-state.json`,JSON.stringify(await get(),null,2));
+console.log(JSON.stringify(result.selection,null,2));

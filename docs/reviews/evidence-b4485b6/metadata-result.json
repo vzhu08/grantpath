@@ -1,0 +1,17 @@
+{
+  "sourceRevision": "b4485b6730dac3585a33ebc1e1bfe739af20cc21",
+  "probe": "direct actual route Request/Response; parsing fails before repository access",
+  "metadata": "ew",
+  "decoded": "{",
+  "body": "x",
+  "expectedInputStatus": 400,
+  "actualStatus": 500,
+  "response": {
+    "error": {
+      "code": "INTERNAL_ERROR",
+      "message": "The request failed.",
+      "requestId": "bf013007-bd2e-42f5-93e8-c3183fae7aa3",
+      "retryable": false
+    }
+  }
+}

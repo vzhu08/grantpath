@@ -1,0 +1,53 @@
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { writeFile } from 'node:fs/promises';
+import { createDemo } from '../../lib/fixtures';
+import { applyCommand } from '../../lib/repository';
+import { StateSchema, type State } from '../../lib/schema';
+import { validateVaultState, sourceFileStale } from '../../lib/vault/domain';
+import { validateStateIntegrity } from '../../lib/proposals/workflow';
+import { cite, newSource, latest } from '../../lib/evidence';
+import { readiness } from '../../lib/readiness';
+import { generationContext } from '../../lib/generation';
+let s: State = createDemo();
+const at = new Date().toISOString();
+const text = 'A synthetic reviewed passage.';
+const hash = createHash('sha256').update(text).digest('hex');
+function command(c: any) { const r=applyCommand(s,{expectedRevision:s.revision,command:c}); s=r.state; return r.selectedId; }
+const appId=command({type:'saveApplication',projectId:'demo-project',opportunityId:'demo-call-1'})!;
+s.documents.push({id:'pure-doc',projectId:'demo-project',title:'Synthetic methods',category:'Methods',owner:'Synthetic reviewer',tags:[],provenance:'researcher',archivedAt:null,versionIds:['pure-version-1'],createdAt:at});
+s.documentVersions.push({id:'pure-version-1',documentId:'pure-doc',version:1,filename:'synthetic.txt',mime:'text/plain',bytes:Buffer.byteLength(text),sha256:hash,createdAt:at,documentDate:null,integrity:'available'});
+s.parseAttempts.push({id:'pure-parse',documentVersionId:'pure-version-1',parser:'documents-local-v1',status:'parsed',warnings:[],artifactSha256:hash,textLength:text.length,segments:[{start:0,end:text.length}],pages:null,startedAt:at,finishedAt:at});
+const source=newSource({id:'pure-source',projectId:'demo-project',title:'Reviewed synthetic excerpt',type:'methods',text,provenance:'researcher'});
+source.versions[0]!.fileOrigin={documentId:'pure-doc',documentVersionId:'pure-version-1',parseAttemptId:'pure-parse',artifactSha256:hash,start:0,end:text.length,reviewedHeadId:'pure-version-1',reviewedBy:'Synthetic reviewer',reviewedAt:at,reason:'Reviewed synthetic original',manualEdit:false};
+s.sources.push(source);
+for (const req of [...s.applications[0]!.requirements]) {
+  command({type:'saveRequirement',applicationId:appId,requirement:{...req,review:'confirmed',status:'Ready',...(req.category==='section'?{}:{vault:{delivery:'external-record',phase:'application',requiredDate:null,allowedMime:[],maxBytes:null,maxPages:null,manualRules:'Synthetic manually recorded prerequisite',ethicsRecordId:null,settingsSource:'Synthetic test',officialUrl:'',checkedDate:null}})}});
+}
+command({type:'reviewRequirements',applicationId:appId});
+for(const section of s.applications[0]!.sections) command({type:'saveDraft',applicationId:appId,sectionKey:section.key,label:section.label,wordLimit:section.wordLimit,text:'We propose work based on the synthetic reviewed passage.',sourceIds:[source.id],citations:section.key==='summary'?[cite(source,text)]:[]});
+s=validateVaultState(validateStateIntegrity(StateSchema.parse(s)));
+const baseline=readiness(s,s.applications[0]!);
+assert.equal(baseline.blockers,0,JSON.stringify(baseline.issues));
+const variants:any[]=[];
+for(const integrity of ['corrupt','missing'] as const) {
+  const changed=structuredClone(s);changed.documentVersions[0]!.integrity=integrity;
+  validateVaultState(validateStateIntegrity(StateSchema.parse(changed)));
+  const result=readiness(changed,changed.applications[0]!);
+  let generation='allowed';try{generationContext(changed,{applicationId:appId,sectionKey:'summary',sourceIds:[source.id],expectedRevision:changed.revision,mode:'live',confirmUsage:true});}catch(e:any){generation=e.code;}
+  assert.equal(result.blockers,0);assert.equal(generation,'EVIDENCE_REVIEW');
+  const accepted=applyCommand(changed,{expectedRevision:changed.revision,command:{type:'setStage',applicationId:appId,stage:'Ready for review'}});
+  assert.equal(accepted.state.applications[0]!.stage,'Ready for review');
+  variants.push({integrity,blockers:result.blockers,stage:accepted.state.applications[0]!.stage,generation,addedIssues:result.issues.filter(i=>!baseline.issues.some(j=>j.id===i.id)).map(i=>i.id)});
+}
+const replacement=structuredClone(s);
+replacement.documents[0]!.versionIds.push('pure-version-2');
+replacement.documentVersions.push({...replacement.documentVersions[0]!,id:'pure-version-2',version:2});
+validateVaultState(validateStateIntegrity(StateSchema.parse(replacement)));
+const stale=readiness(replacement,replacement.applications[0]!);
+assert(sourceFileStale(replacement.sources.find(x=>x.id===source.id)!,replacement));
+assert(stale.issues.some(i=>i.id==='citations-stale-summary'));
+assert(!stale.issues.some(i=>['sources-significance','sources-approach'].includes(i.id)));
+const out={sourceRevision:'b4485b6730dac3585a33ebc1e1bfe739af20cc21',probe:'pure source functions; no disk repository/parser/server/provider',validatedBy:['StateSchema','validateStateIntegrity','validateVaultState'],baseline:{blockers:baseline.blockers,issueIds:baseline.issues.map(i=>i.id)},variants,replacement:{sourceFileStale:true,issueIds:stale.issues.map(i=>i.id),selectedOnlySectionsHaveStaleBlocker:false,sourceHeadUnchanged:latest(replacement.sources.find(x=>x.id===source.id)!).version===1}};
+await writeFile('.test-data/infra-review-b4485b6/pure-readiness-result.json',JSON.stringify(out,null,2));
+console.log(JSON.stringify(out,null,2));
