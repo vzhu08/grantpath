@@ -229,12 +229,14 @@ export function proposalIssues(
       );
   }
   const jobs = state.proposalExports
-    .filter((job) =>
-      state.packetSnapshots.some(
-        (snapshot) =>
-          snapshot.id === job.snapshotId &&
-          snapshotInputsMatch(snapshot, state, app),
-      ),
+    .filter(
+      (job) =>
+        job.runtimeRendererMatch === true &&
+        state.packetSnapshots.some(
+          (snapshot) =>
+            snapshot.id === job.snapshotId &&
+            snapshotInputsMatch(snapshot, state, app),
+        ),
     )
     .reverse();
   for (const group of exportComponentPlan(manifest, binding.answers).filter(

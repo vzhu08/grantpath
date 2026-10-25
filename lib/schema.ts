@@ -399,6 +399,7 @@ export const ExportArtifactSchema = z.object({
   pages: z.number().int().positive().nullable(),
 });
 export const ProposalExportSchema = z.object({
+  runtimeRendererMatch: z.boolean().optional(),
   id: Id,
   snapshotId: Id,
   jobKey: z.string(),

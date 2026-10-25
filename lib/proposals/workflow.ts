@@ -252,10 +252,26 @@ function copySupport(
       ...ref,
       sourceId: map.get(ref.sourceId) ?? ref.sourceId,
     })),
-    selectedSources: version.selectedSources.map((ref) => ({
-      ...ref,
-      sourceId: map.get(ref.sourceId) ?? ref.sourceId,
-    })),
+    selectedSources: [
+      ...new Map(
+        [
+          ...version.selectedSources,
+          ...version.citations
+            .filter((ref) => map.get(ref.sourceId) !== targetCall.sourceId)
+            .map((ref) => ({
+              sourceId: ref.sourceId,
+              version: ref.version,
+              hash: ref.hash,
+            })),
+        ].map((ref) => {
+          const mapped = {
+            ...ref,
+            sourceId: map.get(ref.sourceId) ?? ref.sourceId,
+          };
+          return [mapped.sourceId, mapped] as const;
+        }),
+      ).values(),
+    ],
   };
 }
 export function applyProposalCommand(
@@ -562,10 +578,24 @@ export function applyProposalCommand(
       );
       next.blocks = blocks;
       const removed = new Set(
-        old.citations.map(
-          (ref) =>
-            ref.sourceId + ":" + ref.version + ":" + ref.start + ":" + ref.end,
-        ),
+        old.citations.flatMap((ref) => {
+          const ids = [
+            ref.sourceId,
+            ...state.sources
+              .filter(
+                (source) =>
+                  source.projectId === app.projectId &&
+                  source.copyOrigin?.itemId === item.id &&
+                  source.copyOrigin.revision === old.revision &&
+                  source.copyOrigin.sourceId === ref.sourceId,
+              )
+              .map((source) => source.id),
+          ];
+          return ids.map(
+            (sourceId) =>
+              sourceId + ":" + ref.version + ":" + ref.start + ":" + ref.end,
+          );
+        }),
       );
       next.citations = [
         ...current!.citations.filter(
