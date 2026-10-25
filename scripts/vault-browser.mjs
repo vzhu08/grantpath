@@ -178,13 +178,11 @@ try {
     .locator("summary")
     .filter({ hasText: /^Upload a supporting document$/ })
     .click();
-  await library
-    .getByLabel("Original file", { exact: true })
-    .setInputFiles({
-      name: "cv.pdf",
-      mimeType: "application/pdf",
-      buffer: await readFile("modules/documents/fixtures/text.pdf"),
-    });
+  await library.getByLabel("Original file", { exact: true }).setInputFiles({
+    name: "cv.pdf",
+    mimeType: "application/pdf",
+    buffer: await readFile("modules/documents/fixtures/text.pdf"),
+  });
   await library
     .getByLabel("Document title", { exact: true })
     .first()
@@ -196,17 +194,21 @@ try {
   await library
     .getByRole("button", { name: "Upload original file", exact: true })
     .click();
-  assert.equal((await up).status(),201);
-  const uploadedState=await state(),uploadedDoc=uploadedState.documents.find(d=>d.projectId===projectId&&d.title==="CV synthetic");
-  const upload={documentId:uploadedDoc?.id,versionId:uploadedDoc?.versionIds.at(-1)};
+  assert.equal((await up).status(), 201);
+  const uploadedState = await state(),
+    uploadedDoc = uploadedState.documents.find(
+      (d) => d.projectId === projectId && d.title === "CV synthetic",
+    );
+  const upload = {
+    documentId: uploadedDoc?.id,
+    versionId: uploadedDoc?.versionIds.at(-1),
+  };
   assert(upload.versionId);
   await settled();
   await project();
-  let card = library
-    .locator("article.requirement")
-    .filter({
-      has: page.getByRole("heading", { name: "CV synthetic", exact: true }),
-    });
+  let card = library.locator("article.requirement").filter({
+    has: page.getByRole("heading", { name: "CV synthetic", exact: true }),
+  });
   await card
     .locator("summary")
     .filter({ hasText: /^Versions, original files/ })
@@ -312,11 +314,9 @@ try {
     [cvReq, upload.versionId],
     [letterReq, letter.versionId],
   ]) {
-    const item = page
-      .locator("article.requirement")
-      .filter({
-        has: page.getByRole("heading", { name: req.description, exact: true }),
-      });
+    const item = page.locator("article.requirement").filter({
+      has: page.getByRole("heading", { name: req.description, exact: true }),
+    });
     await item
       .getByLabel("Choose a project file version", { exact: true })
       .selectOption(versionId);
@@ -355,8 +355,8 @@ try {
   await page
     .getByRole("button", { name: "Save handoff snapshot", exact: true })
     .click();
-  assert.equal((await handoffResponse).status(),201);
-  const handoff={handoffId:(await state()).handoffs.at(-1)?.id};
+  assert.equal((await handoffResponse).status(), 201);
+  const handoff = { handoffId: (await state()).handoffs.at(-1)?.id };
   assert(handoff.handoffId);
   current = await state();
   const frozen = JSON.stringify(current.handoffs[0]);
@@ -378,11 +378,9 @@ try {
     .locator("nav")
     .getByRole("button", { name: /Project & evidence/ })
     .click();
-  card = library
-    .locator("article.requirement")
-    .filter({
-      has: page.getByRole("heading", { name: "CV synthetic", exact: true }),
-    });
+  card = library.locator("article.requirement").filter({
+    has: page.getByRole("heading", { name: "CV synthetic", exact: true }),
+  });
   await card
     .locator("summary")
     .filter({ hasText: /^Replace with a new version$/ })
@@ -403,6 +401,10 @@ try {
     .click();
   assert.equal((await replace).status(), 201);
   await settled();
+  await expect(card.getByText(/latest v2/)).toBeVisible();
+  await expect(
+    page.getByText("A newer workspace version is available", { exact: true }),
+  ).toHaveCount(0);
   current = await state();
   assert.equal(JSON.stringify(current.handoffs[0]), frozen);
   assert.equal(
@@ -442,15 +444,63 @@ try {
     assert.equal(sha(Buffer.from(await r.arrayBuffer())), f.sha256);
   }
   assert.deepEqual(errors, []);
-  const near=await PDFDocument.create(),font=await near.embedFont(StandardFonts.Helvetica);
-  for(let i=0;i<100;i++)near.addPage().drawText(`Synthetic responsiveness page ${i+1}`,{x:60,y:700,font,size:12});
-  const nearBytes=await near.save(),beforeProfile=await state();
-  const profileMeta={projectId,filename:"near-limit.pdf",claimedMime:"application/pdf",title:"Archived performance fixture",category:"Synthetic performance",owner:"Synthetic acceptance",expectedRevision:beforeProfile.revision,idempotencyKey:randomUUID()};
-  const admitted=await fetch(origin+"/api/documents",{method:"POST",headers:{origin,"content-type":"application/octet-stream","x-upload-metadata":Buffer.from(JSON.stringify(profileMeta)).toString("base64url")},body:nearBytes});assert.equal(admitted.status,201);const profiled=await admitted.json();
-  const during=await state(),parsingAtProbe=during.parseAttempts.some(a=>a.documentVersionId===profiled.versionId&&["pending","running"].includes(a.status));
-  const probeStarted=performance.now(),probe=await fetch(origin+"/api/health");assert.equal(probe.status,200);const healthDuringParseMs=performance.now()-probeStarted;
-  const afterProfile=await settled(),profileAttempt=afterProfile.parseAttempts.filter(a=>a.documentVersionId===profiled.versionId).at(-1);assert.equal(profileAttempt.status,"parsed");assert.equal(profileAttempt.pages,100);
-  await command({type:"archiveDocument",documentId:profiled.documentId,archived:true});
+  const near = await PDFDocument.create(),
+    font = await near.embedFont(StandardFonts.Helvetica);
+  for (let i = 0; i < 100; i++)
+    near
+      .addPage()
+      .drawText(`Synthetic responsiveness page ${i + 1}`, {
+        x: 60,
+        y: 700,
+        font,
+        size: 12,
+      });
+  const nearBytes = await near.save(),
+    beforeProfile = await state();
+  const profileMeta = {
+    projectId,
+    filename: "near-limit.pdf",
+    claimedMime: "application/pdf",
+    title: "Archived performance fixture",
+    category: "Synthetic performance",
+    owner: "Synthetic acceptance",
+    expectedRevision: beforeProfile.revision,
+    idempotencyKey: randomUUID(),
+  };
+  const admitted = await fetch(origin + "/api/documents", {
+    method: "POST",
+    headers: {
+      origin,
+      "content-type": "application/octet-stream",
+      "x-upload-metadata": Buffer.from(JSON.stringify(profileMeta)).toString(
+        "base64url",
+      ),
+    },
+    body: nearBytes,
+  });
+  assert.equal(admitted.status, 201);
+  const profiled = await admitted.json();
+  const during = await state(),
+    parsingAtProbe = during.parseAttempts.some(
+      (a) =>
+        a.documentVersionId === profiled.versionId &&
+        ["pending", "running"].includes(a.status),
+    );
+  const probeStarted = performance.now(),
+    probe = await fetch(origin + "/api/health");
+  assert.equal(probe.status, 200);
+  const healthDuringParseMs = performance.now() - probeStarted;
+  const afterProfile = await settled(),
+    profileAttempt = afterProfile.parseAttempts
+      .filter((a) => a.documentVersionId === profiled.versionId)
+      .at(-1);
+  assert.equal(profileAttempt.status, "parsed");
+  assert.equal(profileAttempt.pages, 100);
+  await command({
+    type: "archiveDocument",
+    documentId: profiled.documentId,
+    archived: true,
+  });
   await writeFile(
     "test-results/vault-browser-result.json",
     JSON.stringify(
@@ -474,7 +524,11 @@ try {
           "real process restart",
         ],
         errors,
-        performance:{parsingAtProbe,healthDuringParseMs,attempt:profileAttempt},
+        performance: {
+          parsingAtProbe,
+          healthDuringParseMs,
+          attempt: profileAttempt,
+        },
       },
       null,
       2,
