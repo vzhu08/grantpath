@@ -47,14 +47,21 @@ export function validateTerms(payload: TermsPayload, base: AwardTermsVersion | n
     for (const t of state.termsVersions.filter(t => t.awardId === awardId)) {
       const prior = t.payload.budgetPeriods.find(x => x.id === p.id);
       requireAward(!prior || prior.start === p.start && prior.end === p.end, "Changed period boundaries require a new period ID.");
+      requireAward(!prior || prior.supersedesPeriodId === p.supersedesPeriodId, "A period's introduction lineage cannot change under the same ID.");
     }
-    if (p.supersedesPeriodId) requireAward(base?.payload.budgetPeriods.some(x => x.id === p.supersedesPeriodId && x.id !== p.id), "Superseded period must exist in the base terms.");
+    const inherited = base?.payload.budgetPeriods.some(x => x.id === p.id && x.start === p.start && x.end === p.end && x.supersedesPeriodId === p.supersedesPeriodId);
+    if (p.supersedesPeriodId && !inherited) requireAward(base?.payload.budgetPeriods.some(x => x.id === p.supersedesPeriodId && x.id !== p.id), "A newly introduced period's predecessor must exist in the base terms.");
   });
   requireAward(new Set(payload.goals.map(g => g.goalId)).size === payload.goals.length, "Goal IDs must be unique.");
-  for (const g of payload.goals) for (const old of g.predecessorGoalIds)
-    requireAward(base?.payload.goals.some(x => x.goalId === old), "Goal predecessor is missing from base terms.");
-  for (const g of payload.goals) for (const prior of state.termsVersions.filter(t => t.awardId === awardId).flatMap(t => t.payload.goals))
-    requireAward(prior.goalId !== g.goalId || prior.text === g.text, "Changed or split goals require a new goal ID with predecessor links.");
+  for (const g of payload.goals) {
+    const inherited = base?.payload.goals.some(x => x.goalId === g.goalId && x.text === g.text && canonicalJson(x.predecessorGoalIds) === canonicalJson(g.predecessorGoalIds));
+    if (!inherited) for (const old of g.predecessorGoalIds)
+      requireAward(base?.payload.goals.some(x => x.goalId === old), "A newly introduced goal's predecessor is missing from base terms.");
+    for (const prior of state.termsVersions.filter(t => t.awardId === awardId).flatMap(t => t.payload.goals)) {
+      requireAward(prior.goalId !== g.goalId || prior.text === g.text, "Changed or split goals require a new goal ID with predecessor links.");
+      requireAward(prior.goalId !== g.goalId || canonicalJson(prior.predecessorGoalIds) === canonicalJson(g.predecessorGoalIds), "A goal's introduction lineage cannot change under the same ID.");
+    }
+  }
   const moneyKeys = new Set<string>();
   for (const f of payload.fundingFacts) {
     const key = `${f.basis}:${f.periodId}`;

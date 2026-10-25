@@ -4,6 +4,8 @@ Status: **independent feature code checked; shared application integration pendi
 
 Lead checkout: `C:/Users/vzhu0/.codex/worktrees/2123/grantguide`; branch `feature/05-awards-progress`; starting revision `4b7d2059957d92d75f18984685a25bb2324a8b54`. Commands explicitly use this checkout. The copied implementation specification has SHA-256 `A9B9D79613EAD6A70EF408629AD85C7209CAAD443A16989082883F5B6C7C3EF1`, matching the supplied research handoff. Its historical research-only authorization/deadline text is superseded by the implementation assignment and approximate October 26 demo context.
 
+Initial local feature checkpoint: `1bc24c496a4e30a6ca95b8a9bf52440ecb8acae4`. A subsequent independent-review fix preserves unchanged replacement period/goal predecessor lineage across a third terms version while rejecting changed lineage under reused IDs. Finance contract schema SHA-256: `98989CA42E78E651BE816AF52ECBEE07335EBFF3679089F0553D61AD1CCE1830`.
+
 ## Researcher benefit and implemented mechanism
 
 The feature separates the proposal request from the award's confirmed facts, then connects approved goals to dated actual updates and an editable annual narrative worksheet. It preserves negative/inconclusive results, delays and missing work. A reviewed snapshot closes its terms, change interpretations, item predecessors, progress revisions and exact quoted source versions; later current-input changes cannot rewrite that export.
@@ -21,6 +23,8 @@ The actual finance contract is exported from `lib/awards/schema.ts`; `awardFinan
 
 Read-only agent `/root/award_contract_review` audited the specification and then actual implementation. It ran no installs, tests, browser or build and edited no files. Its useful findings led to fixes for allocated-period narrative leakage, future/out-of-period delays, incomplete supersession/snapshot closure, lost-response editor IDs, prior action money reused with a fresh ID, item cycles/agenda supersession and archived downloads.
 
+The final source pass confirmed those fixes and found the three-version period/goal carry-forward defect above. The lead corrected it and added a regression; the reviewer then confirmed that the source fix addresses its concrete blocker. This is source-level review, not browser or integrated application acceptance.
+
 The lead is the only writer. Requested GPT-6.1 Sol / Extra High and Standard / Fast off were relayed to the reviewer; no tier/UI configuration change was attempted. Parent resource and shared-file gates remained authoritative.
 
 ## Actual lightweight verification
@@ -28,7 +32,7 @@ The lead is the only writer. Requested GPT-6.1 Sol / Extra High and Standard / F
 Final independent checkpoint checks on October 25, 2026:
 
 - Scoped TypeScript: exit **0**, covering new award libraries/components/routes/tests and their imported dependencies. Used existing primary checkout dependencies through an ignored temporary paths configuration; this is **not** the full application `npm run typecheck`.
-- Focused Vitest: exit **0**, **17 tests / 5 files**, `maxWorkers: 1`, `fileParallelism: false`. Used existing primary dependencies through an ignored resolver configuration. One worker at a time; no install, full check, build or browser run.
+- Focused Vitest: exit **0**, **18 tests / 5 files**, `maxWorkers: 1`, `fileParallelism: false`. Used existing primary dependencies through an ignored resolver configuration. One worker at a time; no install, full check, build or browser run.
 - Evidence retained only in ignored `test-results/awards-checkpoint/typecheck.txt` and `tests.txt`. Temporary configuration is in ignored `tmp/awards-check/`; isolated runner temp files are in `.test-data/award-temp`.
 
 Exact final commands:
@@ -40,7 +44,7 @@ $env:TMP = $env:TEMP
 node --max-old-space-size=512 C:/Users/vzhu0/PycharmProjects/grantguide/node_modules/vitest/vitest.mjs run --config tmp/awards-check/vitest.config.mjs
 ```
 
-Checked cases include duplicate/lost-response receipts after a later mutation; altered retry payload; requested USD 300,000 versus approved USD 240,000; exact 0.10/negative-action/unknown/overflow validation; foreign/forged/normalized Unicode evidence; future initial/change effective dates; two candidates on the same base with refreshed-head rejection; no carry of old action money; reused period-ID rejection; completed inconclusive, delayed and missing work; future/undated/out-of-period/boundary-allocation gating; six exact section reviews; old export identity after a progress correction and JSON serialization; recomputed-digest invalid support rejection; superseded-item snapshot closure; stable agenda identity and cycle rejection; reset dependency refusal; snapshot UTF-8 byte bounds and export format allowlisting.
+Checked cases include duplicate/lost-response receipts after a later mutation; altered retry payload; requested USD 300,000 versus approved USD 240,000; exact 0.10/negative-action/unknown/overflow validation; foreign/forged/normalized Unicode evidence; future initial/change effective dates; two candidates on the same base with refreshed-head rejection; no carry of old action money; reused period-ID rejection; replacement period/goal lineage carried through three versions; completed inconclusive, delayed and missing work; future/undated/out-of-period/boundary-allocation gating; six exact section reviews; old export identity after a progress correction and JSON serialization; recomputed-digest invalid support rejection; superseded-item snapshot closure; stable agenda identity and cycle rejection; reset dependency refusal; snapshot UTF-8 byte bounds and export format allowlisting.
 
 ## Required shared seams — do not integrate before lease
 
