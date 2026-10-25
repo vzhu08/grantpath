@@ -223,6 +223,10 @@ export function readiness(
   )) {
     const e = record.revisions.at(-1)!;
     if (!phaseApplies(e.phase, phase, e.requiredDate, today)) continue;
+    const relevantDate =
+      e.requiredDate ||
+      (e.phase === "before-research" ? project.profile.startDate : "") ||
+      today;
     if (
       e.phase === "unknown" ||
       !e.confirmation ||
@@ -235,8 +239,7 @@ export function readiness(
           "available",
       ) ||
       (e.expiry.kind === "date" &&
-        (e.expiry.date < today ||
-          (!!e.requiredDate && e.expiry.date < e.requiredDate)))
+        (e.expiry.date < today || e.expiry.date < relevantDate))
     )
       add(
         `vault-ethics-${record.id}`,

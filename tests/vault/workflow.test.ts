@@ -399,6 +399,42 @@ describe(
         s.ethicsTasks.filter((t) => t.active && t.kind === "review"),
       ).toHaveLength(1);
     });
+    it("checks finite ethics expiry against the known planned research start", async () => {
+      const { appId } = await setup();
+      await mutate({
+        type: "saveEthicsRecord",
+        projectId: "demo-project",
+        record: {
+          scope: "Future study scope",
+          institution: "Synthetic institution",
+          reference: "START-DATE",
+          category: "IRB",
+          status: "approved",
+          basis: "Synthetic manual record",
+          phase: "before-research",
+          requiredDate: null,
+          approvalDate: "2026-10-01",
+          expiry: { kind: "date", date: "2027-02-01" },
+          supportingVersionIds: [],
+        },
+      });
+      let s = await repo.read();
+      await mutate({
+        type: "confirmEthicsRecord",
+        recordId: s.ethicsRecords[0]!.id,
+        by: "Synthetic researcher",
+      });
+      s = await repo.read();
+      const a = s.applications.find((a) => a.id === appId)!;
+      expect(
+        readiness(s, a).issues.some((i) => i.id.startsWith("vault-ethics")),
+      ).toBe(false);
+      expect(
+        readiness(s, a, "before-research").issues.some((i) =>
+          i.id.startsWith("vault-ethics"),
+        ),
+      ).toBe(true);
+    });
     it("keeps later-phase linked ethics internal and labels legacy task timing unknown", async () => {
       const { appId, reqId } = await setup();
       await mutate({
