@@ -25,7 +25,7 @@ export function freezeSubmission(state: Workspace, c: Extract<ResubmissionComman
 }
 export function saveCaptureSection(state: Workspace, capture: CaptureRecord, c: Extract<ResubmissionCommand, {type: "saveCaptureSection"}>, env: Clock) {
   if (capture.revision !== c.captureRevision) fail("Capture changed. Your section text is preserved; reconcile before saving.", 409);
-  appendBound(capture.history, "Capture history");
+  appendBound(capture.history, "Capture history",99);
   const old = capture.sections.find(s => s.sectionId === c.sectionId);
   if (!old) appendBound(capture.sections, "Capture sections", 20);
   let section: CaptureRecord["sections"][number];

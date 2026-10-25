@@ -8,7 +8,7 @@ Human product/scope owner: requesting user. Task 03 implementation/schema stewar
 
 Researcher problem: reviewer comments get detached from proposed changes, actual evidence and the saved revision being reviewed. The distinctive mechanism connects an exact feedback quotation to shared actions, classified evidence passages, immutable target revision links, a response and a human decision. The focused judge path resolves a supported clarification, leaves an unfinished experiment open, then changes one linked source and reopens only that decision while the saved internal packet remains unchanged.
 
-Technical impressiveness, clarity, impact and novelty are standing priorities. This release uses the existing local application and kit normalization/AI adapters; original work is the resubmission graph, capture truth, cycle separation, dependency invalidation, bounded comparison and frozen response packet. No measured time-saving, funding or market-uniqueness claim is made. Optional NIH profiles, sponsor DOCX/PDF, collaboration, external delivery and live AI tests are deferred. No actual event deadline or demo duration was supplied.
+Technical impressiveness, clarity, impact and novelty are standing priorities. This release uses the existing local application and kit normalization/AI adapters; original work is the resubmission graph, capture truth, cycle separation, dependency invalidation, bounded comparison and frozen response packet. No measured time-saving, funding or market-uniqueness claim is made. Optional NIH profiles, sponsor DOCX/PDF, collaboration, external delivery and live AI tests are deferred. The human subsequently specified a demo tomorrow, October 26, 2026, with an approximate next-24-hours window; no exact cutoff or demo duration was supplied.
 
 ## Independent implementation
 
@@ -45,8 +45,17 @@ Commands in this isolated checkout:
 | `npm ci` | Initial sandbox invocation failed (`Exit handler never called`); authorized unsandboxed retry exit 0, 117 packages, audit 0 vulnerabilities. |
 | `npm run typecheck` | Exit 0 after independent feature implementation. |
 | `npm test -- tests/resubmissions` | Exit 0, 32 tests across 3 suites (domain, comparison, generation). |
+| `npm run check` | Intermediate independent core: exit 0, TypeScript, 158 tests across 13 suites, production build. Later UI/integrity additions still require the final integrated repeat. |
+| `npm test -- tests/resubmissions` | Later fixture/call-capture/archived-mapping run: exit 0, 35 tests across 4 suites. Subsequent retained-dependency/file-origin/mapping edits await the queued final checks. |
+| Selected module example commands | Documents, extraction, AI and recommendations demos exited 0, local/synthetic modes only. The full test run included the selected module suites. |
 
 The comparison writer used isolated checkout `C:/Users/vzhu0/.codex/worktrees/task03-comparison/grantguide`, branch `feature/resubmission-comparison-03`, exclusive `comparison.ts` and `comparison.test.ts`. Commit `49d9d21e3947ff3f94d16099d30c621db23d46e1` integrated as `a0d098c`; its npm ci, typecheck, 11 tests and whitespace check exited 0. Read-only reviewer `/root/resubmission_integrity_review` supplied executable adversarial cases; the lead fixed coverage union mismatch, downgrade reasons, correction lineage, mixed provenance, retained call support, selected-history disclosure, archived revisions and token commit timing.
+
+The UI writer `/root/resubmission_ui` used `C:/Users/vzhu0/.codex/worktrees/task03-ui/grantguide`, branch `feature/resubmission-ui-03`, exclusive new `components/resubmissions/**`. Commit `089b3d5e7e291a1631ff0fdf27187e78ecf90472` integrated as `625eeb6`; npm ci, final TypeScript and staged whitespace checks exited 0. Offline static React rendering verified the manual forms and labels. No browser/build claim follows from that render. Lead follow-ups added removal of superseded response citations and editable comparison mappings for renamed/archived target sections. Optional AI UI is deferred; bounded endpoints and manual editing remain the intended first release.
+
+Additional new files provide a synthetic all-14-section rehearsal workspace, a guarded isolated browser/process-restart acceptance script (`node --import tsx scripts/resubmissions-acceptance.ts`) and a non-overwriting private review seed (`node --import tsx scripts/resubmissions-seed-review.ts`). Both scripts reject execution before the integrated feature workspace schema exists. They have been authored, not yet run against the integrated application.
+
+The parent reserved the shared machine's heavy-verification slot for Task 02 after measured RAM/process contention. Task 03 has no active heavy run and will use at most two Vitest workers when released. This is an execution-resource queue; no correctness gate has been removed.
 
 Independent reviewer proof: two supported rows and one unfinished experiment displayed `[Resolved, Resolved, In progress]`; editing the first linked evidence source displayed `[Needs review, Resolved, In progress]`. Its 27,089-byte packet and original snapshot remained identical through JSON restart/graph validation. This is domain proof, not yet browser/persistence integration evidence.
 
@@ -54,6 +63,10 @@ NSF official current-guide index and Chapter IV.E were rechecked October 25, 202
 
 ## Pending verification and handoff
 
-Required app integration, migration/restart fixtures, browser A01–22 coverage, full `npm run check`, module README checks, `npm run dev`, `npm run review`, explicit `/api/health` and review URL remain pending the shared lease. Review reservations: `PORT=3003`, private `GRANTPATH_DATA_DIR=.local-data/task-03-review`; browser `3103`; dev `3203`. Tests use synthetic unique `.test-data` directories. No primary workspace/data or port 3000 server was read into fixtures or modified.
+Required app integration, migration/restart fixtures, browser A01–22 coverage, final integrated `npm run check`, `npm run dev`, `npm run review`, explicit `/api/health` and review URL remain pending the shared lease and verification slot. Review reservations: `PORT=3003`, private `GRANTPATH_DATA_DIR=.local-data/task-03-review`; browser `3103`; dev `3203`. Tests use synthetic unique `.test-data` directories. No primary workspace/data or port 3000 server was read into fixtures or modified.
+
+Task 02 candidate `e9da61d` was inspected read-only, not incorporated before lease release. It retains V2StateSchema, schema 3 vault defaults, migrateV1/migrateV2 byte backups, vaultRuntimeState/excerpt hydration, write/load/internal graph checks and a serialized repository transaction API. Task 03 will preserve those actual interfaces. The feature now uses the existing `citationStale` adapter so integrated vault original-file changes also invalidate linked decisions, and frozen evidence copies retain fileOrigin metadata when present.
+
+RM-01–08 independent code exists, but their app exit evidence is incomplete until integration. A01 migration, durable A18 retries/conflicts and the A22 whole-app browser journey are specifically still pending. Domain suites cover capture immutability/coverage, quote isolation, split/merge/conflicts, evidence gaps, administrative versus scientific invalidation, selective packets, bounds, comparison and optional preview binding. No central API/status/roadmap document has been marked complete by this task.
 
 Live AI, sponsor submission, external delivery, deployment and human applicant evaluation are unrun. Ordinary tests are offline with mocked transports. Markdown/JSON are the only response packet formats; no sponsor DOCX/PDF release is claimed.

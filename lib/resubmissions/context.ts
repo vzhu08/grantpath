@@ -15,7 +15,7 @@ export function fail(message: string, status = 400): never { throw new KitError(
 export function find<T extends { id: string }>(items: T[], id: string): T { return items.find(x => x.id === id) ?? fail("The referenced record is unavailable. Preserve your text and reload saved data.", 404); }
 export const last = <T>(items: T[]): T => items[items.length - 1]!;
 export function canonical(value: unknown): string {
-  const order = (v: unknown): unknown => Array.isArray(v) ? v.map(order) : v && typeof v === "object" ? Object.fromEntries(Object.entries(v).filter(([, v]) => v !== undefined).sort(([a], [b]) => a.localeCompare(b, "en")).map(([k, v]) => [k, order(v)])) : v;
+  const order = (v: unknown): unknown => Array.isArray(v) ? v.map(order) : v && typeof v === "object" ? Object.fromEntries(Object.entries(v).filter(([, v]) => v !== undefined).sort(([a], [b]) => a<b?-1:a>b?1:0).map(([k, v]) => [k, order(v)])) : v;
   return JSON.stringify(order(value));
 }
 export const sha256 = (value: unknown) => createHash("sha256").update(canonical(value), "utf8").digest("hex");
@@ -31,7 +31,7 @@ export function evidenceCopy(state: Workspace, projectId: string, c: CitationRec
   if ((source.projectId !== projectId || source.type === "call")&&!(source.type==="call"&&source.id===allowedCallSourceId)) fail("Research evidence must belong to this project; reviewer feedback is a separate namespace.");
   const version = source.versions.find(v => v.version === c.version) ?? fail("The historical evidence version is unavailable.");
   if (!exactCitation(c, version.text, version.hash)) fail("Evidence quotation, hash or normalized UTF-16 range does not match.");
-  return { id: source.id, projectId:source.projectId, title: source.title, type: source.type, provenance: source.provenance, version: version.version, hash: version.hash, text: version.text, createdAt: version.createdAt };
+  return { id: source.id, projectId:source.projectId, title: source.title, type: source.type, provenance: source.provenance, version: version.version, hash: version.hash, text: version.text, fileOrigin:jsonCopy((version as typeof version&{fileOrigin?:unknown}).fileOrigin??null), createdAt: version.createdAt };
 }
 export function captureEvidenceCopy(state:Workspace,projectId:string,originalApplicationId:string|null,c:CitationRecord){const app=originalApplicationId?find(state.applications,originalApplicationId):null;return evidenceCopy(state,projectId,c,app?find(state.opportunities,app.opportunityId).sourceId:undefined);}
 export function validateEvidence(state: Workspace, attempt: AttemptRecord, link: EvidenceRecord) { return evidenceCopy(state, attempt.projectId, link.citation); }

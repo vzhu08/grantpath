@@ -2,6 +2,7 @@
 import { useRef } from "react";
 import type { AttemptRecord } from "../../lib/resubmissions/schema";
 import { ErrorText, Field, FormActions, Text, operationId, useBuffer, useOperation, type Shared } from "./common";
+import { MappingsEditor } from "./matrix";
 
 export function ConflictPlanner(props: Shared & { attempt: AttemptRecord }) {
   const concerns = props.state.resubmissions.concerns.filter(c => c.attemptId === props.attempt.id && c.status === "accepted"), groups = props.state.resubmissions.conflicts.filter(c => c.attemptId === props.attempt.id);
@@ -37,8 +38,10 @@ export function SponsorContext(props: Shared & { attempt: AttemptRecord }) {
 
 export function ComparisonView(props: Shared & { attempt: AttemptRecord }) {
   const comparison = props.view?.attempts[props.attempt.id]?.comparison;
+  const form=useBuffer("attempt-mappings-"+props.attempt.id,{revision:props.attempt.revision,mappings:props.attempt.mappings},props.attempt.revision),op=useOperation(props.run);
   const historical = comparison as (typeof comparison & { notice?: string; historicalMappings?: unknown }) | undefined;
   return <details className="card"><summary><strong>Old / new comparison</strong></summary><p>Immutable submitted text beside explicitly saved target revisions. This comparison does not assess scientific adequacy or certify substantial revision. Figures, layout and excluded attachments are unrepresented.</p>
+    <fieldset disabled={props.attempt.state==="archived"}><MappingsEditor value={form.value.mappings} onChange={mappings=>form.edit({...form.value,mappings})} attempt={props.attempt} state={props.state}/><FormActions dirty={form.dirty} busy={op.busy} onReload={form.reload}><button type="button" disabled={op.busy||!form.dirty} onClick={()=>void op.save({type:"saveAttemptMappings",attemptId:props.attempt.id,attemptRevision:form.value.revision,mappings:form.value.mappings},()=>form.clean())}>Save comparison mappings</button></FormActions><ErrorText>{op.error}</ErrorText></fieldset>
     {!comparison && <p>Loading saved comparison…</p>}
     {historical?.notice && <p className="notice">{historical.notice}</p>}
     {historical?.historicalMappings !== undefined && <details><summary>Retained historical mappings</summary><Text>{JSON.stringify(historical.historicalMappings, null, 2)}</Text></details>}
@@ -72,7 +75,7 @@ export function PacketReview(props: Shared & { attempt: AttemptRecord }) {
   return <section className="card"><h3>3. Review and freeze an internal packet</h3><p><strong>{runtime?.state ?? "Checking…"}</strong> · Internal review completion is separate from application readiness, sponsor eligibility and submission.</p>
     {runtime?.issues.length ? <ul>{runtime.issues.map((issue, i) => <li key={i}>{issue}</li>)}</ul> : <p>No current internal review issues reported.</p>}
     <button type="button" disabled={op.busy || !runtime || runtime.issues.length > 0 || props.view?.revision !== props.state.revision || props.attempt.state === "archived"} onClick={() => runtime && void op.save({ type: "reviewAttempt", attemptId: props.attempt.id, expectedFingerprint: runtime.fingerprint, by: props.actor })}>Record internal attempt review</button>
-    <h4>Preview disclosure scope</h4><p>The saved packet includes the selected current concern records and exact feedback quotes, their shared action outcomes, selected evidence/target passages, response and latest decision, sponsor context, open/stale/conflict issues, and response opening/closing. Full original or target text is included only when selected below. The packet is an internal document, not a sponsor attachment.</p>
+    <h4>Preview disclosure scope</h4><p>The saved packet includes the selected current concern records and exact feedback quotes, their shared action outcomes, selected evidence/target passages, response and latest human decision with the inputs it reviewed, sponsor context, application readiness, open/stale/conflict issues, and response opening/closing. Full original or target text is included only when selected below. The packet is an internal document, not a sponsor attachment.</p>
     <fieldset><legend>Concerns in this packet</legend>{concerns.map(c => <label key={c.id} style={{ display: "block" }}><input type="checkbox" checked={v.concernIds.includes(c.id)} onChange={e => form.edit({ ...v, disclosed: false, concernIds: e.target.checked ? [...v.concernIds, c.id] : v.concernIds.filter(id => id !== c.id) })} /> {c.fields.interpretation || c.id} — {props.view?.concerns[c.id]?.state ?? "Checking"}</label>)}</fieldset>
     <label style={{ display: "block" }}><input type="checkbox" checked={v.original} onChange={e => form.edit({ ...v, original: e.target.checked, disclosed: false })} /> Include the full captured original narrative and captured evidence copies</label>
     <label style={{ display: "block" }}><input type="checkbox" checked={v.target} onChange={e => form.edit({ ...v, target: e.target.checked, disclosed: false })} /> Include all current saved target narrative sections</label>

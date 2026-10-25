@@ -28,6 +28,7 @@ export function validateResubmissionGraph(state:Workspace) {
     if(target.id===snapshot.originalApplicationId)fail("The resubmission target must be distinct from the original application.");
     if(attempt.priorAttemptId&&attemptFor(state,attempt.priorAttemptId).projectId!==attempt.projectId)fail("Prior attempt belongs to another project.");
     mappingsValid(state,attempt,attempt.mappings,true);assertUnique(attempt.document.concernOrder,"Response concern order");
+    for(const mapping of attempt.mappingHistory)mappingsValid(state,attempt,mapping.mappings,true);
     for(const id of attempt.document.concernOrder)if(find(f.concerns,id).attemptId!==attempt.id)fail("Response document references another attempt.");
     if(f.feedback.filter(s=>s.attemptId===attempt.id).length>10||f.feedback.filter(s=>s.attemptId===attempt.id).reduce((n,s)=>n+last(s.versions).text.length,0)>100_000)fail("Feedback capacity exceeded.",413);
     const concerns=f.concerns.filter(c=>c.attemptId===attempt.id);
@@ -55,7 +56,7 @@ export function validateResubmissionGraph(state:Workspace) {
     const concern=find(f.concerns,response.concernId);if(concern.attemptId!==response.attemptId||concern.projectId!==response.projectId||responseConcerns.has(concern.id))fail("Response concern scope is invalid or duplicated.");responseConcerns.add(concern.id);
     assertUnique(response.revisions.map(r=>r.id),"Response revisions");
     for(const revision of response.revisions)for(const c of revision.citations)evidenceCopy(state,response.projectId,c);
-    for(const decision of response.completions)if(!response.revisions.some(r=>r.id===decision.responseRevisionId))fail("Completion response revision is unavailable.");
+    for(const decision of response.completions){if(!response.revisions.some(r=>r.id===decision.responseRevisionId))fail("Completion response revision is unavailable.");if(sha256(decision.dependencies)!==decision.fingerprint)fail("Human completion dependencies do not match the retained fingerprint.");for(const link of decision.reviewedActionRevisions){const action=find(f.actions,link.id);if(action.attemptId!==response.attemptId||!(action.revision===link.revision||action.history.some(h=>h.revision===link.revision)))fail("Reviewed action revision is unavailable.");}}
   }
   for(const group of f.conflicts){const attempt=attemptFor(state,group.attemptId);assertUnique(group.concernIds,"Conflict members");if(group.projectId!==attempt.projectId||group.concernIds.some(id=>find(f.concerns,id).attemptId!==attempt.id))fail("Conflict membership crosses attempt/project scope.");}
   for(const packet of f.packets){if(attemptFor(state,packet.attemptId).projectId!==packet.projectId||sha256(packet.payload)!==packet.digest)fail("Frozen response packet scope or digest does not match.");}

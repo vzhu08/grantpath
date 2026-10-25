@@ -4,7 +4,8 @@ import { ResubmissionCommandSchema, ResubmissionsSchema, type ResubmissionComman
 import { appendBound, assertUnique, attemptFor, clock, fail, find, last, mappingsValid, normalized, sha256, type Clock, type Workspace } from "./context";
 import { feedbackCitation, validateCoverage } from "./feedback";
 import { freezeSubmission, saveCaptureSection } from "./snapshots";
-import { actionIssues, attemptFingerprint, attemptIssues, concernFingerprint, concernResponse, conflictFingerprint, documentFingerprint, requireCompletion, scientificAction } from "./matrix";
+import { actionIssues, attemptFingerprint, attemptIssues, concernFingerprint, concernDependencies,concernActions, concernResponse, conflictFingerprint, documentFingerprint, requireCompletion, scientificAction } from "./matrix";
+import { jsonCopy } from "./context";
 import { savePacket } from "./exports";
 import { validateResubmissionGraph } from "./validation";
 import { previews, requirePreview, Suggestions, ResponsePreview, validateAcceptedCandidate } from "./generation";
@@ -37,8 +38,8 @@ function newConcern(state:Workspace,attempt:AttemptRecord,fields:ConcernRecord["
   const record:ConcernRecord={...base(attempt.projectId,env.fixture?attempt.provenance:"researcher",env,"concern"),attemptId:attempt.id,revision:1,fields,history:[],origin:"manual",generation:null,status:"accepted",reason:"",parentIds:[],successorIds:[],awaitingReview:false,suggestionId:null};
   state.resubmissions.concerns.push(record);return record;
 }
-function changeConcern(concern:ConcernRecord,env:Clock) {appendBound(concern.history,"Concern history");concern.history.push({revision:concern.revision,fields:structuredClone(concern.fields),at:concern.updatedAt});concern.revision++;concern.updatedAt=env.at;concern.awaitingReview=false;}
-function changeAction(action:ActionRecord,env:Clock) {appendBound(action.history,"Action history");action.history.push({revision:action.revision,fields:structuredClone(action.fields),at:action.updatedAt});action.revision++;action.updatedAt=env.at;}
+function changeConcern(concern:ConcernRecord,env:Clock) {appendBound(concern.history,"Concern history",99);concern.history.push({revision:concern.revision,fields:structuredClone(concern.fields),at:concern.updatedAt});concern.revision++;concern.updatedAt=env.at;concern.awaitingReview=false;}
+function changeAction(action:ActionRecord,env:Clock) {appendBound(action.history,"Action history",99);action.history.push({revision:action.revision,fields:structuredClone(action.fields),at:action.updatedAt});action.revision++;action.updatedAt=env.at;}
 export function applyResubmissionCommand(original:Workspace,input:{expectedRevision:number;command:ResubmissionCommand},env:Clock=clock()) {
   const c=ResubmissionCommandSchema.parse(input.command), recovered=recoverResubmissionReceipt(original,c);
   if(recovered)return recovered;
@@ -69,7 +70,7 @@ export function applyResubmissionCommand(original:Workspace,input:{expectedRevis
     if(manifest){app.binding={...app.binding!,templateId:"nsf-standard-research",manifest:structuredClone(manifest)};app.sections=manifest.sections.filter(s=>s.kind==="content").map(s=>({key:s.id,label:s.heading,wordLimit:s.limits.words,revisions:[],reviews:[]}));}
     else if(targetTemplate!=="legacy-three-section"){app.sections=snapshot.sections.map(s=>({key:s.sectionId,label:s.label,wordLimit:null,revisions:[],reviews:[]}));if(app.sections.some(s=>!["summary","significance","approach"].includes(s.key)))delete app.binding;}
     const target={...app,cycleId,originAttemptId:attemptId,createdAt:env.at,updatedAt:env.at};state.applications.push(target);
-    const attempt:AttemptRecord={...base(project.id,snapshot.provenance==="researcher"||call.provenance==="researcher"?"researcher":project.provenance,env,"attempt"),id:attemptId,snapshotId:snapshot.id,targetApplicationId:app.id,revision:1,cycleId,priorAttemptId:c.priorAttemptId,profile:c.profile,profileVersion:1,state:"working",archiveReason:"",mappings:c.mappings,context:{relationship:"unknown",sponsorType:"unresolved",rationale:"",checkedOn:"",confirmedBy:"",confirmed:false,callRevision:call.revision,rules:[],substantiveChanges:"",deliveryInstructions:""},contextHistory:[],document:{concernOrder:[],opening:[],closing:[],reviews:[]},reviews:[]};
+    const attempt:AttemptRecord={...base(project.id,snapshot.provenance==="researcher"||call.provenance==="researcher"?"researcher":project.provenance,env,"attempt"),id:attemptId,snapshotId:snapshot.id,targetApplicationId:app.id,revision:1,cycleId,priorAttemptId:c.priorAttemptId,profile:c.profile,profileVersion:1,state:"working",archiveReason:"",mappings:c.mappings,mappingHistory:[],context:{relationship:"unknown",sponsorType:"unresolved",rationale:"",checkedOn:"",confirmedBy:"",confirmed:false,callRevision:call.revision,rules:[],substantiveChanges:"",deliveryInstructions:""},contextHistory:[],document:{concernOrder:[],opening:[],closing:[],reviews:[]},reviews:[]};
     f.attempts.push(attempt);mappingsValid(state,attempt,c.mappings);
     if(c.mode==="reviewed-copy") {
       const destinations=new Set<string>();
@@ -160,13 +161,15 @@ export function applyResubmissionCommand(original:Workspace,input:{expectedRevis
   } else if(c.type==="requestConcernReview"||c.type==="recordConcernCompletion") {
     const concern=find(f.concerns,c.concernId),attempt=attemptFor(state,concern.attemptId,true);requireCompletion(state,concern);
     if(c.type==="requestConcernReview")concern.awaitingReview=true;
-    else{const response=concernResponse(state,concern)!;if(last(response.revisions).id!==c.responseRevisionId||concernFingerprint(state,concern)!==c.expectedFingerprint)fail("The row changed. Review its current evidence, target and response before completing it.",409);const expectedKind={change:"changed",clarify:"clarified","not-adopted":"not-adopted",unassigned:""}[concern.fields.disposition];if(c.kind!==expectedKind)fail("Completion label must match the recorded disposition.");appendBound(response.completions,"Human completion decisions");response.completions.push({id:env.id("completion"),fingerprint:c.expectedFingerprint,responseRevisionId:c.responseRevisionId,kind:c.kind,reason:c.reason,by:c.by,at:env.at});}
+    else{const response=concernResponse(state,concern)!;if(last(response.revisions).id!==c.responseRevisionId||concernFingerprint(state,concern)!==c.expectedFingerprint)fail("The row changed. Review its current evidence, target and response before completing it.",409);const expectedKind={change:"changed",clarify:"clarified","not-adopted":"not-adopted",unassigned:""}[concern.fields.disposition];if(c.kind!==expectedKind)fail("Completion label must match the recorded disposition.");appendBound(response.completions,"Human completion decisions");response.completions.push({id:env.id("completion"),fingerprint:c.expectedFingerprint,dependencies:jsonCopy(concernDependencies(state,concern)),reviewedActionRevisions:concernActions(state,concern).map(a=>({id:a.id,revision:a.revision})),responseRevisionId:c.responseRevisionId,kind:c.kind,reason:c.reason,by:c.by,at:env.at});}
     touchAttempt(attempt,env);selectedId=concern.id;
   } else if(c.type==="confirmAttemptContext") {
     const attempt=attemptFor(state,c.attemptId,true),app=find(state.applications,attempt.targetApplicationId),call=find(state.opportunities,app.opportunityId);
     if(c.context.callRevision!==call.revision)fail("The target call changed before context review.",409);
     if(c.context.confirmed&&(!c.context.confirmedBy.trim()||!c.context.checkedOn||c.context.rationale.trim().length<5||c.context.sponsorType==="unresolved"))fail("Confirmed context needs a checked date, human label, rationale and formal type decision.");
-    appendBound(attempt.contextHistory,"Sponsor decision history");attempt.contextHistory.push(structuredClone(attempt.context));attempt.context=c.context;if(!env.fixture)attempt.provenance="researcher";touchAttempt(attempt,env);selectedId=attempt.id;
+    appendBound(attempt.contextHistory,"Sponsor decision history",99);attempt.contextHistory.push(structuredClone(attempt.context));attempt.context=c.context;if(!env.fixture)attempt.provenance="researcher";touchAttempt(attempt,env);selectedId=attempt.id;
+  } else if(c.type==="saveAttemptMappings") {
+    const attempt=attemptFor(state,c.attemptId,true);if(attempt.revision!==c.attemptRevision)fail("Attempt changed before mapping save. Preserve and reconcile your mapping choices.",409);mappingsValid(state,attempt,c.mappings);appendBound(attempt.mappingHistory,"Attempt mapping history",99);attempt.mappingHistory.push({revision:attempt.revision,mappings:structuredClone(attempt.mappings),at:attempt.updatedAt});attempt.mappings=c.mappings;touchAttempt(attempt,env);selectedId=attempt.id;
   } else if(c.type==="reviewAttempt") {
     const attempt=attemptFor(state,c.attemptId,true);if(attemptFingerprint(state,attempt)!==c.expectedFingerprint)fail("Attempt changed before internal review.",409);const issues=attemptIssues(state,attempt);if(issues.length)fail(issues.join(" "));appendBound(attempt.reviews,"Attempt reviews");attempt.reviews.push({fingerprint:c.expectedFingerprint,by:c.by,at:env.at});attempt.state="reviewed";attempt.updatedAt=env.at;selectedId=attempt.id;
   } else if(c.type==="archiveAttempt") {
