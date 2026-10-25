@@ -1,5 +1,19 @@
 # Actual implementation status
 
+## Current release Roadmap 01
+
+Implemented on October 25, 2026: versioned NSF Research narrative preparation, explicit applicability/call mapping, all 14 editors, structured content, researcher reviews, approved scoped reusable content, preserved provenance/history, schema 1-to-2 byte-backup migration, immutable packets and verified component downloads. See [release details](PROPOSAL_WORKFLOW.md). Item 02 application work has not started; the user requested stopping after 01. The item 02–04 planning documents from other chats remain separate work.
+
+Final local checks: `npm run check` passed (TypeScript, **126 tests across 10 suites**, production build). `npm run test:browser` passed the baseline plus complete proposal journey, including exact citations, paragraphs/headings/lists/tables, 14 sections, retained unsaved buffers, 409 recovery, library approval/context insertion, explicit external completion, snapshot immutability, downloads and restart persistence. Its installed-renderer configuration is deliberately disabled to verify DOCX preservation and Unknown page counts.
+
+Actual LibreOffice **26.8.1.1** and four Times New Roman font files passed `test:exports` (1-page fidelity, 3-page intentional overflow, 3-page table) and the full `test:proposal-workflow` pipeline. That pipeline verified **19 artifacts and eight PDFs**: Summary 1/1 page, Description 2/15, nested prior support 2/5, References 1, Budget Justification 1/5, Facilities 1, Mentoring 1/1, DMSP worksheet 1 and separate internal report 4. Binary hashes, embedded fonts, Letter pages, table/Unicode markers, idempotency, source-change staleness, immutable saved inputs and interrupted-job restart recovery passed. Deep Windows output paths failed visibly; a shorter private output path succeeded, and the app now reports an actionable path-length prerequisite.
+
+The repository is now **public** under `vzhu08/grantpath` by explicit user authorization. GitHub API verification confirms strict required CI on main, administrator enforcement, conversation resolution, no force pushes/deletion, automatic squash merging and post-merge branch deletion. Eligible labeled PRs use the checked merge workflow. Earlier private-plan limitations below are historical. Local workspace data, uploads, environment settings, tools and generated artifacts remain ignored.
+
+Live AI, sponsor login/submission, institutional certification and hosted collaboration were not exercised. Normal manual operation needs no provider key. Use `npm run build` then `npm run review`; the final task handoff verifies the healthy loopback URL separately from build success.
+
+## Historical initial implementation verification
+
 Verified locally on October 25, 2026. Initial build is implemented. No deployment, application submission or paid provider request occurred.
 
 ## Verification

@@ -34,10 +34,11 @@ export function readiness(state: State, app: Application) {
       location,
       message,
       fix,
-      waived:
-        app.waivers.find(
-          (w) => w.issueId === id && w.fingerprint === fingerprint,
-        )?.reason ?? null,
+      waived: /^(scope-|condition-|pages-)/.test(id)
+        ? null
+        : (app.waivers.find(
+            (w) => w.issueId === id && w.fingerprint === fingerprint,
+          )?.reason ?? null),
     });
   };
   const project = state.projects.find((p) => p.id === app.projectId)!;

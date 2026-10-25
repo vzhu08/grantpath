@@ -379,18 +379,16 @@ export async function proposalBrowserAcceptance({ page, origin, artifacts }) {
     }),
   );
   const itemId = createdItem.selectedId;
-  const library = page
-    .locator("section.card")
-    .filter({
-      has: page.getByRole("heading", {
-        name: "Approved, versioned content library",
-        exact: true,
-      }),
-    });
+  const library = page.locator("section.card").filter({
+    has: page.getByRole("heading", {
+      name: "Approved, versioned content library",
+      exact: true,
+    }),
+  });
   const itemDetails = library
     .locator("details")
     .filter({
-      has: page.getByRole("heading", { name: libraryTitle, exact: true }),
+      has: page.locator("summary").filter({ hasText: libraryTitle }),
     })
     .first();
   await itemDetails.locator(":scope > summary").click();
@@ -450,11 +448,9 @@ export async function proposalBrowserAcceptance({ page, origin, artifacts }) {
   const task =
     manifest.externalTasks.find((item) => /dmsp/i.test(item.id + item.label)) ??
     manifest.externalTasks[0];
-  const taskCard = page
-    .locator("article.criterion")
-    .filter({
-      has: page.getByRole("heading", { name: task.label, exact: true }),
-    });
+  const taskCard = page.locator("article.criterion").filter({
+    has: page.getByRole("heading", { name: task.label, exact: true }),
+  });
   await taskCard
     .getByLabel(`Status of ${task.label}`, { exact: true })
     .selectOption("In progress");

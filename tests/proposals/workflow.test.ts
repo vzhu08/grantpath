@@ -937,6 +937,7 @@ describe("template readiness, external completion and page uncertainty", () => {
       artifacts: [],
       errors: [],
       renderer: "synthetic freshness fixture",
+      runtimeRendererMatch: true,
       measurements: [
         {
           componentId: "project-summary",
@@ -954,6 +955,13 @@ describe("template readiness, external completion and page uncertainty", () => {
         (issue) => issue.id === "pages-project-summary",
       ),
     ).toBe(false);
+    state.proposalExports[0]!.runtimeRendererMatch = false;
+    expect(
+      proposalIssues(state, application(appId)).some(
+        (issue) => issue.id === "pages-project-summary",
+      ),
+    ).toBe(true);
+    state.proposalExports[0]!.runtimeRendererMatch = true;
     editSource(
       "demo-methods",
       "\nAn amended selected source invalidates the old measurement.",

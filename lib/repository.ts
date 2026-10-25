@@ -415,7 +415,9 @@ export function applyCommand(
       app.requirementsSourceVersion = call.sourceVersion;
       touch(app);
     } else if (c.type === "saveDraft") {
-      const section = app.sections.find((s) => s.key === c.sectionKey)!;
+      const section =
+        app.sections.find((s) => s.key === c.sectionKey) ??
+        fail("Choose a section in this application.", 404);
       const sources = c.sourceIds.map((id) => find(state.sources, id));
       if (sources.some((s) => s.projectId !== project.id))
         fail("Draft evidence must belong to this project.");
@@ -486,6 +488,10 @@ export function applyCommand(
       section.revisions.push(revision);
       touch(app);
     } else if (c.type === "waiveIssue") {
+      if (/^(scope-|condition-|pages-)/.test(c.issueId))
+        fail(
+          "A waiver cannot resolve unsupported scope, unknown applicability or measured page compliance. Review the source rule or re-render the content.",
+        );
       const issue = readiness(state, app).issues.find(
         (i) => i.id === c.issueId,
       );
@@ -577,8 +583,20 @@ export function createRepository(directory: string) {
     read: () => enqueue(load),
     mutate: (input: Mutation) =>
       enqueue(async () => {
-        const current = await load();
+        let current = await load();
+        if (
+          ["freezePacket", "setStage", "waiveIssue"].includes(
+            input.command.type,
+          ) &&
+          current.proposalExports.length
+        )
+          current = await (
+            await import("./proposals/runtime-state")
+          ).proposalRuntimeState(current);
         const result = applyCommand(current, input);
+        result.state.proposalExports.forEach((job) => {
+          delete job.runtimeRendererMatch;
+        });
         await write(result.state);
         return result;
       }),

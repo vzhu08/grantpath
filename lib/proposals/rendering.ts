@@ -543,6 +543,12 @@ export async function renderProposal(
   };
   try {
     checkCancellation(options.signal);
+    if (process.platform === "win32" && directory.length > 150)
+      throw new KitError(
+        "RENDER_PATH_LENGTH",
+        "LibreOffice needs a shorter private export directory on Windows. Set GRANTPATH_EXPORT_DIR to a short workspace path and retry; DOCX is preserved and pages stay Unknown.",
+        503,
+      );
     initial.renderer = await rendererIdentity(config, options.signal);
     checkCancellation(options.signal);
     const profile = pathToFileURL(path.join(directory, "lo-profile")).href;

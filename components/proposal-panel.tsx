@@ -1552,6 +1552,10 @@ function ReadinessIssue(props: Props & { issue: Issue }) {
       <p className="muted">Fix: {issue.fix}</p>
       {issue.waived ? (
         <p>Researcher waiver: {issue.waived}</p>
+      ) : /^(scope-|condition-|pages-)/.test(issue.id) ? (
+        <p className="muted">
+          Resolve this rule or measurement before marking the package prepared.
+        </p>
       ) : (
         <details>
           <summary>Record an explicit exception</summary>
@@ -1756,12 +1760,18 @@ function ExportJob({
         <strong>Export {job.id}</strong>
       </div>
       <p className="muted">
-        Created {job.createdAt} · renderer {job.renderer}
+        Created {job.createdAt}
         {job.finishedAt ? ` · finished ${job.finishedAt}` : ""}.{" "}
         {matches
           ? "Matches the current saved application inputs."
           : "Historical frozen inputs; later edits need a new snapshot and export."}
       </p>
+      {job.runtimeRendererMatch === false && (
+        <p className="review-notice">
+          The current renderer or fonts differ, or are unavailable. These frozen
+          measurements do not establish current page compliance.
+        </p>
+      )}
       {job.errors.length > 0 && (
         <ul role="alert">
           {job.errors.map((error, index) => (
@@ -2157,7 +2167,11 @@ export function ProposalPanel(props: Props) {
       <div className="section-heading">
         <div>
           <p className="eyebrow">04 / FULL PROPOSAL</p>
-          <h2>Write, review and freeze the complete proposal</h2>
+          <h2>
+            {manifest
+              ? "Write, review and freeze the complete proposal"
+              : "Proposal template"}
+          </h2>
           <p className="muted">
             {props.app.provenance === "demo"
               ? "Fictional demonstration application"
@@ -2166,12 +2180,14 @@ export function ProposalPanel(props: Props) {
             explicit at every stage.
           </p>
         </div>
-        <div className="row">
-          <Badge tone={review.blockers ? "red" : "green"}>
-            {review.blockers} blockers
-          </Badge>
-          <Badge tone="amber">{review.warnings} warnings</Badge>
-        </div>
+        {manifest && (
+          <div className="row">
+            <Badge tone={review.blockers ? "red" : "green"}>
+              {review.blockers} blockers
+            </Badge>
+            <Badge tone="amber">{review.warnings} warnings</Badge>
+          </div>
+        )}
       </div>
       <TemplateSetup
         {...props}
@@ -2296,25 +2312,28 @@ export function ProposalPanel(props: Props) {
           </details>
         </section>
       )}
-      <section className="card form-stack">
-        <h2>Application readiness</h2>
-        <p className="muted">
-          Deterministic findings for saved inputs · rules {review.rulesVersion}.
-          Review the complete sponsor call and the exported documents. Any
-          waiver remains an explicit recorded exception.
-        </p>
-        {review.issues.map((issue) => (
-          <ReadinessIssue
-            {...props}
-            busy={props.busy || exportBusy}
-            issue={issue}
-            key={issue.id}
-          />
-        ))}
-        {review.issues.length === 0 && (
-          <p>No deterministic findings for the current saved inputs.</p>
-        )}
-      </section>
+      {manifest && (
+        <section className="card form-stack">
+          <h2>Application readiness</h2>
+          <p className="muted">
+            Deterministic findings for saved inputs · rules{" "}
+            {review.rulesVersion}. Review the complete sponsor call and the
+            exported documents. Any waiver remains an explicit recorded
+            exception.
+          </p>
+          {review.issues.map((issue) => (
+            <ReadinessIssue
+              {...props}
+              busy={props.busy || exportBusy}
+              issue={issue}
+              key={issue.id}
+            />
+          ))}
+          {review.issues.length === 0 && (
+            <p>No deterministic findings for the current saved inputs.</p>
+          )}
+        </section>
+      )}
     </div>
   );
 }

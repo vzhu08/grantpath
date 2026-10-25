@@ -12,3 +12,5 @@ Read the [human–AI team workflow](docs/HUMAN_AI_TEAM_WORKFLOW.md) as human coo
 - Keep credentials server-side. No deployment, sends or paid tests without application/operator intent.
 - Preserve local modifications when upgrading this snapshot. Source revision and hashes: kit.project.json.
 - Return real checks, skipped prerequisites and handoff; do not claim deployment success from a local build.
+- User preference for every completed application task: build the final code, run `npm run review`, verify the loopback health endpoint and provide the local review URL. Use isolated data for automated acceptance; preserve the normal local workspace.
+- Use useful independent agents in isolated checkouts with exclusive file ownership. Let GitHub Actions run repeatable checks and deterministic checked integration; never merge a failing or superseded revision.

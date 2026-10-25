@@ -1,6 +1,6 @@
 # GrantPath
 
-A local, single-user workspace for one source-checkable research-grant application. Create a project, add text evidence, inspect eligibility, confirm requirements, draft three sections and export a review packet. Manual editing works without API credentials.
+A local, single-user workspace for source-checkable research-grant applications. Create a project, add evidence, inspect eligibility, confirm requirements, prepare a full NSF narrative and export editable DOCX/PDF files with a separate review packet. Manual editing works without API credentials.
 
 ## Run
 
@@ -22,7 +22,9 @@ Data survives refresh/restart in the gitignored `.local-data/workspace.json`; `G
 - Project profile and ten versioned evidence notes, each up to 20,000 characters. Paste or import UTF-8 TXT/Markdown.
 - Six clearly fictional calls plus pasted calls. Potential fit, Needs confirmation, Known mismatch and Closed remain distinct. Preferences rank only potential fits.
 - Proposed exact-quote requirements, researcher confirmation, document metadata/statuses, internal targets, agenda and one-event ICS export. Date-only cutoffs remain unknown.
-- Three editable starter sections, retained revisions/citations, optional generated previews and deterministic blockers/warnings with reasoned waivers.
+- Three compatible starter sections or a versioned NSF Research template with all supported narrative components, structured headings/lists/tables, explicit applicability, call mapping and researcher reviews.
+- Approved reusable-content revisions with scope, retained evidence, context-confirmed copies and controlled update decisions. Changes never silently replace another application's text.
+- Immutable packet snapshots, component DOCX/PDF downloads, actual rendered page measurements and separate internal review reports/manifests. Configure LibreOffice and Times New Roman for PDF output; unavailable rendering preserves DOCX and reports Unknown page counts.
 - Saved draft/checklist/issues/source appendix as UTF-8 Markdown. Submitted is a user record; the app sends nothing to a sponsor.
 
 Sources and saved URLs are not independently verified. Reset demo data preserves researcher-created work. This initial build does not implement arbitrary sponsor packages, file vaults, scientific grading, background reminders or hosted collaboration.
@@ -49,6 +51,6 @@ See [actual verification](docs/implementation/STATUS.md), [demo runbook](docs/DE
 
 The [roadmap](docs/ROADMAP.md) preserves all 13 future goals with boundaries, dependencies and acceptance criteria for humans and agents. Start with the [agent handoff](docs/AGENT_HANDOFF.md). Original PDFs remain in `docs/reference/`; the separately researched [NSF roadmap 01 specification](docs/implementation/FULL_PROPOSAL_TEMPLATES.md) is retained.
 
-Roadmap 01 has begun: the [canonical DOCX-to-PDF renderer](docs/implementation/PROPOSAL_RENDERER.md) is implemented and verified with actual LibreOffice output. `npm run test:exports` requires the separately configured renderer/fonts. Full NSF editor/reuse integration remains a later gate in that specification.
+Roadmap 01 provides full NSF narrative preparation and reviewed reuse. The [canonical DOCX-to-PDF renderer](docs/implementation/PROPOSAL_RENDERER.md) uses actual LibreOffice output. `npm run test:exports` checks renderer fidelity and overflow; `npm run test:proposal-workflow` checks the complete frozen-packet pipeline. Both require the configured renderer/fonts. DMSP output is a preparation worksheet; SciENcv, certifications and portal completion remain explicit external tasks. The [item 02 specification](docs/implementation/02_DOCUMENT_VAULT_IMPLEMENTATION.md) is retained for future work.
 
 Reused [Hackathon Kit](https://github.com/oliverchennn/hackathon-kit) at `22a5f44a27375e88ac2cd1754f6976704f725bc5`. Original hashes/provenance remain in `kit.project.json`; application customizations and patched dependencies are documented separately. No symlinks or runtime imports depend on the temporary kit checkout. [MIT license](LICENSE), [third-party notices](THIRD_PARTY_NOTICES.md).
