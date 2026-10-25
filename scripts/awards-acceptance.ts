@@ -103,6 +103,7 @@ try {
   await page.goto(origin); await page.locator("nav").getByRole("button", { name: /Draft & readiness/ }).click(); await page.getByRole("button", { name: "Award & progress", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Current approved terms", exact: true })).toBeVisible(); await expect(page.getByText("NSF-DEMO-240 · Example University", { exact: true })).toBeVisible();
   const citation = page.locator(".citation summary").first(); await citation.focus(); await citation.press("Enter"); await expect(page.locator(".citation blockquote").first()).toBeVisible();
+  const candidate = page.getByText("Inspect proposed terms and exact sources",{exact:true}).first(); await candidate.focus(); await candidate.press("Enter"); await expect(page.getByText("Amount of this action is absent/unknown. No added money or zero is inferred.",{exact:true}).first()).toBeVisible();
   await page.screenshot({ path: path.join(artifacts, "award-desktop.png"), fullPage: true });
   await page.getByRole("button", { name: "Actual progress", exact: true }).click();
   const buffer = "Manual unsaved update remains intact through a competing save and a recovered lost response.";

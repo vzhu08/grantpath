@@ -4,6 +4,9 @@ import { Badge, Field, SourceText, CitationView, useEditorDirty } from "../commo
 import { formatMoneyFact } from "../../lib/awards/money-facts";
 import { blankIntake, intakeTerms, suggestAwardFields, type IntakeFields } from "../../lib/awards/intake";
 import { cite } from "../../lib/evidence";
+import { collectCitations } from "../../lib/awards/context";
+import type { TermsPayload } from "../../lib/awards/schema";
+import type { State } from "../../lib/schema";
 import type { AwardCommand, AwardMutation } from "../../lib/awards/commands";
 import type { AwardPanelProps } from "./types";
 import { AwardProgressEditor } from "./progress-editor";
@@ -127,10 +130,25 @@ function AwardNoticeEditor({ state, awards, applicationId, busy, send }: AwardPa
     <label><input type="checkbox" checked={confirmed} onChange={e => { setConfirmed(e.target.checked); markDirty(true); }} /> I reviewed the quoted transcription and applicability. This is a local record.</label>
     {error && <p role="alert" className="error">{error}</p>}<button type="button" disabled={busy || !confirmed} onClick={() => void save()}>{award ? "Save pending change candidate" : "Confirm award record and select initial terms"}</button>
     {award && awards.changeCandidates.filter(c => c.awardId === award.id).map(c => <div className="card" key={c.id}><p>{c.payload.sponsorIdentifier ?? c.payload.absenceReason} · {c.decision} · base {c.baseTermsVersionId}</p>
+      <CandidateTermsPreview payload={c.payload} base={awards.termsVersions.find(t=>t.id===c.baseTermsVersionId)?.payload} state={state} />
+      {c.baseTermsVersionId!==award.currentConfirmedTermsVersionId&&c.termsVersionId!==award.currentConfirmedTermsVersionId&&<p className="muted">Based on older terms. Create a reconciled candidate before adopting it; refreshing the expected head cannot rebase it.</p>}
       {c.decision === "proposed" && <><button type="button" disabled={busy || !actor || !reason} onClick={() => void send({ type: "reviewAwardChange", awardId: award.id, expectedAwardRevision: award.revision, expectedHeadId: award.currentConfirmedTermsVersionId, candidateId: c.id, decision: "confirmed", sameAwardConfirmed: kind === "transcription_correction" && confirmed, actor, reason })}>Confirm this interpretation locally</button><button type="button" disabled={busy || !actor || !reason} onClick={() => void send({ type: "reviewAwardChange", awardId: award.id, expectedAwardRevision: award.revision, expectedHeadId: award.currentConfirmedTermsVersionId, candidateId: c.id, decision: "rejected", sameAwardConfirmed: false, actor, reason })}>Reject candidate</button></>}
       {c.decision === "confirmed" && c.termsVersionId !== award.currentConfirmedTermsVersionId && <button type="button" disabled={busy || !actor || !reason || !confirmed} onClick={() => void send({ type: "selectCurrentAwardTerms", awardId: award.id, expectedAwardRevision: award.revision, expectedHeadId: award.currentConfirmedTermsVersionId, termsVersionId: c.termsVersionId!, applicabilityConfirmed: true, retroactivePeriodsReviewed: confirmed, actor, reason })}>Adopt as current · reviewed applicability and affected periods</button>}
     </div>)}
   </div>;
+}
+
+function CandidateTermsPreview({payload,base,state}:{payload:TermsPayload;base?:TermsPayload;state:State}) {
+  const seen = new Set<string>();
+  const citations = collectCitations(payload).filter(c=>{const key=`${c.sourceId}:${c.version}:${c.start}:${c.end}`;if(seen.has(key))return false;seen.add(key);return true;});
+  return <details><summary>Inspect proposed terms and exact sources</summary>
+    <p>{payload.identity.sponsorAwardNumber} · {payload.identity.recipientName} · effective {payload.effectiveDate??"unknown"}</p>
+    <p>Base award period: {base?.awardPeriod?`${base.awardPeriod.start} to ${base.awardPeriod.end}`:"unknown"}</p><p>Proposed award period: {payload.awardPeriod?`${payload.awardPeriod.start} to ${payload.awardPeriod.end}`:"unknown"}</p>
+    <h4>Full interpreted money facts</h4>{payload.fundingFacts.map(f=><p key={f.id}>{f.basis.replaceAll("_"," ")}: {formatMoneyFact(f)}</p>)}{!payload.fundingFacts.some(f=>f.basis==="current_action")&&<p>Amount of this action is absent/unknown. No added money or zero is inferred.</p>}
+    <h4>Approved goals</h4>{payload.goals.map(g=><p key={g.goalId}>{g.text}</p>)}<h4>Budget periods</h4>{payload.budgetPeriods.map(p=><p key={p.id}>{p.label}: {p.start} to {p.end}</p>)}
+    {Object.values(payload.fieldEvidence).flatMap((f,i)=>f.mode==="unknown"?[<p className="muted" key={i}>Unresolved: {f.reason}</p>]:[])}
+    {citations.map((c,i)=><CitationView key={i} citation={c} state={state}/>)}
+  </details>;
 }
 
 // Import kept browser-safe: exact decimal conversion has no server dependencies.
