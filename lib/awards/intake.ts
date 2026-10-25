@@ -34,22 +34,27 @@ export function intakeTerms(fields: IntakeFields, source: Source, quote: string,
   }
   // Empty amendment inputs explicitly retain supported cumulative/anticipated facts; action money never carries.
   if (base) for (const f of base.payload.fundingFacts) if (f.basis !== "current_action" && !money.some(x => x.basis === f.basis)) money.push(structuredClone(f));
-  const range = fields.start && fields.end ? { start: fields.start, end: fields.end, evidence: [citation] } : null;
+  const changingRange = !!(fields.start || fields.end);
+  const rangeStart = fields.start || base?.payload.awardPeriod?.start || "", rangeEnd = fields.end || base?.payload.awardPeriod?.end || "";
+  if (changingRange && (!rangeStart || !rangeEnd)) throw new Error("Enter both award-period dates, or leave both unresolved. Your intake text is preserved.");
+  if (!!fields.budgetStart !== !!fields.budgetEnd) throw new Error("Enter both reporting budget-period dates, or leave both unchanged/unresolved.");
+  const range = changingRange ? { start: rangeStart, end: rangeEnd, evidence: [...(base?.payload.awardPeriod?.evidence ?? []), citation] } : null;
   const periods = fields.budgetStart && fields.budgetEnd ? [{ id: `period-${crypto.randomUUID()}`, label: "Confirmed reporting budget period", start: fields.budgetStart, end: fields.budgetEnd, evidence: [citation], supersedesPeriodId: base?.payload.budgetPeriods[0]?.id ?? null }] : base?.payload.budgetPeriods ?? [];
   const goals = fields.goals.trim() ? fields.goals.split("\n").map(g => g.trim()).filter(Boolean).map(text => ({ goalId: `goal-${crypto.randomUUID()}`, text,
     citations: [citation], incorporationRef: null as AwardCitation | null, predecessorGoalIds: base?.payload.goals.map(g => g.goalId) ?? [] })) : base?.payload.goals ?? [];
   const carry = (field: keyof TermsPayload["fieldEvidence"]) => ({ mode: "carry_forward" as const, termsVersionId: base!.id, field });
+  const carryIdentity = !!base && !fields.number && !fields.recipient;
   const sourceRefs = [ref];
   if (base) for (const old of base.payload.sourceRefs) if (!sourceRefs.some(r => r.sourceId === old.sourceId && r.version === old.version)) sourceRefs.push(old);
   return { sponsorActionId: fields.sponsorActionId, changeKind: kind, sponsorIdentifier: fields.sponsorIdentifier || null,
     absenceReason: fields.sponsorIdentifier ? "" : "Human confirms this source-backed action has no numbered sponsor identifier.",
     issueDate: fields.issue || null, effectiveDate: fields.effective || null, dateEvidence: [citation],
-    identity: { sponsor: "NSF", instrument: "standard_grant", sponsorAwardNumber: fields.number || base?.payload.identity.sponsorAwardNumber || "",
-      recipientName: fields.recipient || base?.payload.identity.recipientName || "", evidence: [citation] },
+    identity: carryIdentity ? structuredClone(base!.payload.identity) : { sponsor: "NSF", instrument: "standard_grant", sponsorAwardNumber: fields.number || base?.payload.identity.sponsorAwardNumber || "",
+      recipientName: fields.recipient || base?.payload.identity.recipientName || "", evidence: [...(base?.payload.identity.evidence ?? []), citation] },
     awardPeriod: range ?? base?.payload.awardPeriod ?? null, budgetPeriods: periods, goals, fundingFacts: money,
     approvedBudgetRefs: base?.payload.approvedBudgetRefs ?? [], policies: base?.payload.policies ?? [],
     sponsorLifecycle: base?.payload.sponsorLifecycle ?? { value: "unknown", evidence: [] },
-    fieldEvidence: { identity: quoted, awardPeriod: range ? quoted : base ? carry("awardPeriod") : unknown("Award period not supplied"),
+    fieldEvidence: { identity: carryIdentity ? carry("identity") : { mode: "new", citations: [...(base?.payload.identity.evidence ?? []), citation] }, awardPeriod: range ? { mode: "new", citations: range.evidence } : base ? carry("awardPeriod") : unknown("Award period not supplied"),
       budgetPeriods: fields.budgetStart && fields.budgetEnd ? quoted : base ? carry("budgetPeriods") : unknown("Budget period not supplied"),
       goals: fields.goals.trim() ? quoted : base ? carry("goals") : unknown("Approved scope not supplied"), fundingFacts: money.length ? quoted : unknown("No authoritative money fact supplied"),
       approvedBudgetRefs: base ? carry("approvedBudgetRefs") : unknown("Approved category-budget reference not supplied"),
