@@ -149,7 +149,7 @@ export function CitationView({
     <details className="citation">
       <summary>
         {source.title} · v{citation.version} · [{citation.start}, {citation.end}
-        ){latest(source).version !== citation.version ? " · STALE" : ""}
+        ){citationStale(citation, state) ? " · STALE" : ""}
       </summary>
       <blockquote>{citation.quote}</blockquote>
       {version.fileOrigin && (
