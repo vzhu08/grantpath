@@ -1,5 +1,7 @@
 # Current task contract
 
+Latest human research steering: start separate real-data feasibility and11/12/13 research chats now. Frontend code may change during upcoming redesign: warn each lead and plan behavior/backend seams without freezing component structure. Older start-after-UI/merged-runtime gates are superseded for research launch; required dependent implementation details remain provisional until checked merged contracts can be inspected. No new application writes/heavy work or change to05→06→08 priority follows from starting research.
+
 Standing objective: this is a time-constrained hackathon project. Apply [PROJECT_BRIEF.md](PROJECT_BRIEF.md) throughout development: technical impressiveness, clarity, impact and novelty. Each task should produce a clear researcher benefit, a distinctive working mechanism and judge-visible evidence. Prefer the smallest complete demo slice, reserve integration/rehearsal time and propose concrete cuts to low-value optional breadth. Required correctness, data preservation and acceptance evidence remain in scope.
 
 Current speed preference supersedes earlier dispatch settings: Standard mode / Fast off for future chats and agents, keeping the requested model and reasoning. Existing chats should switch only via a quick supported control; avoid work interruption or expensive reconfiguration.
