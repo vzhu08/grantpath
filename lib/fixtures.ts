@@ -1,6 +1,7 @@
 import { newSource } from "./evidence";
 import { extractCall, extractRequirements } from "./calls";
 import { cite } from "./evidence";
+import { emptyResubmissions } from "./resubmissions/schema";
 import {
   type State,
   type Project,
@@ -143,7 +144,16 @@ export function createDemo(): State {
     };
   });
   return {
-    schemaVersion: 2,
+    schemaVersion: 4,
+    resubmissions:emptyResubmissions(),
+    documents: [],
+    documentVersions: [],
+    parseAttempts: [],
+    attachmentSelections: [],
+    ethicsRecords: [],
+    ethicsTasks: [],
+    handoffs: [],
+    operationReceipts: [],
     contentLibrary: [],
     packetSnapshots: [],
     proposalExports: [],
@@ -165,6 +175,8 @@ export function createApplication(
   const requirements = extractRequirements(source);
   return {
     id,
+    cycleId:"initial",
+    originAttemptId:null,
     projectId: project.id,
     opportunityId: call.id,
     revision: 1,

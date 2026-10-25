@@ -1,0 +1,346 @@
+{
+  "sourceRevision": "b4485b6730dac3585a33ebc1e1bfe739af20cc21",
+  "build": "LjphVZDJouChizrnx1j9P",
+  "origin": "http://127.0.0.1:3120",
+  "results": [
+    {
+      "method": "GET",
+      "url": "/api/health",
+      "status": 200,
+      "expected": 200,
+      "noStore": "no-store"
+    },
+    {
+      "method": "GET",
+      "url": "/",
+      "status": 200,
+      "expected": 200,
+      "noStore": "s-maxage=31536000"
+    },
+    {
+      "method": "GET",
+      "url": "/api/ready",
+      "status": 200,
+      "expected": 200,
+      "noStore": "no-store"
+    },
+    {
+      "method": "POST",
+      "url": "/api/workspace",
+      "status": 415,
+      "expected": 415,
+      "noStore": "no-store",
+      "error": "CONTENT_TYPE"
+    },
+    {
+      "method": "POST",
+      "url": "/api/workspace",
+      "status": 403,
+      "expected": 403,
+      "noStore": "no-store",
+      "error": "ORIGIN"
+    },
+    {
+      "method": "POST",
+      "url": "/api/workspace",
+      "status": 400,
+      "expected": 400,
+      "noStore": "no-store",
+      "error": "INVALID_JSON"
+    },
+    {
+      "method": "POST",
+      "url": "/api/workspace",
+      "status": 413,
+      "expected": 413,
+      "noStore": "no-store",
+      "error": "TOO_LARGE"
+    },
+    {
+      "method": "POST",
+      "url": "/api/documents",
+      "status": 500,
+      "expected": 500,
+      "noStore": "no-store",
+      "error": "INTERNAL_ERROR"
+    },
+    {
+      "method": "POST",
+      "url": "/api/documents",
+      "status": 415,
+      "expected": 415,
+      "noStore": "no-store",
+      "error": "UNSUPPORTED_TYPE"
+    },
+    {
+      "method": "POST",
+      "url": "/api/documents",
+      "status": 415,
+      "expected": 415,
+      "noStore": "no-store",
+      "error": "MIME_MISMATCH"
+    },
+    {
+      "method": "POST",
+      "url": "/api/documents",
+      "status": 422,
+      "expected": 422,
+      "noStore": "no-store",
+      "error": "DOCUMENT_STRUCTURE"
+    },
+    {
+      "method": "POST",
+      "url": "/api/documents",
+      "status": 413,
+      "expected": 413,
+      "noStore": "no-store",
+      "error": "BODY_LIMIT"
+    },
+    {
+      "method": "POST",
+      "url": "/api/workspace",
+      "status": 200,
+      "expected": 200,
+      "noStore": "no-store"
+    },
+    {
+      "method": "POST",
+      "url": "/api/documents",
+      "status": 201,
+      "expected": 201,
+      "noStore": "no-store"
+    },
+    {
+      "method": "GET",
+      "url": "/api/documents/document-05ea93b7-15fd-4d33-8d0b-c38b5cb50f5a/versions/file-version-00e82ddc-690a-4e3a-8a4e-d18b9d5bded9/text?attemptId=parse-5408c23b-44dc-4fc0-b5a7-6a0abc82a7a7",
+      "status": 200,
+      "expected": 200,
+      "noStore": "no-store"
+    },
+    {
+      "method": "POST",
+      "url": "/api/workspace",
+      "status": 200,
+      "expected": 200,
+      "noStore": "no-store"
+    },
+    {
+      "method": "POST",
+      "url": "/api/workspace",
+      "status": 200,
+      "expected": 200,
+      "noStore": "no-store"
+    },
+    {
+      "method": "POST",
+      "url": "/api/workspace",
+      "status": 200,
+      "expected": 200,
+      "noStore": "no-store"
+    },
+    {
+      "method": "POST",
+      "url": "/api/workspace",
+      "status": 200,
+      "expected": 200,
+      "noStore": "no-store"
+    },
+    {
+      "method": "POST",
+      "url": "/api/workspace",
+      "status": 200,
+      "expected": 200,
+      "noStore": "no-store"
+    },
+    {
+      "method": "POST",
+      "url": "/api/workspace",
+      "status": 409,
+      "expected": 409,
+      "noStore": "no-store",
+      "error": "REVISION_CONFLICT"
+    },
+    {
+      "method": "GET",
+      "url": "/api/documents/document-05ea93b7-15fd-4d33-8d0b-c38b5cb50f5a/versions/file-version-00e82ddc-690a-4e3a-8a4e-d18b9d5bded9/download",
+      "status": 200,
+      "expected": 200,
+      "noStore": "no-store"
+    },
+    {
+      "method": "GET",
+      "url": "/api/documents/foreign/versions/file-version-00e82ddc-690a-4e3a-8a4e-d18b9d5bded9/download",
+      "status": 404,
+      "expected": 404,
+      "noStore": "no-store",
+      "error": "VAULT_INPUT"
+    },
+    {
+      "method": "GET",
+      "url": "/api/documents/document-05ea93b7-15fd-4d33-8d0b-c38b5cb50f5a/versions/file-version-00e82ddc-690a-4e3a-8a4e-d18b9d5bded9/download",
+      "status": 403,
+      "expected": 403,
+      "noStore": "no-store",
+      "error": "ORIGIN"
+    },
+    {
+      "method": "GET",
+      "url": "/api/documents/document-05ea93b7-15fd-4d33-8d0b-c38b5cb50f5a/versions/file-version-00e82ddc-690a-4e3a-8a4e-d18b9d5bded9/download",
+      "status": 503,
+      "expected": 503,
+      "noStore": "no-store",
+      "error": "VAULT_CORRUPT"
+    },
+    {
+      "method": "POST",
+      "url": "/api/documents",
+      "status": 201,
+      "expected": 201,
+      "noStore": "no-store"
+    },
+    {
+      "method": "GET",
+      "url": "/api/documents/document-05ea93b7-15fd-4d33-8d0b-c38b5cb50f5a/versions/file-version-00e82ddc-690a-4e3a-8a4e-d18b9d5bded9/download",
+      "status": 200,
+      "expected": 200,
+      "noStore": "no-store"
+    },
+    {
+      "method": "POST",
+      "url": "/api/documents",
+      "status": 201,
+      "expected": 201,
+      "noStore": "no-store"
+    },
+    {
+      "method": "POST",
+      "url": "/api/documents",
+      "status": 201,
+      "expected": 201,
+      "noStore": "no-store"
+    },
+    {
+      "method": "POST",
+      "url": "/api/documents",
+      "status": 201,
+      "expected": 201,
+      "noStore": "no-store"
+    },
+    {
+      "method": "POST",
+      "url": "/api/documents",
+      "status": 201,
+      "expected": 201,
+      "noStore": "no-store"
+    },
+    {
+      "method": "GET",
+      "url": "/api/documents/document-b47559cd-5c93-495c-ab7d-1d51bbe2f038/versions/file-version-3481c62f-1380-434a-9b93-d19d5cd6cc0b/download",
+      "status": 200,
+      "expected": 200,
+      "noStore": "no-store"
+    },
+    {
+      "method": "POST",
+      "url": "/api/applications/application-de8c4dcf-46c4-4f94-afd5-e36cbeab75c1/handoffs",
+      "status": 201,
+      "expected": 201,
+      "noStore": "no-store"
+    },
+    {
+      "method": "GET",
+      "url": "/api/applications/application-de8c4dcf-46c4-4f94-afd5-e36cbeab75c1/handoffs/handoff-d3f4ff61-ac03-4d75-b5c3-1f7930bb82d1",
+      "status": 200,
+      "expected": 200,
+      "noStore": "no-store"
+    }
+  ],
+  "findings": [
+    {
+      "id": "F2",
+      "actual": 500,
+      "expected": 400,
+      "repro": "X-Upload-Metadata ew decodes to incomplete JSON {; binary body x"
+    },
+    {
+      "id": "F1a",
+      "originalIntegrity": "corrupt",
+      "readinessAddedIssues": [],
+      "generationContext": "EVIDENCE_REVIEW",
+      "summary": "Cited original corruption adds no readiness issue"
+    },
+    {
+      "id": "F1b",
+      "sourceFileStale": true,
+      "citationSectionBlocked": true,
+      "selectedOnlySectionsBlocked": false
+    }
+  ],
+  "workflow": {
+    "appId": "application-de8c4dcf-46c4-4f94-afd5-e36cbeab75c1",
+    "sourceId": "source-1830f35b-25b0-4b1d-8a85-206a91163a88",
+    "documentId": "document-05ea93b7-15fd-4d33-8d0b-c38b5cb50f5a",
+    "versionId": "file-version-00e82ddc-690a-4e3a-8a4e-d18b9d5bded9",
+    "replacementVersionId": "file-version-ba8845f0-1155-4873-ac21-da62d41288b0",
+    "firstSha256": "22e3bcd98bf708e0baaac39e20f8140c47d6d2ab372a1fc62db8cc5a88273a67",
+    "handoffId": "handoff-d3f4ff61-ac03-4d75-b5c3-1f7930bb82d1",
+    "formats": [
+      {
+        "versionId": "file-version-b3d81ffe-7ed0-4a5d-b1b0-b0ba651231e2",
+        "status": "parsed"
+      },
+      {
+        "versionId": "file-version-7281aa21-ccfb-4e30-ae13-e5c208062df6",
+        "status": "parsed"
+      },
+      {
+        "versionId": "file-version-7b2f28c3-034b-44ee-bae8-ff0a9dd5b231",
+        "status": "parsed"
+      }
+    ],
+    "malformedStatus": "failed",
+    "baselineIssueIds": [
+      "review",
+      "req-review-req-demo-call-source-1-1-section-0",
+      "req-review-req-demo-call-source-1-1-section-1",
+      "req-review-req-demo-call-source-1-1-section-2",
+      "req-review-req-demo-call-source-1-1-document-0",
+      "vault-req-demo-call-source-1-1-document-0-0",
+      "req-review-req-demo-call-source-1-1-task-0",
+      "vault-req-demo-call-source-1-1-task-0-0",
+      "req-review-req-demo-call-source-1-1-optional-0",
+      "no-citations-significance",
+      "no-citations-approach"
+    ],
+    "handoffKeys": [
+      "snapshot",
+      "currentInputsMatch",
+      "downloads"
+    ]
+  },
+  "selection": {
+    "requirementId": "req-demo-call-source-1-1-document-0",
+    "selectionId": "selection-c3c61e02-dc15-425a-b149-41d89e05c687",
+    "pinnedVersionId": "file-version-00e82ddc-690a-4e3a-8a4e-d18b9d5bded9",
+    "documentVersions": 3,
+    "reviewBeforeReplacement": "accepted",
+    "reviewAfterReplacement": [
+      "A newer version exists; explicitly review the pinned selection again."
+    ],
+    "handoffId": "handoff-5543454c-6333-408c-9f75-97a94b206b32",
+    "downloadPath": "/api/applications/application-de8c4dcf-46c4-4f94-afd5-e36cbeab75c1/handoffs/handoff-5543454c-6333-408c-9f75-97a94b206b32/file-version-00e82ddc-690a-4e3a-8a4e-d18b9d5bded9/download?requirementId=req-demo-call-source-1-1-document-0",
+    "sha256": "22e3bcd98bf708e0baaac39e20f8140c47d6d2ab372a1fc62db8cc5a88273a67",
+    "foreignRequirementStatus": 404
+  },
+  "restart": {
+    "stateDeepEqual": true,
+    "pinnedOriginalSha256": "22e3bcd98bf708e0baaac39e20f8140c47d6d2ab372a1fc62db8cc5a88273a67",
+    "downloadStatus": 200
+  },
+  "assertedRequests": 113,
+  "notes": [
+    "Repeated workspace polling omitted from sanitized request list.",
+    "Synthetic IDs retained to reproduce selected version and handoff scope.",
+    "Owned server stopped after restart checks; normal3000 untouched."
+  ]
+}

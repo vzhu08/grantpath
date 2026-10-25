@@ -8,6 +8,8 @@ The baseline is a single-user local app with project/text evidence, exactly six 
 
 ## How humans and agents should use this backlog
 
+Apply the standing [hackathon project goals](PROJECT_BRIEF.md): technical impressiveness, clarity, impact and novelty within a fixed event time budget. This backlog is not an event completion checklist or a mandatory implementation order. Choose a bounded, distinctive demonstration whose researcher value and technical mechanism judges can see; weigh remaining effort, integration risk and rehearsal time before adding breadth. Reuse working foundations, defer low-value generalization and preserve a credible end-to-end path. Implementation 02–04 is authorized; for selected 05–09 the user authorized a new implementation chat after each reviewed research handoff. Research 05/07/09 is complete and implementation dispatched; 06 research is unlocked, 08 held for 06. Prerequisite information, human decisions and exclusive integration gates remain required.
+
 Choose one bounded addition for an explicitly authorized release. Check its dependencies against the current code and verified behavior. Keep source versions and accepted edits connected across the workflow. Make uncertainty and failure visible. Separate deterministic arithmetic from AI suggestions. Do not ship extra modules simply to fill navigation. Use synthetic or authorized data for demos.
 
 Every release must demonstrate a complete persisted workflow, traceable inputs, missing-data/stale-source/failure cases, and regression checks for the original manual journey. A plan is not an experiment; a cached demo feed is not live; an exported report is not certified. Evaluate time saved and corrections needed. Award-rate improvement requires longitudinal evaluation with appropriate comparisons, not a model grade.
@@ -54,6 +56,8 @@ The order below ranks feasibility of the described bounded versions, not effort 
 
 **Dependencies:** frozen proposals, source references, tasks and drafting. Pasted text is sufficient; file support can use 02. **Acceptance:** every concern resolves to the original comment; cosmetic rewriting does not close an evidence gap; no completed experiment is claimed without a recorded result; old/new versions are comparable. **Limit:** resolving comments cannot guarantee funding, and conflicting suggestions/call conditions require a decision.
 
+Implementation plan: [Resubmission response matrix specification](implementation/03_RESUBMISSION_RESPONSE_MATRIX_IMPLEMENTATION.md) - general workflow, NSF first; researched plan, feature implementation pending.
+
 ## 04 — Evidence-linked AI rubric review
 
 **Outcome:** identify unclear claims, inconsistent facts and weak support. **Inputs:** frozen draft, actual call rubric, selected scientific context and evidence records.
@@ -61,6 +65,8 @@ The order below ranks feasibility of the described bounded versions, not effort 
 **Bounded release:** one structured review pass plus deterministic checks. Return criterion-level findings with draft spans, rationale, severity, uncertainty and suggested actions. Persist accepted/dismissed findings and revision tasks. Prefer statuses; any optional numeric grade must show its rubric and tool-generated nature, retain prior runs and never imply award probability. Keep administrative blockers separate from scientific suggestions.
 
 **Dependencies:** stable snapshots, confirmed criteria and evidence retrieval; a domain-expert evaluation set before scientific-quality claims. **Acceptance:** detect planted contradictory sample sizes, unsupported pilot results and missing sections; locate relevant passages; admit insufficient evidence; reruns preserve accepted findings. **Limit:** plausible critique is not calibrated peer review, scientific validity or a likely panel score.
+
+Implementation plan: [Evidence linked rubric review specification](implementation/04_EVIDENCE_LINKED_RUBRIC_REVIEW_IMPLEMENTATION.md) - v1.1 with confirmed NSF-first workflow, scored criteria/reasons/fixes, requesting-user approval ownership and local ChatGPT-plan allowance mode. Implementation is now authorized in a separate chat; account access and feature acceptance remain to be verified.
 
 ## 05 — Award obligations and progress-update drafting
 
@@ -72,6 +78,8 @@ The order below ranks feasibility of the described bounded versions, not effort 
 
 ## 06 — Budget planning and expenditure ledger
 
+Task 05's completed [award specification](implementation/05_AWARD_OBLIGATIONS_PROGRESS_REPORTS_IMPLEMENTATION.md) now supplies the parent-reviewed logical research boundary. Task 06 planning is dispatched; actual checked award DTO/migration/receipt/amendment/restart behavior is still required before code integration.
+
 **Outcome:** track requested, awarded, spent, committed and remaining amounts by category/period. **Inputs:** proposal budget, approved award/amendments, category/rate assumptions, transactions, commitments and a defined CSV format.
 
 **Bounded release:** one currency per award, explicit periods/category mappings, integer minor-unit or exact decimal money, deterministic personnel/equipment/other totals. Separate actuals, commitments and forecasts. Include optional receipt links, duplicate detection and an audit trail. The user confirms indirect-cost bases/rates. Output proposal budgets and budget-versus-actual/remaining balances; amendments preserve transaction history.
@@ -79,6 +87,10 @@ The order below ranks feasibility of the described bounded versions, not effort 
 **Dependencies:** award records, deterministic calculations and versioning; reconcile with an institutional source before authoritative balances. **Acceptance:** repeat imports never double-count; rejected rows remain visible; refunds/credits work; totals reconcile exactly; negative balances remain visible; amendments retain before/after values; an expense is not counted again as a commitment. **Limit:** a project ledger is not institutional accounting. A positive balance does not prove allowability or legal availability.
 
 ## 07 — Scheduled reminders outside the app
+
+**Human-approved hackathon cut:** banners inside the open website are sufficient for the October 26 demo. Closed-website delivery is deferred, not completed by a banner. Research now targets durable in-app reminder state and preserves agenda/ICS; the broader external-delivery goal below remains later scope.
+
+Completed [implementation specification](implementation/07_SCHEDULED_REMINDERS_IMPLEMENTATION.md); separate implementation chat dispatched. [External-delivery research](research/07/EXTERNAL_DELIVERY_RESEARCH.md) is retained as deferred evidence, not current demo infrastructure.
 
 **Outcome:** receive a reminder while the app is closed. **Inputs:** confirmed deadlines, lead times, timezone, explicit recipient/channel and opt-in preferences.
 
@@ -96,6 +108,10 @@ The order below ranks feasibility of the described bounded versions, not effort 
 
 ## 09 — Live grant discovery and feed synchronization
 
+**Human-approved hackathon cut:** U.S. NSF opportunities via Grants.gov, refreshed manually. The human confirmed manual refresh is sufficient for the next roughly 24 hours and tomorrow's demo. Scheduled refresh is deferred rather than a blocker for this accepted demo scope; the broader synchronization goal below remains later scope.
+
+Completed [implementation specification](implementation/09_LIVE_GRANT_DISCOVERY_IMPLEMENTATION.md); separate implementation chat dispatched. Real public API access/terms and provider-ID seed pairings remain implementation preflight gates, not research-verified runtime claims.
+
 **Outcome:** discover new/amended opportunities without manually maintaining the catalog. **Inputs:** one documented official feed/API, researcher profiles, source metadata and ingestion settings.
 
 **Bounded release:** start with a small manually verified real catalog, then one source-specific API adapter with caching, deduplication, versions and scheduled refresh. Verify access and terms at implementation time. Distinguish discovery metadata from authoritative call text; detect amendments/closures/deadline changes. Reuse tri-state eligibility and transparent relevance. Output source-linked changes, freshness and saved-application amendment alerts.
@@ -104,6 +120,8 @@ The order below ranks feasibility of the described bounded versions, not effort 
 
 ## 10 — Team workspaces and institutional connectors
 
+**Hackathon decision:** the human explicitly skipped task 10 because its improvement does not justify the effort. Retain the description as later backlog; do not dispatch it or make it a prerequisite for the bounded local demo.
+
 **Outcome:** collaborate with investigators/research offices and reduce repeated entry. **Inputs:** authenticated identities/roles, memberships, audit policy and actual permission for a selected external system.
 
 **Bounded release:** first private owner/editor/viewer workspaces with server-enforced access, comments, review requests and conflict-safe edits. Then one read-only connector with an explicit source of truth. Drive, accounting, calendar OAuth and IRB-system sync are separate releases. Output permission-aware applications, audit history and controlled sync with visible conflicts/errors.
@@ -111,6 +129,8 @@ The order below ranks feasibility of the described bounded versions, not effort 
 **Dependencies:** migrate local storage to a multi-tenant authorization design, manage tokens/credentials, audit records and obtain institutional access. **Acceptance:** changing record IDs never exposes another workspace; revocation blocks access; retries do not duplicate imports; stale external data cannot overwrite newer accepted changes; failures preserve local work. **Limit:** institutions may have no public API; contracts/access/privacy can dominate effort. Formal ethics approval remains institutional.
 
 ## 11 — GrantWeave: compatible funding combinations
+
+**Research gate:** authorized after the requested infrastructure review and actual necessary award/budget/provenance prerequisites are checked and merged into main. Do not begin with guessed unimplemented interfaces. The implementation doc must reference the merged codebase.
 
 **Decision:** can three to five particular calls/awards jointly support a researcher-confirmed work plan, and which restrictions bind? Output feasible alternatives or unsatisfied constraints, never treat summed maxima as secured funds.
 
@@ -122,6 +142,8 @@ The order below ranks feasibility of the described bounded versions, not effort 
 
 ## 12 — AimFit: study design under a funding ceiling
 
+**Research gate:** authorized after the requested infrastructure review and actual necessary cost/budget/versioned-assumption prerequisites are checked and merged into main. Human design-family/statistical validation choices remain explicit; the doc must cite real code interfaces.
+
 **Decision:** which affordable study options still address the research question, and which conclusions can each support? Expose scope changes and infeasible targets.
 
 **Inputs:** one validated design family, researcher-defined question, source-linked effect/precision assumptions, fixed/per-unit costs, attrition/resources, cap, timeline and approved alternatives. **Bounded release:** choose a design family with a statistics adviser, implement validated numerical calculations, independently compare reference cases and enumerate a small acceptable set of variants. Output costed options, sample/resource choices, sensitivity, unmet targets and corresponding claim changes. AI may explain/draft revisions, never invent effects or supply authoritative arithmetic. Researcher approval precedes application updates.
@@ -131,6 +153,8 @@ The order below ranks feasibility of the described bounded versions, not effort 
 **Limit:** power/affordability do not prove merit, validity or feasibility. Never optimize repeatedly on observed outcomes to manufacture significance. Recruitment, ethics, equipment and time can bind. Trials, wet labs and arbitrary redesign need separate validated models. **Success measure:** numerical correctness and expert acceptance; researchers can explain assumptions and permissible conclusions.
 
 ## 13 — Bootstrap: cheapest credible preliminary-evidence plan
+
+**Research gate:** authorized after the infrastructure review and actual necessary evidence-gap/review/resource-cost prerequisites are checked and merged. Do not assume optional GrantWeave/AimFit scenarios are mandatory or implemented. Ground the doc in actual merged code and human-approved scientific candidates.
 
 **Decision:** which next affordable piece of evidence is worth obtaining to address a specific proposal gap? Optimize useful evidence rather than favorable findings.
 

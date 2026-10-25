@@ -1,4 +1,21 @@
-import { mkdir, open, readFile, rename, unlink } from "node:fs/promises";
+import { migrateV2 } from "./vault/migration";
+import { migrateV3 } from "./resubmissions/migration";
+import { isResubmissionCommand } from "./resubmissions/schema";
+import { applyResubmissionCommand,commitResubmissionPreview } from "./resubmissions/workflow";
+import { validateResubmissionGraph,protectResubmissionDemoReset } from "./resubmissions/validation";
+import {
+  applyVaultCommand,
+  isVaultCommand,
+  validateVaultState,
+} from "./vault/domain";
+import {
+  mkdir,
+  open,
+  readFile,
+  rename,
+  unlink,
+  readdir,
+} from "node:fs/promises";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { normalizeText } from "../modules/documents/src/index";
@@ -51,8 +68,11 @@ function find<T extends { id: string }>(items: T[], id: string): T {
 export function applyCommand(
   state: State,
   input: Mutation,
-): { state: State; selectedId?: string } {
+  vaultExcerpt?: string,
+): { state: State; selectedId?: string;resultIds?:string[];replayed?:boolean;consumedPreviewToken?:string } {
   const { command: c } = MutationSchema.parse(input);
+  // The feature command recovers a receipt before checking expectedRevision.
+  if(isResubmissionCommand(c))return applyResubmissionCommand(state,{expectedRevision:input.expectedRevision,command:c});
   if (input.expectedRevision !== state.revision)
     fail(
       "A newer save exists. Your editor text is preserved. Reload saved data and reconcile your changes before retrying.",
@@ -69,11 +89,31 @@ export function applyCommand(
   const invalidate = (
     predicate: (app: State["applications"][number]) => boolean,
   ) => state.applications.filter(predicate).forEach(touch);
+  if (isVaultCommand(c)) {
+    selectedId = applyVaultCommand(state, c, at, vaultExcerpt);
+    if (c.type === "editDocumentMetadata")
+      invalidate(
+        (a) => a.projectId === find(state.documents, c.documentId).projectId,
+      );
+    else if (c.type === "saveEthicsRecord" || c.type === "promoteFileExcerpt")
+      invalidate((a) => a.projectId === c.projectId);
+    else if (c.type === "confirmEthicsRecord")
+      invalidate(
+        (a) => a.projectId === find(state.ethicsRecords, c.recordId).projectId,
+      );
+    else if (c.type === "selectAttachment" || c.type === "reviewAttachment") {
+      const a = find(state.applications, c.applicationId);
+      a.waivers = [];
+      if (a.stage === "Ready for review") a.stage = "Preparing";
+    }
+    state.revision++;
+    return { state: validateResubmissionGraph(validateVaultState(StateSchema.parse(state))), selectedId };
+  }
   if (isProposalCommand(c)) {
     selectedId = applyProposalCommand(state, c, at);
     state.revision++;
     return {
-      state: validateStateIntegrity(StateSchema.parse(state)),
+      state: validateResubmissionGraph(validateStateIntegrity(StateSchema.parse(state))),
       selectedId,
     };
   }
@@ -117,6 +157,11 @@ export function applyCommand(
       });
       if (latest(source).hash !== normalized.hash)
         source.versions.push({
+          ...(latest(source).fileOrigin
+            ? {
+                fileOrigin: { ...latest(source).fileOrigin!, manualEdit: true },
+              }
+            : {}),
           version: latest(source).version + 1,
           hash: normalized.hash,
           text: normalized.text,
@@ -296,7 +341,7 @@ export function applyCommand(
     const project = find(state.projects, c.projectId),
       call = find(state.opportunities, c.opportunityId);
     const existing = state.applications.find(
-      (a) => a.projectId === project.id && a.opportunityId === call.id,
+      (a) => a.projectId === project.id && a.opportunityId === call.id && a.cycleId==="initial" && !a.originAttemptId,
     );
     if (existing) selectedId = existing.id;
     else {
@@ -305,6 +350,21 @@ export function applyCommand(
       selectedId = app.id;
     }
   } else if (c.type === "resetDemo") {
+    protectResubmissionDemoReset(state);
+    if (
+      state.documents.length ||
+      state.ethicsRecords.length ||
+      state.handoffs.length ||
+      state.sources.some(
+        (s) =>
+          s.provenance === "researcher" &&
+          state.projects.find((p) => p.id === s.projectId)?.provenance ===
+            "demo",
+      )
+    )
+      fail(
+        "Demo reset is unavailable while retained uploads, ethics, handoffs or researcher evidence reference this workspace. All original files remain retained.",
+      );
     if (
       state.packetSnapshots.some(
         (packet) => packet.payload.project.provenance === "demo",
@@ -488,7 +548,7 @@ export function applyCommand(
       section.revisions.push(revision);
       touch(app);
     } else if (c.type === "waiveIssue") {
-      if (/^(scope-|condition-|pages-)/.test(c.issueId))
+      if (/^(scope-|condition-|pages-|vault-)/.test(c.issueId))
         fail(
           "A waiver cannot resolve unsupported scope, unknown applicability or measured page compliance. Review the source rule or re-render the content.",
         );
@@ -516,18 +576,23 @@ export function applyCommand(
     }
   }
   state.revision++;
-  return { state: StateSchema.parse(state), selectedId };
+  return { state: validateResubmissionGraph(StateSchema.parse(state)), selectedId };
 }
 export function createRepository(directory: string) {
   const filename = path.join(directory, "workspace.json");
   let tail: Promise<unknown> = Promise.resolve();
-  async function write(state: State) {
+  async function write(state: State,migrating=false) {
+    state = validateResubmissionGraph(validateVaultState(
+      validateStateIntegrity(StateSchema.parse(state)),
+    ));
+    const serialized=JSON.stringify(state,null,2);
+    if(!migrating&&Buffer.byteLength(serialized,"utf8")>25*1024*1024)fail("The workspace exceeds 25 MiB. It remains readable and exportable; preserve it and plan a capacity change without pruning history.",413);
     await mkdir(directory, { recursive: true });
     const temp = path.join(directory, `.workspace-${randomUUID()}.tmp`);
     try {
       const file = await open(temp, "wx", 0o600);
       try {
-        await file.writeFile(JSON.stringify(state, null, 2), "utf8");
+        await file.writeFile(serialized, "utf8");
         await file.sync();
       } finally {
         await file.close();
@@ -538,15 +603,49 @@ export function createRepository(directory: string) {
     }
   }
   async function load(): Promise<State> {
+    let raw: Buffer;
     try {
-      const raw = await readFile(filename);
+      raw = await readFile(filename);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "ENOENT")
+        throw new KitError(
+          "STORAGE_ERROR",
+          "The workspace could not be read. Preserve the data file.",
+          503,
+        );
+      const retained = await readdir(directory).catch(
+        (e: NodeJS.ErrnoException) => {
+          if (e.code === "ENOENT") return [];
+          throw e;
+        },
+      );
+      if (
+        retained.some(
+          (name) =>
+            name === "vault" ||
+            name === "backups" ||
+            name.includes(".backup.json") ||
+            name.startsWith(".workspace-"),
+        )
+      )
+        throw new KitError(
+          "STORAGE_ERROR",
+          "Workspace metadata is missing beside retained vault or backup data. Restore matching metadata and files together; nothing was reset.",
+          503,
+        );
+      const state = createDemo();
+      await write(state);
+      return state;
+    }
+    try {
       const input = JSON.parse(raw.toString("utf8"));
-      if (input.schemaVersion === 1) {
-        const migrated = migrateV1(input);
+      if ([1,2,3].includes(input.schemaVersion)) {
+        const migrated =
+          input.schemaVersion === 1 ? migrateV1(input) : input.schemaVersion===2?migrateV2(input):migrateV3(input);
         const backup = await open(
           path.join(
             directory,
-            `workspace.v1-${Date.now()}-${randomUUID()}.backup.json`,
+            `workspace.v${input.schemaVersion}-${Date.now()}-${randomUUID()}.backup.json`,
           ),
           "wx",
           0o600,
@@ -557,16 +656,13 @@ export function createRepository(directory: string) {
         } finally {
           await backup.close();
         }
-        await write(migrated);
+        await write(migrated,true);
         return migrated;
       }
-      return validateStateIntegrity(StateSchema.parse(input));
+      return validateResubmissionGraph(validateVaultState(
+        validateStateIntegrity(StateSchema.parse(input)),
+      ));
     } catch (error) {
-      if ((error as NodeJS.ErrnoException).code === "ENOENT") {
-        const state = createDemo();
-        await write(state);
-        return state;
-      }
       throw new KitError(
         "STORAGE_ERROR",
         "The local workspace could not be read. Preserve the data file and inspect it before restarting; it has not been reset.",
@@ -593,11 +689,27 @@ export function createRepository(directory: string) {
           current = await (
             await import("./proposals/runtime-state")
           ).proposalRuntimeState(current);
-        const result = applyCommand(current, input);
+        current = await (
+          await import("./vault/service")
+        ).vaultRuntimeState(current, directory);
+        let excerpt: string | undefined;
+        if (input.command.type === "promoteFileExcerpt") {
+          const c = input.command;
+          const attempt = current.parseAttempts.find(
+            (p) => p.id === c.parseAttemptId,
+          );
+          if (!attempt) fail("Extraction attempt unavailable.", 404);
+          const store = (await import("./vault/storage")).storage(directory);
+          const artifact = await store.readText(attempt);
+          excerpt = artifact.slice(c.start, c.end);
+        }
+        const result = applyCommand(current, input, excerpt);
+        if(result.replayed)return result;
         result.state.proposalExports.forEach((job) => {
           delete job.runtimeRendererMatch;
         });
         await write(result.state);
+        commitResubmissionPreview(result);
         return result;
       }),
     internal: <T>(
@@ -613,9 +725,50 @@ export function createRepository(directory: string) {
           fail("Saved state changed. Reload and retry.", 409);
         const result = await operation(state);
         state.revision++;
-        const validated = validateStateIntegrity(StateSchema.parse(state));
+        const validated = validateResubmissionGraph(validateVaultState(
+          validateStateIntegrity(StateSchema.parse(state)),
+        ));
         await write(validated);
         return { state: validated, result };
+      }),
+    backup: () =>
+      enqueue(async () => {
+        const state = await load(),
+          store = (await import("./vault/storage")).storage(directory),
+          target = path.join(
+            directory,
+            "backups",
+            `workspace-${Date.now()}-${randomUUID()}`,
+          );
+        await mkdir(path.join(target, "vault", "blobs"), { recursive: true });
+        await mkdir(path.join(target, "vault", "extractions"), {
+          recursive: true,
+        });
+        for (const v of state.documentVersions)
+          await (
+            await import("node:fs/promises")
+          ).writeFile(
+            path.join(target, "vault", "blobs", `${v.id}.bin`),
+            await store.read(v),
+            { flag: "wx", mode: 0o600 },
+          );
+        for (const p of state.parseAttempts)
+          if (p.artifactSha256)
+            await (
+              await import("node:fs/promises")
+            ).writeFile(
+              path.join(target, "vault", "extractions", `${p.id}.txt`),
+              await store.readText(p),
+              { flag: "wx", mode: 0o600 },
+            );
+        await (
+          await import("node:fs/promises")
+        ).writeFile(
+          path.join(target, "workspace.json"),
+          JSON.stringify(state, null, 2),
+          { flag: "wx", mode: 0o600 },
+        );
+        return target;
       }),
     directory,
     filename,

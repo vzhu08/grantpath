@@ -1,3 +1,4 @@
+import { vaultRuntimeState, recoverVault } from "../../../lib/vault/service";
 import { readJSON } from "../../../packages/runtime/src/body";
 import { errorResponse } from "../../../packages/runtime/src/index";
 import { MutationSchema } from "../../../lib/schema";
@@ -9,8 +10,12 @@ export const dynamic = "force-dynamic";
 export async function GET(request: Request) {
   try {
     assertLocalRequest(request);
+    await recoverVault();
     return Response.json(
-      await proposalRuntimeState(await repository().read()),
+      await vaultRuntimeState(
+        await proposalRuntimeState(await repository().read()),
+        repository().directory,
+      ),
       {
         headers: { "cache-control": "no-store" },
       },
@@ -25,7 +30,13 @@ export async function POST(request: Request) {
     const input = await readJSON(request, MutationSchema, 120_000);
     const result = await repository().mutate(input);
     return Response.json(
-      { ...result, state: await proposalRuntimeState(result.state) },
+      {
+        ...result,
+        state: await vaultRuntimeState(
+          await proposalRuntimeState(result.state),
+          repository().directory,
+        ),
+      },
       {
         headers: { "cache-control": "no-store" },
       },

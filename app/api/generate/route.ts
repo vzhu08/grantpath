@@ -1,35 +1,35 @@
+import { vaultRuntimeState } from "../../../lib/vault/service";
+import { storage } from "../../../lib/vault/storage";
 import { readJSON } from "../../../packages/runtime/src/body";
 import { errorResponse, KitError } from "../../../packages/runtime/src/index";
 import { GenerationInputSchema } from "../../../lib/schema";
 import { generateProposal } from "../../../lib/generation";
 import { pendingProposals, repository, uid } from "../../../lib/repository";
 import { assertLocalRequest } from "../../../lib/http";
+import { acquireGeneration } from "../../../lib/resubmissions/limiter";
 export const runtime = "nodejs";
-const globals = globalThis as typeof globalThis & {
-  grantpathGenerationLimit?: { inFlight: boolean; attempts: number[] };
-};
-const limits = (globals.grantpathGenerationLimit ??= {
-  inFlight: false,
-  attempts: [],
-});
 export async function POST(request: Request) {
-  let acquired = false;
+  let release:(()=>void)|undefined;
   const signal = AbortSignal.any([request.signal, AbortSignal.timeout(22_000)]);
   try {
     assertLocalRequest(request, true);
     const input = await readJSON(request, GenerationInputSchema, 120_000);
-    limits.attempts = limits.attempts.filter((t) => t > Date.now() - 60_000);
-    if (limits.inFlight || limits.attempts.length >= 6)
-      throw new KitError(
-        "RATE_LIMIT",
-        "Wait before trying again: one active generation and six attempts per minute are allowed.",
-        429,
-        true,
+    release=acquireGeneration();
+    const repo = repository(),
+      state = await vaultRuntimeState(await repo.read(), repo.directory);
+    for (const source of state.sources.filter((s) =>
+      input.sourceIds.includes(s.id),
+    )) {
+      const o = source.versions.at(-1)?.fileOrigin;
+      if (!o || o.manualEdit) continue;
+      const attempt = state.parseAttempts.find(
+        (p) => p.id === o.parseAttemptId,
       );
-    limits.inFlight = true;
-    limits.attempts.push(Date.now());
-    acquired = true;
-    const state = await repository().read();
+      if (!attempt)
+        throw new KitError("EVIDENCE", "File extraction is unavailable.", 422);
+      await storage(repo.directory).readText(attempt);
+    }
+
     const { proposal, revision } = await generateProposal(state, input, signal);
     for (const [token, pending] of pendingProposals)
       if (pending.expires < Date.now()) pendingProposals.delete(token);
@@ -58,6 +58,6 @@ export async function POST(request: Request) {
         : error,
     );
   } finally {
-    if (acquired) limits.inFlight = false;
+    release?.();
   }
 }

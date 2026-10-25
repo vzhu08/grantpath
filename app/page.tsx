@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { StateSchema, type State, type Command } from "../lib/schema";
 import { readiness } from "../lib/readiness";
 import { deadlineLabel } from "../lib/calendar";
@@ -12,6 +12,7 @@ import {
 import { Checklist } from "../components/checklist";
 import { Drafts } from "../components/drafts";
 import { ProposalPanel } from "../components/proposal-panel";
+import { ResubmissionsPanel } from "../components/resubmissions";
 import { Badge, Field, download, EditorRegistry } from "../components/common";
 
 const steps = [
@@ -45,6 +46,7 @@ export default function Workspace() {
     [projectId, setProjectId] = useState("demo-project"),
     [appId, setAppId] = useState(""),
     [tab, setTab] = useState("project"),
+    [draftView,setDraftView]=useState<"proposal"|"resubmission">("proposal"),
     [creating, setCreating] = useState(false),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
@@ -52,20 +54,22 @@ export default function Workspace() {
     [saved, setSaved] = useState("Loading local workspace…"),
     [reviewCall, setReviewCall] = useState(false),
     [latestState, setLatestState] = useState<State | null>(null);
-  const markEditor = useCallback(
-    (id: string, value: boolean) =>
-      setDirtyEditors((current) => {
-        if (!!current[id] === value) return current;
-        const next = { ...current };
-        if (value) next[id] = true;
-        else delete next[id];
-        return next;
-      }),
-    [],
-  );
+  const dirtyRef = useRef<Record<string, boolean>>({});
+  const markEditor = useCallback((id: string, value: boolean) => {
+    const current = dirtyRef.current;
+    if (!!current[id] === value) return;
+    const next = { ...current };
+    if (value) next[id] = true;
+    else delete next[id];
+    dirtyRef.current = next;
+    setDirtyEditors(next);
+  }, []);
   const dirty = Object.values(dirtyEditors).some(Boolean);
   const setDirty = (value: boolean) => {
-    if (!value) setDirtyEditors({});
+    if (!value) {
+      dirtyRef.current = {};
+      setDirtyEditors({});
+    }
   };
   async function load(initial = false) {
     try {
@@ -76,7 +80,8 @@ export default function Workspace() {
           data.error?.message ?? "Could not load the local workspace.",
         );
       const parsed = StateSchema.parse(data);
-      if (initial || !dirty) {
+      if (initial || !Object.values(dirtyRef.current).some(Boolean)) {
+        setLatestState(null);
         setState(parsed);
         setSaved(`Saved · workspace r${parsed.revision}`);
       } else setLatestState(parsed);
@@ -448,6 +453,7 @@ export default function Workspace() {
                                           (c) => c.id === a.opportunityId,
                                         )?.title
                                       }
+                                      {" / "}{a.cycleId??"initial"}
                                     </option>
                                   ))}
                                 </select>
@@ -527,6 +533,7 @@ export default function Workspace() {
                           </div>
                         )}
                       </section>
+                      {tab==="drafts"&&<div className="button-row" aria-label="Drafting views"><button type="button" className={draftView==="proposal"?"primary":"secondary"} aria-pressed={draftView==="proposal"} onClick={()=>navigate(()=>setDraftView("proposal"))}>Proposal drafting</button><button type="button" className={draftView==="resubmission"?"primary":"secondary"} aria-pressed={draftView==="resubmission"} onClick={()=>navigate(()=>setDraftView("resubmission"))}>Resubmission matrix</button></div>}
                       {app &&
                         call &&
                         (tab === "application" ? (
@@ -536,7 +543,7 @@ export default function Workspace() {
                             app={app}
                             call={call}
                           />
-                        ) : (
+                        ) : draftView==="proposal"?(
                           <>
                             <ProposalPanel {...props} key={app.id} app={app} />
                             {app.binding?.templateId !==
@@ -548,7 +555,8 @@ export default function Workspace() {
                               />
                             )}
                           </>
-                        ))}
+                        ):null)}
+                      {tab==="drafts"&&draftView==="resubmission"&&project&&<ResubmissionsPanel state={state} projectId={project.id} applicationId={app?.id} onCommand={mutate} onSelectApplication={id=>navigate(()=>{setAppId(id);setTab("drafts");setDraftView("proposal");})}/>}
                     </>
                   )}
                 </>

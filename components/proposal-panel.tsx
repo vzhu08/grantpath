@@ -1,4 +1,5 @@
 "use client";
+import { apiErrorMessage } from "../lib/api-error";
 import { useContext, useEffect, useRef, useState } from "react";
 import { cite, latest } from "../lib/evidence";
 import { readiness, wordCount, type Issue } from "../lib/readiness";
@@ -602,7 +603,7 @@ function SectionEditor(
         }),
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Generation failed.");
+      if (!response.ok) throw new Error(apiErrorMessage(data.error, "Generation failed."));
       setPreview(data);
     } catch (error) {
       if (!abort.signal.aborted) setError(errorText(error));
@@ -1886,7 +1887,7 @@ function PacketExports(
         );
         const data = await response.json();
         if (!response.ok)
-          throw new Error(data.error ?? "Could not read export status.");
+          throw new Error(apiErrorMessage(data.error, "Could not read export status."));
         const result = ProposalExportSchema.parse(data.export ?? data);
         if (!active) return;
         setWatched(result);
@@ -1923,7 +1924,7 @@ function PacketExports(
     });
     const data = await response.json();
     if (!response.ok)
-      throw new Error(data.error ?? "Export could not be started.");
+      throw new Error(apiErrorMessage(data.error, "Export could not be started."));
     const job = data.state?.proposalExports?.find(
       (item: ProposalExport) => item.id === data.exportId,
     );
@@ -1987,7 +1988,7 @@ function PacketExports(
       );
       const data = await response.json();
       if (!response.ok)
-        throw new Error(data.error ?? "Export cancellation failed.");
+        throw new Error(apiErrorMessage(data.error, "Export cancellation failed."));
       const saved = data.state?.proposalExports?.find(
         (item: ProposalExport) => item.id === data.exportId,
       );

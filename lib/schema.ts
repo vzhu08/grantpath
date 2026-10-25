@@ -1,3 +1,10 @@
+import {
+  RequirementVaultSchema,
+  FileOriginSchema,
+  VaultCollections,
+  VaultCommandOptions,
+} from "./vault/schema";
+import { ResubmissionsSchema,emptyResubmissions,ResubmissionCommandSchema } from "./resubmissions/schema";
 import { z } from "zod";
 import { ProposalBlockSchema } from "./proposals/blocks";
 import {
@@ -106,6 +113,7 @@ export const SourceSchema = z.object({
   versions: z
     .array(
       z.object({
+        fileOrigin: FileOriginSchema.optional(),
         version: z.number().int().positive(),
         hash: z.string(),
         text,
@@ -181,6 +189,7 @@ export const OpportunitySchema = z.object({
 });
 export type Opportunity = z.infer<typeof OpportunitySchema>;
 export const RequirementSchema = z.object({
+  vault: RequirementVaultSchema.optional(),
   id: Id,
   category: z.enum(["section", "document", "task"]),
   description: z.string().min(1).max(2000),
@@ -265,6 +274,10 @@ export const ProposalBindingSchema = z.object({
 export type ProposalBinding = z.infer<typeof ProposalBindingSchema>;
 export const ApplicationSchema = z.object({
   id: Id,
+  // Optional in this reused schema so historical frozen proposal payloads keep
+  // their exact bytes/digests. Current workspace graph checks require both.
+  cycleId: Id.optional(),
+  originAttemptId: Id.nullable().optional(),
   projectId: Id,
   opportunityId: Id,
   revision: z.number().int().positive(),
@@ -439,7 +452,7 @@ export const LegacyStateSchema = z.object({
     }),
   ),
 });
-export const StateSchema = z.object({
+export const V2StateSchema = z.object({
   schemaVersion: z.literal(2),
   revision: z.number().int().nonnegative(),
   projects: z.array(ProjectSchema),
@@ -449,6 +462,14 @@ export const StateSchema = z.object({
   contentLibrary: z.array(ContentItemSchema).default([]),
   packetSnapshots: z.array(PacketSnapshotSchema).default([]),
   proposalExports: z.array(ProposalExportSchema).default([]),
+});
+export const V3StateSchema = V2StateSchema.extend({
+  schemaVersion: z.literal(3),
+  ...VaultCollections,
+});
+export const StateSchema = V3StateSchema.extend({
+  schemaVersion:z.literal(4),
+  resubmissions:ResubmissionsSchema,
 });
 export type State = z.infer<typeof StateSchema>;
 export const ProposalSchema = z.object({
@@ -469,6 +490,8 @@ export const GenerationInputSchema = z
   .strict();
 export type GenerationInput = z.infer<typeof GenerationInputSchema>;
 export const CommandSchema = z.discriminatedUnion("type", [
+  ...VaultCommandOptions,
+  ...ResubmissionCommandSchema.options,
   z.object({
     type: z.literal("saveProject"),
     id: Id.optional(),

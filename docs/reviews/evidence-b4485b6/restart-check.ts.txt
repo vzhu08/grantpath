@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import { readFile,writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+const root='.test-data/infra-review-b4485b6';const origin='http://127.0.0.1:3120';
+const result=JSON.parse(await readFile(`${root}/result.json`,'utf8'));
+const before=JSON.parse(await readFile(`${root}/before-restart-state.json`,'utf8'));
+const health=await(await fetch(origin+'/api/health')).json();assert.equal(health.revision,result.sourceRevision);assert.equal(health.build,result.build);
+const rr=await fetch(origin+'/api/workspace');assert.equal(rr.status,200);const after=await rr.json();assert.deepEqual(after,before);
+const d=await fetch(origin+result.selection.downloadPath);assert.equal(d.status,200);const sha=createHash('sha256').update(Buffer.from(await d.arrayBuffer())).digest('hex');assert.equal(sha,result.workflow.firstSha256);
+result.restart={healthInstance:health.instance,stateDeepEqual:true,pinnedOriginalSha256:sha,downloadStatus:d.status};
+await writeFile(`${root}/result.json`,JSON.stringify(result,null,2));console.log(JSON.stringify(result.restart,null,2));
