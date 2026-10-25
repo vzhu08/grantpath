@@ -1,4 +1,17 @@
-import { mkdir, open, readFile, rename, unlink } from "node:fs/promises";
+import { migrateV2 } from "./vault/migration";
+import {
+  applyVaultCommand,
+  isVaultCommand,
+  validateVaultState,
+} from "./vault/domain";
+import {
+  mkdir,
+  open,
+  readFile,
+  rename,
+  unlink,
+  readdir,
+} from "node:fs/promises";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { normalizeText } from "../modules/documents/src/index";
@@ -51,6 +64,7 @@ function find<T extends { id: string }>(items: T[], id: string): T {
 export function applyCommand(
   state: State,
   input: Mutation,
+  vaultExcerpt?: string,
 ): { state: State; selectedId?: string } {
   const { command: c } = MutationSchema.parse(input);
   if (input.expectedRevision !== state.revision)
@@ -69,6 +83,26 @@ export function applyCommand(
   const invalidate = (
     predicate: (app: State["applications"][number]) => boolean,
   ) => state.applications.filter(predicate).forEach(touch);
+  if (isVaultCommand(c)) {
+    selectedId = applyVaultCommand(state, c, at, vaultExcerpt);
+    if (c.type === "editDocumentMetadata")
+      invalidate(
+        (a) => a.projectId === find(state.documents, c.documentId).projectId,
+      );
+    else if (c.type === "saveEthicsRecord" || c.type === "promoteFileExcerpt")
+      invalidate((a) => a.projectId === c.projectId);
+    else if (c.type === "confirmEthicsRecord")
+      invalidate(
+        (a) => a.projectId === find(state.ethicsRecords, c.recordId).projectId,
+      );
+    else if (c.type === "selectAttachment" || c.type === "reviewAttachment") {
+      const a = find(state.applications, c.applicationId);
+      a.waivers = [];
+      if (a.stage === "Ready for review") a.stage = "Preparing";
+    }
+    state.revision++;
+    return { state: validateVaultState(StateSchema.parse(state)), selectedId };
+  }
   if (isProposalCommand(c)) {
     selectedId = applyProposalCommand(state, c, at);
     state.revision++;
@@ -117,6 +151,11 @@ export function applyCommand(
       });
       if (latest(source).hash !== normalized.hash)
         source.versions.push({
+          ...(latest(source).fileOrigin
+            ? {
+                fileOrigin: { ...latest(source).fileOrigin!, manualEdit: true },
+              }
+            : {}),
           version: latest(source).version + 1,
           hash: normalized.hash,
           text: normalized.text,
@@ -306,6 +345,20 @@ export function applyCommand(
     }
   } else if (c.type === "resetDemo") {
     if (
+      state.documents.length ||
+      state.ethicsRecords.length ||
+      state.handoffs.length ||
+      state.sources.some(
+        (s) =>
+          s.provenance === "researcher" &&
+          state.projects.find((p) => p.id === s.projectId)?.provenance ===
+            "demo",
+      )
+    )
+      fail(
+        "Demo reset is unavailable while retained uploads, ethics, handoffs or researcher evidence reference this workspace. All original files remain retained.",
+      );
+    if (
       state.packetSnapshots.some(
         (packet) => packet.payload.project.provenance === "demo",
       ) ||
@@ -488,7 +541,7 @@ export function applyCommand(
       section.revisions.push(revision);
       touch(app);
     } else if (c.type === "waiveIssue") {
-      if (/^(scope-|condition-|pages-)/.test(c.issueId))
+      if (/^(scope-|condition-|pages-|vault-)/.test(c.issueId))
         fail(
           "A waiver cannot resolve unsupported scope, unknown applicability or measured page compliance. Review the source rule or re-render the content.",
         );
@@ -522,6 +575,9 @@ export function createRepository(directory: string) {
   const filename = path.join(directory, "workspace.json");
   let tail: Promise<unknown> = Promise.resolve();
   async function write(state: State) {
+    state = validateVaultState(
+      validateStateIntegrity(StateSchema.parse(state)),
+    );
     await mkdir(directory, { recursive: true });
     const temp = path.join(directory, `.workspace-${randomUUID()}.tmp`);
     try {
@@ -538,15 +594,49 @@ export function createRepository(directory: string) {
     }
   }
   async function load(): Promise<State> {
+    let raw: Buffer;
     try {
-      const raw = await readFile(filename);
+      raw = await readFile(filename);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "ENOENT")
+        throw new KitError(
+          "STORAGE_ERROR",
+          "The workspace could not be read. Preserve the data file.",
+          503,
+        );
+      const retained = await readdir(directory).catch(
+        (e: NodeJS.ErrnoException) => {
+          if (e.code === "ENOENT") return [];
+          throw e;
+        },
+      );
+      if (
+        retained.some(
+          (name) =>
+            name === "vault" ||
+            name === "backups" ||
+            name.includes(".backup.json") ||
+            name.startsWith(".workspace-"),
+        )
+      )
+        throw new KitError(
+          "STORAGE_ERROR",
+          "Workspace metadata is missing beside retained vault or backup data. Restore matching metadata and files together; nothing was reset.",
+          503,
+        );
+      const state = createDemo();
+      await write(state);
+      return state;
+    }
+    try {
       const input = JSON.parse(raw.toString("utf8"));
-      if (input.schemaVersion === 1) {
-        const migrated = migrateV1(input);
+      if (input.schemaVersion === 1 || input.schemaVersion === 2) {
+        const migrated =
+          input.schemaVersion === 1 ? migrateV1(input) : migrateV2(input);
         const backup = await open(
           path.join(
             directory,
-            `workspace.v1-${Date.now()}-${randomUUID()}.backup.json`,
+            `workspace.v${input.schemaVersion}-${Date.now()}-${randomUUID()}.backup.json`,
           ),
           "wx",
           0o600,
@@ -560,13 +650,10 @@ export function createRepository(directory: string) {
         await write(migrated);
         return migrated;
       }
-      return validateStateIntegrity(StateSchema.parse(input));
+      return validateVaultState(
+        validateStateIntegrity(StateSchema.parse(input)),
+      );
     } catch (error) {
-      if ((error as NodeJS.ErrnoException).code === "ENOENT") {
-        const state = createDemo();
-        await write(state);
-        return state;
-      }
       throw new KitError(
         "STORAGE_ERROR",
         "The local workspace could not be read. Preserve the data file and inspect it before restarting; it has not been reset.",
@@ -593,7 +680,21 @@ export function createRepository(directory: string) {
           current = await (
             await import("./proposals/runtime-state")
           ).proposalRuntimeState(current);
-        const result = applyCommand(current, input);
+        current = await (
+          await import("./vault/service")
+        ).vaultRuntimeState(current, directory);
+        let excerpt: string | undefined;
+        if (input.command.type === "promoteFileExcerpt") {
+          const c = input.command;
+          const attempt = current.parseAttempts.find(
+            (p) => p.id === c.parseAttemptId,
+          );
+          if (!attempt) fail("Extraction attempt unavailable.", 404);
+          const store = (await import("./vault/storage")).storage(directory);
+          const artifact = await store.readText(attempt);
+          excerpt = artifact.slice(c.start, c.end);
+        }
+        const result = applyCommand(current, input, excerpt);
         result.state.proposalExports.forEach((job) => {
           delete job.runtimeRendererMatch;
         });
@@ -613,9 +714,50 @@ export function createRepository(directory: string) {
           fail("Saved state changed. Reload and retry.", 409);
         const result = await operation(state);
         state.revision++;
-        const validated = validateStateIntegrity(StateSchema.parse(state));
+        const validated = validateVaultState(
+          validateStateIntegrity(StateSchema.parse(state)),
+        );
         await write(validated);
         return { state: validated, result };
+      }),
+    backup: () =>
+      enqueue(async () => {
+        const state = await load(),
+          store = (await import("./vault/storage")).storage(directory),
+          target = path.join(
+            directory,
+            "backups",
+            `workspace-${Date.now()}-${randomUUID()}`,
+          );
+        await mkdir(path.join(target, "vault", "blobs"), { recursive: true });
+        await mkdir(path.join(target, "vault", "extractions"), {
+          recursive: true,
+        });
+        for (const v of state.documentVersions)
+          await (
+            await import("node:fs/promises")
+          ).writeFile(
+            path.join(target, "vault", "blobs", `${v.id}.bin`),
+            await store.read(v),
+            { flag: "wx", mode: 0o600 },
+          );
+        for (const p of state.parseAttempts)
+          if (p.artifactSha256)
+            await (
+              await import("node:fs/promises")
+            ).writeFile(
+              path.join(target, "vault", "extractions", `${p.id}.txt`),
+              await store.readText(p),
+              { flag: "wx", mode: 0o600 },
+            );
+        await (
+          await import("node:fs/promises")
+        ).writeFile(
+          path.join(target, "workspace.json"),
+          JSON.stringify(state, null, 2),
+          { flag: "wx", mode: 0o600 },
+        );
+        return target;
       }),
     directory,
     filename,

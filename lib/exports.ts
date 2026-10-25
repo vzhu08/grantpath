@@ -85,6 +85,25 @@ export function exportPacket(state: State, app: Application) {
       ...c.quote.split("\n").map((line) => `> ${line}`),
     );
   }
+  lines.push("", "## Document vault references (internal)");
+  for (const sel of state.attachmentSelections.filter(
+    (s) => s.applicationId === app.id,
+  )) {
+    const v = state.documentVersions.find(
+      (v) => v.id === sel.documentVersionId,
+    );
+    lines.push(
+      `- Requirement ${sel.requirementId}: ${v?.filename ?? "unavailable"}; file ${v?.id}; SHA-256 ${v?.sha256}; review ${sel.review?.decision ?? "unreviewed"}.`,
+    );
+  }
+  for (const source of state.sources.filter(
+    (s) => s.projectId === app.projectId,
+  ))
+    for (const v of source.versions)
+      if (v.fileOrigin)
+        lines.push(
+          `- Evidence ${source.id} v${v.version}: file ${v.fileOrigin.documentVersionId}; extraction ${v.fileOrigin.parseAttemptId}; full-text SHA-256 ${v.fileOrigin.artifactSha256}; offsets [${v.fileOrigin.start}, ${v.fileOrigin.end}); ${v.fileOrigin.manualEdit ? "manual edit" : "reviewed excerpt"}.`,
+        );
   lines.push("", "## Retained input snapshots");
   for (const section of app.sections)
     for (const ref of section.revisions.at(-1)?.selectedSources ?? []) {

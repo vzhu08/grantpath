@@ -230,6 +230,10 @@ function copySupport(
       error(
         "Target evidence limit reached. Select target-project support before reusing more content.",
       );
+    if (original.versions.some((v) => v.fileOrigin))
+      error(
+        "File-derived support cannot cross projects. Add and review an original file in the target project first.",
+      );
     const clone = structuredClone(original);
     clone.id = id("reuse-source");
     clone.projectId = app.projectId;
