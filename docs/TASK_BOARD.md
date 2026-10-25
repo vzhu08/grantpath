@@ -30,6 +30,8 @@ Parent verified the exact checked main deployment independently. Infrastructure 
 
 Human-requested redesign prompt: [GrantPath UI redesign](prompts/GRANTPATH_UI_REDESIGN.md). Prepared now; not dispatched. Launch after the current selected implementation pipeline is merged/checked and frontend scopes are released, before research 11–13. Requires distinctive product-derived identity/signature interaction, agents with isolated ownership, actual rendered/browser verification, final local review and a design system mandatory for subsequent frontend work. Task10 is skipped; 11–13 also require their actual merged code prerequisites.
 
+At the **same time as UI launch**, dispatch a separate [real grant data feasibility researcher](prompts/REAL_GRANT_DATA_FEASIBILITY.md) with useful read-only source/code reviewers, GPT-6.1 Sol / Extra High and Standard/Fast off. Extend the actual checked task-09 baseline: distinguish broader real opportunities, award history and authoritative solicitation text; verify free access/coverage/freshness/provenance and recommend a small high-value next increment. Own only new research docs, with no frontend/backend/shared writes or heavy verification. Research does not block UI, authorize every suggested integration or release 11–13. Currently queued, not started.
+
 ## Historical initial and roadmap 01 board
 
 - Initial four-capability build and roadmap docs: complete, 69 baseline tests and production browser journey passed; initial main pushed as 7481ffe.
