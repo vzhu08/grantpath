@@ -1,5 +1,8 @@
 import { KitError } from "../packages/runtime/src/index";
-export function assertLocalRequest(request: Request, mutation = false) {
+export function assertLocalRequest(
+  request: Request,
+  mutation: boolean | "binary" = false,
+) {
   const internal = new URL(request.url);
   // Next may normalize request.url to localhost even when the browser used 127.0.0.1.
   // Validate the actual Host, never an arbitrary forwarded-host header.
@@ -12,6 +15,12 @@ export function assertLocalRequest(request: Request, mutation = false) {
       "Open the app on its loopback address.",
       403,
     );
+  if (request.headers.get("sec-fetch-site") === "cross-site")
+    throw new KitError(
+      "ORIGIN",
+      "Open files from the same local application.",
+      403,
+    );
   const origin = request.headers.get("origin");
   if (mutation && origin !== url.origin)
     throw new KitError(
@@ -20,7 +29,7 @@ export function assertLocalRequest(request: Request, mutation = false) {
       403,
     );
   if (
-    mutation &&
+    mutation === true &&
     request.headers.get("content-type")?.split(";")[0]?.trim().toLowerCase() !==
       "application/json"
   )

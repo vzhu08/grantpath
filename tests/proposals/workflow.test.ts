@@ -268,7 +268,7 @@ describe("proposal migration and persisted recovery", () => {
     const migrated = migrateV1(old),
       app = migrated.applications.find((app) => app.id === appId)!;
     expect(old).toEqual(before);
-    expect(migrated.schemaVersion).toBe(2);
+    expect(migrated.schemaVersion).toBe(3);
     expect(migrated.sources).toEqual(old.sources);
     expect(migrated.projects).toEqual(old.projects);
     expect(migrated.opportunities).toEqual(old.opportunities);
@@ -328,7 +328,7 @@ describe("proposal migration and persisted recovery", () => {
       "previous independent backup",
     );
     const acceptedBytes = await readFile(filename);
-    expect(JSON.parse(acceptedBytes.toString("utf8")).schemaVersion).toBe(2);
+    expect(JSON.parse(acceptedBytes.toString("utf8")).schemaVersion).toBe(3);
     expect(await createRepository(directory).read()).toEqual(migrated);
     expect(await readFile(filename)).toEqual(acceptedBytes);
     expect(
