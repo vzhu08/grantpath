@@ -23,6 +23,16 @@ The user authorized two independent implementation chats and useful subagents in
 | Independent subagent reviews | Each task lead's assigned reviewer | Requesting user | Read-only unless assigned an exclusive file set in another isolated checkout/branch |
 | `docs/reviews/PRE_UI_ACCEPTANCE.md`, `docs/reviews/pre-ui-evidence/**`; no application edits | Existing review chat `01a171d9-b270-72d2-8d9b-73364c6a3834` | Requesting user | Prepare matrix now with read-only agents; final combined/rendered acceptance after checked02–09 main and explicit heavy-slot transfer, isolated data/port3120. No heavy lease now; GO required before redesign |
 
+## Parallel core implementations — no frontend/shared integration
+
+| Exclusive new scope | Lead chat / checkout | Human owner |
+| --- | --- | --- |
+| `modules/grantweave/**`, `lib/grantweave/**`, `tests/grantweave/**`, `scripts/grantweave-*`, `docs/implementation/11_GRANTWEAVE_RELEASE.md` | `01a17253-910c-7610-909c-84831a022d03`; `2c3a/grantguide` | Requesting user |
+| `modules/aimfit/**`, `lib/aimfit/**`, `tests/aimfit/**`, `scripts/aimfit-*`, `docs/implementation/12_AIMFIT_RELEASE.md` | `01a17253-baf7-7ef2-8c5d-8a59184c6d16`; `b78e/grantguide` | Requesting user |
+| `modules/bootstrap/**`, `lib/bootstrap/**`, `tests/bootstrap/**`, `scripts/bootstrap-*`, `docs/implementation/13_BOOTSTRAP_RELEASE.md` | `01a17253-d870-7153-bc75-06a35b56d908`; `cc64/grantguide` | Requesting user |
+
+Latest human instruction authorizes these independent core writers now, not frontend components/fixtures, root schemas/migrations/repository/routes/manifests or live upstream adapters. Each lead uses useful agents; concurrent sub-writers require separate checkouts and exclusive files. Only read-only existing dependencies and parent-coordinated bounded pure-test slots are permitted while05 owns heavy verification. Source studies can be copied from primary; central/research-owner files are not a new write lease. Later integration/validation/deployment requirements remain explicit.
+
 ## Immediate research ownership
 
 The human now requests these four research chats before the UI break; older research-start timing is superseded. Frontend code may change. No application/shared writes or heavy checks are assigned; all final implementation details depending on unfinished runtime remain provisional.

@@ -34,6 +34,14 @@ Human-requested redesign prompt: [GrantPath UI redesign](prompts/GRANTPATH_UI_RE
 
 New human requirement: previous tasks must look good first. Existing independent review chat `01a171d9-b270-72d2-8d9b-73364c6a3834` is preparing the [combined pre-UI acceptance](prompts/PRE_UI_ACCEPTANCE_REVIEW.md). Actual final02–09 main must pass connected functional/data/API/import/export/restart and rendered laptop/mobile/keyboard checks with isolated data, with release blockers/material workflow issues fixed and rechecked. No UI launch until its current GO report; no heavy/browser work competes with05→06→08 while the matrix is prepared.
 
+## Parallel implementation11–13 — core only
+
+- GrantWeave: active NEW implementation chat `01a17253-910c-7610-909c-84831a022d03`, checkout2c3a. Exact bounded funding-constraint engine, versioned model/witness/results and offline proof cases; no frontend/shared app integration.
+- AimFit: active NEW implementation chat `01a17253-baf7-7ef2-8c5d-8a59184c6d16`, checkoutb78e. Design/cost/variant/numerical core and stable data interfaces; actual R-oracle/runner checks remain required, with unvalidated numbers never promoted. No frontend/shared app integration.
+- Bootstrap: active NEW implementation chat `01a17253-d870-7153-bc75-06a35b56d908`, checkoutcc64. Manual-gap/synthetic-resource bundle planner with uncertainty/funding/history helpers; no real experiments/results or frontend/shared app integration.
+
+These implement the human's latest request for parallel work without frontend fixtures. All use agents, GPT-6.1 Sol/xhigh and Standard/Fast off; real unit/reference inputs are permitted.05→06→08 keeps shared source/heavy priority. Exact later upstream adapters remain gated; future frontend waits for accepted redesign/design system. A pure-core milestone is not a completed/deployed application feature and needs no dummy review URL.
+
 ## Immediate research — latest human override
 
 - Real data: completed reviewed feasibility checkpoint9aa11c0, collected as6cf5b22; [report](research/REAL_GRANT_DATA_FEASIBILITY.md) and two evidence files. Chat `01a1722e-688c-7253-a330-a4bbff107f78`, checkout21b7, is held for later09 reconciliation. Lead's two reviewers and parent's independent source/code-fit review found no blocking research defect. Selected next increment is up to three NIH opportunities alongside NSF through Grants.gov, explicit authoritative-text/cycle review and preserved legacy hashes/capacity/history. Not ready for integrated coding: actual checked09/main contracts and origin/receipt/retention/capacity addendum plus accepted frontend baseline remain gates. No app implementation or deployment is claimed.
