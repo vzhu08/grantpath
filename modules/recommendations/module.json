@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "id": "recommendations",
+  "title": "Recommendations and group decisions",
+  "description": "Explainable filtering, weighted utility and deterministic group voting.",
+  "tags": ["preferences", "ranking", "voting"],
+  "useCases": ["Explainable filtering, weighted utility and deterministic group voting."],
+  "runtime": "universal",
+  "environments": ["Node.js 22+"],
+  "source": "modules/recommendations/src",
+  "entrypoints": {
+    "core": "modules/recommendations/src/index.ts"
+  },
+  "exports": ["modules/recommendations"],
+  "minimalRead": [
+    "modules/recommendations/README.md",
+    "modules/recommendations/src/index.ts",
+    "modules/recommendations/fixtures/activities.json"
+  ],
+  "dependencies": [],
+  "packages": {
+    "zod": "4.6.5"
+  },
+  "optionalIntegrations": [],
+  "env": [],
+  "systemRequirements": ["Node.js 22+"],
+  "integration": {
+    "steps": [
+      "Read the README and run the local example first.",
+      "Preserve module/shared package layout and install the listed dependencies.",
+      "Use server adapters only from authenticated bounded handlers; never expose provider keys in browser bundles."
+    ],
+    "routes": [],
+    "migrations": [],
+    "assets": []
+  },
+  "contracts": ["modules/recommendations/src/index.ts"],
+  "examples": ["modules/recommendations/examples/demo.ts"],
+  "fixtures": [
+    "modules/recommendations/fixtures/activities.json",
+    "modules/recommendations/fixtures/conflict.json"
+  ],
+  "checks": [
+    "node --import tsx modules/recommendations/examples/demo.ts",
+    "npx vitest run modules/recommendations/tests"
+  ],
+  "modes": {
+    "local": "Credential-free deterministic code and labeled synthetic fixtures.",
+    "live": "Same deterministic calculation on caller-supplied real data; no external provider."
+  },
+  "verification": {
+    "implementation": "implemented",
+    "local": "7 local tests passed; scoped checkout typecheck, ESLint and credential-free example passed (35 combined experience tests).",
+    "exported": "Passed 2026-10-09: standalone full recipe npm ci, types, module tests, build and local HTTP run; provider verification is separate.",
+    "live": "not run \u2014 requires operator test credentials and authorization",
+    "record": "modules/recommendations/README.md"
+  },
+  "limitations": [
+    "At most 2,000 candidates and 100 members; unanimous hard constraints may leave no result.",
+    "Similarity requires embeddings from the same model; no provider embedding calls are bundled."
+  ],
+  "cost": "Local computation only; no API charges.",
+  "docs": [],
+  "license": "MIT",
+  "provenance": "Original kit implementation and authored synthetic fixtures. Provider docs cited in README; provider terms apply to live data."
+}

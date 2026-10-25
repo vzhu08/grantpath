@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "id": "documents",
+  "title": "Document ingestion",
+  "description": "Normalize text, Markdown, PDF, DOCX and CSV with exact provenance and optional isolated OCR.",
+  "tags": ["documents", "pdf", "ingestion", "ocr"],
+  "useCases": ["Upload a source corpus", "Inspect exact evidence spans"],
+  "runtime": "mixed",
+  "environments": ["node", "browser"],
+  "source": "modules/documents/src",
+  "entrypoints": {
+    "browser": "modules/documents/src/index.ts",
+    "server": "modules/documents/src/server.ts"
+  },
+  "exports": ["modules/documents"],
+  "minimalRead": [
+    "modules/documents/README.md",
+    "modules/documents/module.json",
+    "modules/documents/src/index.ts"
+  ],
+  "dependencies": [],
+  "packages": {
+    "zod": "4.6.5",
+    "mammoth": "1.13.0",
+    "papaparse": "5.7.0",
+    "pdfjs-dist": "6.4.299"
+  },
+  "optionalIntegrations": ["Python OCR worker"],
+  "env": [
+    {
+      "name": "KIT_OCR_ENABLED",
+      "required": false,
+      "secret": false,
+      "when": "optional",
+      "description": "Set true only after configuring the Python OCR worker."
+    },
+    {
+      "name": "KIT_OCR_PYTHON",
+      "required": false,
+      "secret": false,
+      "when": "optional",
+      "description": "Absolute server-side Python executable path with OCR extra installed."
+    },
+    {
+      "name": "KIT_OCR_WORKER",
+      "required": false,
+      "secret": false,
+      "when": "optional",
+      "description": "Absolute path to starters/python/app/ocr_worker.py."
+    }
+  ],
+  "systemRequirements": ["Node >=22; optional OCR requires Python 3.12 and Tesseract"],
+  "integration": {
+    "steps": [
+      "Read the eight-question README and select this module with kit create or kit add.",
+      "Keep server entrypoints in server routes; validate incoming boundaries and show local/live mode."
+    ],
+    "routes": [],
+    "migrations": [],
+    "assets": []
+  },
+  "contracts": ["packages/contracts/src/index.ts", "modules/documents/src/index.ts"],
+  "examples": ["modules/documents/examples/demo.ts"],
+  "fixtures": [
+    "modules/documents/fixtures/brief.docx",
+    "modules/documents/fixtures/malformed.pdf",
+    "modules/documents/fixtures/project.md",
+    "modules/documents/fixtures/scanned.pdf",
+    "modules/documents/fixtures/scanned.png",
+    "modules/documents/fixtures/table.csv",
+    "modules/documents/fixtures/text.pdf",
+    "packages/contracts/fixtures/documents.json"
+  ],
+  "checks": [
+    "npx vitest run modules/documents/tests",
+    "node --import tsx modules/documents/examples/demo.ts"
+  ],
+  "modes": {
+    "local": "Deterministic local implementation with original synthetic fixtures; no external calls.",
+    "live": "Real configured adapters require explicit operator credentials and intent; no silent fixture fallback."
+  },
+  "verification": {
+    "implementation": "implemented",
+    "local": "Behavioral tests passed 2026-10-09; see README and final integration report.",
+    "exported": "Passed 2026-10-09: standalone full recipe npm ci, types, module tests, build and local HTTP run; provider verification is separate.",
+    "live": "not run \u2014 requires operator test credentials and authorization",
+    "record": "modules/documents/README.md"
+  },
+  "limitations": [
+    "PDF layout/table reconstruction is approximate; mixed scanned pages require explicit OCR.",
+    "UTF-8 text only; untrusted native parsing should run in a constrained worker."
+  ],
+  "cost": "Local CPU only; hosting/persistence costs depend on deployment.",
+  "docs": [
+    "https://mozilla.github.io/pdf.js/examples/",
+    "https://github.com/mwilliamson/mammoth.js",
+    "https://www.papaparse.com/docs",
+    "modules/documents/README.md"
+  ],
+  "license": "MIT",
+  "provenance": "Original implementation and synthetic fixtures created for Hackathon Kit; third-party package licenses retained. Base revision 0fcd52a."
+}

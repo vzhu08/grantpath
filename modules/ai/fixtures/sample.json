@@ -1,0 +1,10 @@
+{
+  "provenance": "Synthetic original fixture; MIT",
+  "promptVersion": "1.0.0",
+  "source": "Three developers build a hackathon demo.",
+  "output": {
+    "people": 3
+  },
+  "empty": "",
+  "failure": "Invalid structured output is rejected, not repaired silently."
+}

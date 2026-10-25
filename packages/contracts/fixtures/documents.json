@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "provenance": "Original synthetic cross-language contract fixture; exact UTF-16 end-exclusive ranges, including an astral emoji, BOM and CRLF normalization.",
+  "cases": [
+    {
+      "name": "unicode-source",
+      "input": {
+        "filename": "unicode.txt",
+        "text": "﻿🌿 Garden\r\nBudget: $20\r\nCafé\n"
+      },
+      "document": {
+        "id": "doc-b12f732f1156f2f88a3a9baa",
+        "filename": "unicode.txt",
+        "mimeType": "text/plain",
+        "hash": "b12f732f1156f2f88a3a9baac5862762ab908306106916c746f8218c0aa15b64",
+        "text": "🌿 Garden\nBudget: $20\nCafé\n",
+        "segments": [
+          {
+            "id": "doc-b12f732f1156f2f88a3a9baa:s0",
+            "start": 0,
+            "end": 10
+          },
+          {
+            "id": "doc-b12f732f1156f2f88a3a9baa:s1",
+            "start": 10,
+            "end": 22
+          },
+          {
+            "id": "doc-b12f732f1156f2f88a3a9baa:s2",
+            "start": 22,
+            "end": 27
+          }
+        ],
+        "metadata": {
+          "mode": "local",
+          "offsetEncoding": "utf-16",
+          "hashAlgorithm": "sha256",
+          "warnings": []
+        }
+      },
+      "citations": [
+        {
+          "documentId": "doc-b12f732f1156f2f88a3a9baa",
+          "segmentId": "doc-b12f732f1156f2f88a3a9baa:s0",
+          "start": 0,
+          "end": 2,
+          "quote": "🌿"
+        },
+        {
+          "documentId": "doc-b12f732f1156f2f88a3a9baa",
+          "segmentId": "doc-b12f732f1156f2f88a3a9baa:s1",
+          "start": 18,
+          "end": 21,
+          "quote": "$20"
+        },
+        {
+          "documentId": "doc-b12f732f1156f2f88a3a9baa",
+          "segmentId": "doc-b12f732f1156f2f88a3a9baa:s2",
+          "start": 22,
+          "end": 26,
+          "quote": "Café"
+        }
+      ],
+      "invalidEndOffset": 28
+    }
+  ]
+}

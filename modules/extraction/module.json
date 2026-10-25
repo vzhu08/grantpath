@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "id": "extraction",
+  "title": "Structured extraction",
+  "description": "Configurable labeled fields with validated values, exact evidence, ambiguity states and review history.",
+  "tags": ["extraction", "evidence", "review"],
+  "useCases": ["Extract a structured project brief", "Review supported values before exporting"],
+  "runtime": "universal",
+  "environments": ["node", "browser"],
+  "source": "modules/extraction/src",
+  "entrypoints": {
+    "browser": "modules/extraction/src/index.ts"
+  },
+  "exports": ["modules/extraction"],
+  "minimalRead": [
+    "modules/extraction/README.md",
+    "modules/extraction/module.json",
+    "modules/extraction/src/index.ts"
+  ],
+  "dependencies": ["documents"],
+  "packages": {
+    "zod": "4.6.5"
+  },
+  "optionalIntegrations": ["Structured AI output validated against evidence"],
+  "env": [],
+  "systemRequirements": ["Node >=22 for tests; runtime helpers are browser-safe"],
+  "integration": {
+    "steps": [
+      "Read the eight-question README and select this module with kit create or kit add.",
+      "Keep server entrypoints in server routes; validate incoming boundaries and show local/live mode."
+    ],
+    "routes": [],
+    "migrations": [],
+    "assets": []
+  },
+  "contracts": ["packages/contracts/src/index.ts", "modules/extraction/src/index.ts"],
+  "examples": ["modules/extraction/examples/demo.ts"],
+  "fixtures": ["modules/extraction/fixtures/ambiguous.txt"],
+  "checks": [
+    "npx vitest run modules/extraction/tests",
+    "node --import tsx modules/extraction/examples/demo.ts"
+  ],
+  "modes": {
+    "local": "Deterministic local implementation with original synthetic fixtures; no external calls.",
+    "live": "Real configured adapters require explicit operator credentials and intent; no silent fixture fallback."
+  },
+  "verification": {
+    "implementation": "implemented",
+    "local": "Behavioral tests passed 2026-10-09; see README and final integration report.",
+    "exported": "Passed 2026-10-09: standalone full recipe npm ci, types, module tests, build and local HTTP run; provider verification is separate.",
+    "live": "not run \u2014 requires operator test credentials and authorization",
+    "record": "modules/extraction/README.md"
+  },
+  "limitations": [
+    "Local extractor recognizes labeled lines and does not infer unlabeled semantic entities.",
+    "Date parsing requires ISO YYYY-MM-DD; currency meaning is caller supplied."
+  ],
+  "cost": "Local CPU only; hosting/persistence costs depend on deployment.",
+  "docs": ["modules/extraction/README.md"],
+  "license": "MIT",
+  "provenance": "Original implementation and synthetic fixtures created for Hackathon Kit; third-party package licenses retained. Base revision 0fcd52a."
+}

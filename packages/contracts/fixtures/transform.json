@@ -1,0 +1,1 @@
+[{"input":{"text":"  Hello   team  \r\n Ship it.  ","operation":"normalize"},"expected":{"text":"Hello team\nShip it.","words":4,"characters":19,"mode":"local"}},{"input":{"text":""},"expected":{"text":"","words":0,"characters":0,"mode":"local"}}]

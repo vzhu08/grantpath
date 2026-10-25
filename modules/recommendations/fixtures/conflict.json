@@ -1,0 +1,17 @@
+{
+  "preferences": [
+    {
+      "memberId": "a",
+      "requiredTags": [
+        "outdoors"
+      ]
+    },
+    {
+      "memberId": "b",
+      "excludedTags": [
+        "outdoors"
+      ]
+    }
+  ],
+  "expectedEligible": []
+}

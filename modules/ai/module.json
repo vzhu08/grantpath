@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "id": "ai",
+  "title": "AI generation and embeddings",
+  "description": "Server-only OpenAI and Anthropic text, structured output, streaming, tools and embeddings with deterministic fixtures.",
+  "tags": ["ai", "llm", "streaming", "embeddings"],
+  "useCases": ["Generate structured results", "Stream chat", "Evaluate versioned prompts"],
+  "runtime": "mixed",
+  "packages": {
+    "ai": "7.0.136",
+    "@ai-sdk/openai": "4.0.91",
+    "@ai-sdk/anthropic": "4.0.78",
+    "zod": "4.6.5"
+  },
+  "optionalIntegrations": ["OpenAI", "Anthropic"],
+  "limitations": [
+    "Selected model capabilities vary; Anthropic embeddings are unsupported.",
+    "Cost is unknown without a dated price table and known token usage."
+  ],
+  "docs": [
+    "https://ai-sdk.dev/docs/ai-sdk-core/generating-text",
+    "https://developers.openai.com/api/docs/models",
+    "https://platform.claude.com/docs/en/models/overview",
+    "modules/ai/examples/README.example.md"
+  ],
+  "environments": ["Node 22.23.2", "Browser via separated entrypoint"],
+  "source": "modules/ai/src",
+  "entrypoints": {
+    "browser": "modules/ai/src/index.ts",
+    "server": "modules/ai/src/server.ts"
+  },
+  "exports": ["modules/ai"],
+  "minimalRead": ["modules/ai/README.md", "modules/ai/module.json", "modules/ai/src/index.ts"],
+  "dependencies": [],
+  "env": [
+    {
+      "name": "AI_PROVIDER",
+      "required": false,
+      "secret": false,
+      "when": "live",
+      "description": "AI_PROVIDER is configured explicitly; see README for adapter-specific prerequisites and scope."
+    },
+    {
+      "name": "AI_MODEL",
+      "required": true,
+      "secret": false,
+      "when": "live",
+      "description": "AI_MODEL is configured explicitly; see README for adapter-specific prerequisites and scope."
+    },
+    {
+      "name": "OPENAI_API_KEY",
+      "required": false,
+      "secret": true,
+      "when": "live",
+      "description": "OPENAI_API_KEY is configured explicitly; see README for adapter-specific prerequisites and scope."
+    },
+    {
+      "name": "ANTHROPIC_API_KEY",
+      "required": false,
+      "secret": true,
+      "when": "live",
+      "description": "ANTHROPIC_API_KEY is configured explicitly; see README for adapter-specific prerequisites and scope."
+    },
+    {
+      "name": "AI_EMBEDDING_MODEL",
+      "required": false,
+      "secret": false,
+      "when": "live",
+      "description": "AI_EMBEDDING_MODEL is configured explicitly; see README for adapter-specific prerequisites and scope."
+    },
+    {
+      "name": "RUN_LIVE_AI",
+      "required": false,
+      "secret": false,
+      "when": "live",
+      "description": "RUN_LIVE_AI is configured explicitly; see README for adapter-specific prerequisites and scope."
+    }
+  ],
+  "systemRequirements": ["Node >=22"],
+  "integration": {
+    "steps": [
+      "Read the module README and choose local or explicit live adapter.",
+      "Install manifest packages and preserve shared package imports.",
+      "Register application routes and authorization explicitly; run module checks."
+    ],
+    "routes": [
+      "Application-owned server endpoint",
+      "New projects mount /ai and /api/kit/ai; existing projects register these explicitly after conflict review."
+    ],
+    "migrations": [],
+    "assets": []
+  },
+  "contracts": ["modules/ai/src/index.ts"],
+  "examples": [
+    "modules/ai/examples/demo.ts",
+    "modules/ai/examples/live.ts",
+    "modules/ai/examples/widget.tsx",
+    "modules/ai/examples/route.ts"
+  ],
+  "fixtures": ["modules/ai/fixtures/sample.json"],
+  "checks": [
+    "node node_modules/vitest/vitest.mjs run modules/ai/tests",
+    "node --import tsx modules/ai/examples/demo.ts"
+  ],
+  "modes": {
+    "local": "Credential-free deterministic fixtures or real loopback/local worker execution.",
+    "live": "Explicitly configure the documented provider/service and obtain application user intent."
+  },
+  "verification": {
+    "implementation": "implemented",
+    "local": "13 tests passed on Node 22.23.2, 2026-10-09; strict TypeScript and scoped ESLint passed; runnable local example passed.",
+    "exported": "Passed 2026-10-09: standalone full recipe npm ci, types, module tests, build and local HTTP run; provider verification is separate.",
+    "live": "not run \u2014 requires operator test credentials and authorization",
+    "record": "modules/ai/README.md"
+  },
+  "cost": "Local fixture mode has no external API usage. Live provider/service costs depend on the operator account and configuration.",
+  "license": "MIT",
+  "provenance": "Original implementation and synthetic fixtures authored for Hackathon Kit; no third-party content bundled. Official API references checked 2026-10-09."
+}

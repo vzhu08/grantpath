@@ -1,0 +1,5 @@
+# Manifest authoring template
+
+Use the toolkit's catalog/manifest.schema.ts as canonical validation and an existing complete module.json as a starting example. Required fields: schemaVersion=1; stable kebab-case id; title/description/tags/useCases; runtime/environments; repository-relative source, entrypoints, exports and minimalRead; required module dependencies; exact-version packages; optionalIntegrations; env[{name,required,secret,when,description}]; systemRequirements; integration{steps,routes,migrations,assets}; contracts/examples/fixtures/checks; modes{local,live}; verification{implementation,local,exported,live,record}; limitations/cost/docs/license/provenance.
+
+Paths must exist, remain within the export root and avoid symlinks/traversal. Secret env names cannot begin NEXT_PUBLIC_. Metadata is the single catalog source; regenerate with kit catalog build. Mark actual checks independently; mocked contracts do not verify a live account. Include test-account setup and a bounded usage policy for sponsor/provider adapters, but no private values.

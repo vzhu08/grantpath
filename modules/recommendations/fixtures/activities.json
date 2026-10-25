@@ -1,0 +1,89 @@
+{
+  "provenance": "Original synthetic activities; MIT",
+  "mode": "fixture",
+  "candidates": [
+    {
+      "id": "garden",
+      "name": "Garden picnic",
+      "tags": [
+        "outdoors",
+        "accessible",
+        "vegetarian"
+      ],
+      "metrics": {
+        "cost": 12,
+        "minutes": 15,
+        "rating": 4.5
+      }
+    },
+    {
+      "id": "market",
+      "name": "Community market",
+      "tags": [
+        "accessible",
+        "vegetarian"
+      ],
+      "metrics": {
+        "cost": 18,
+        "minutes": 8,
+        "rating": 4.7
+      }
+    },
+    {
+      "id": "rooftop",
+      "name": "Rooftop dinner",
+      "tags": [
+        "outdoors"
+      ],
+      "metrics": {
+        "cost": 45,
+        "minutes": 30,
+        "rating": 4.8
+      }
+    }
+  ],
+  "preferences": [
+    {
+      "memberId": "alex",
+      "requiredTags": [
+        "accessible"
+      ],
+      "excludedTags": [],
+      "bounds": {
+        "cost": {
+          "max": 25
+        }
+      },
+      "weights": {
+        "cost": {
+          "weight": 2,
+          "direction": "lower"
+        },
+        "rating": {
+          "weight": 1,
+          "direction": "higher"
+        }
+      },
+      "preferredTags": [],
+      "tagWeight": 1,
+      "similarityWeight": 0
+    },
+    {
+      "memberId": "sam",
+      "requiredTags": [],
+      "excludedTags": [],
+      "bounds": {},
+      "weights": {
+        "minutes": {
+          "weight": 1,
+          "direction": "lower"
+        }
+      },
+      "preferredTags": [
+        "outdoors"
+      ],
+      "tagWeight": 1,
+      "similarityWeight": 0
+    }
+  ]
+}
