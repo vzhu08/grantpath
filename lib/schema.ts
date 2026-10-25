@@ -1,4 +1,9 @@
 import { z } from "zod";
+import { ProposalBlockSchema } from "./proposals/blocks";
+import {
+  TemplateManifestSchema,
+  ApplicabilityAnswersSchema,
+} from "./proposals/nsf-template";
 
 export const Id = z
   .string()
@@ -179,14 +184,14 @@ export const RequirementSchema = z.object({
   manual: z.boolean(),
   due: DeadlineSchema,
   wordLimit: z.number().int().min(1).max(100_000).nullable(),
-  sectionKey: z.enum(["summary", "significance", "approach"]).nullable(),
+  sectionKey: Id.nullable(),
   linkedSourceId: Id.nullable(),
   reference: SafeUrl,
   note: z.string().max(3000),
   responsible: short,
 });
 export type Requirement = z.infer<typeof RequirementSchema>;
-export const SectionKey = z.enum(["summary", "significance", "approach"]);
+export const SectionKey = Id;
 export type SectionKeyType = z.infer<typeof SectionKey>;
 export const DraftRevisionSchema = z.object({
   id: Id,
@@ -203,6 +208,18 @@ export const DraftRevisionSchema = z.object({
   missingInputs: z.array(short).max(30),
   mode: z.enum(["manual", "fixture", "live"]),
   promptVersion: short,
+  blocks: z.array(ProposalBlockSchema).max(1000).optional(),
+  representationVersion: z.literal(1).optional(),
+  bindingRevision: z.number().int().nullable().optional(),
+  reusedContent: z
+    .array(
+      z.object({
+        itemId: Id,
+        revision: z.number().int().positive(),
+        contextNote: z.string().min(5).max(3000),
+      }),
+    )
+    .optional(),
   createdAt: z.string(),
 });
 export type DraftRevision = z.infer<typeof DraftRevisionSchema>;
@@ -211,8 +228,33 @@ export const DraftSectionSchema = z.object({
   label: short.min(1),
   wordLimit: z.number().int().min(1).max(100_000).nullable(),
   revisions: z.array(DraftRevisionSchema),
+  reviews: z
+    .array(z.object({ revisionId: Id, by: short.min(1), at: z.string() }))
+    .optional(),
 });
 export type DraftSection = z.infer<typeof DraftSectionSchema>;
+export const ProposalBindingSchema = z.object({
+  templateId: z.enum(["legacy-three-section", "nsf-standard-research"]),
+  templateVersion: z.number().int().positive(),
+  revision: z.number().int().positive(),
+  manifest: TemplateManifestSchema.nullable(),
+  callRevision: z.number().int(),
+  callSourceVersion: z.number().int(),
+  answers: ApplicabilityAnswersSchema,
+  mappings: z
+    .array(
+      z.object({
+        requirementId: Id,
+        sectionId: Id.nullable(),
+        note: z.string().max(3000),
+      }),
+    )
+    .max(100),
+  confirmedAt: z.string().nullable(),
+  confirmedBy: short,
+  confirmationNote: z.string().max(3000),
+});
+export type ProposalBinding = z.infer<typeof ProposalBindingSchema>;
 export const ApplicationSchema = z.object({
   id: Id,
   projectId: Id,
@@ -221,7 +263,21 @@ export const ApplicationSchema = z.object({
   provenance: Provenance,
   stage: z.enum(["Considering", "Preparing", "Ready for review", "Submitted"]),
   requirements: z.array(RequirementSchema).max(100),
-  sections: z.array(DraftSectionSchema).length(3),
+  sections: z.array(DraftSectionSchema).min(1).max(32),
+  binding: ProposalBindingSchema.optional(),
+  bindingHistory: z.array(ProposalBindingSchema).optional(),
+  archivedSections: z.array(DraftSectionSchema).optional(),
+  reuseDecisions: z
+    .array(
+      z.object({
+        itemId: Id,
+        sectionKey: Id,
+        seenRevision: z.number().int(),
+        reason: z.string().min(5).max(3000),
+        at: z.string(),
+      }),
+    )
+    .optional(),
   requirementsReviewed: z.boolean(),
   requirementsSourceVersion: z.number().int(),
   requirementsHistory: z
@@ -245,13 +301,117 @@ export const ApplicationSchema = z.object({
   updatedAt: z.string(),
 });
 export type Application = z.infer<typeof ApplicationSchema>;
-export const StateSchema = z.object({
+export const ContentItemSchema = z.object({
+  id: Id,
+  projectId: Id,
+  title: short.min(1),
+  category: z.enum(["methods", "facilities", "team", "biography", "other"]),
+  scope: z.string().min(5).max(3000),
+  retiredAt: z.string().nullable(),
+  createdAt: z.string(),
+  versions: z
+    .array(
+      z.object({
+        revision: z.number().int().positive(),
+        text,
+        blocks: z.array(ProposalBlockSchema).max(1000),
+        citations: z.array(CitationSchema),
+        sources: z.array(SourceSchema),
+        originApplicationId: Id,
+        originSectionKey: Id,
+        originRevisionId: Id,
+        approvedBy: short,
+        approvedAt: z.string().nullable(),
+        createdAt: z.string(),
+      }),
+    )
+    .min(1),
+});
+export type ContentItem = z.infer<typeof ContentItemSchema>;
+export const FrozenIssueSchema = z.object({
+  id: z.string(),
+  severity: z.enum(["blocker", "warning"]),
+  location: z.string(),
+  message: z.string(),
+  fix: z.string(),
+  waived: z.string().nullable(),
+});
+export const PacketPayloadSchema = z.object({
+  application: ApplicationSchema,
+  project: ProjectSchema,
+  call: OpportunitySchema,
+  sources: z.array(SourceSchema),
+  library: z.array(ContentItemSchema),
+  issues: z.array(FrozenIssueSchema),
+  rulesVersion: z.string(),
+});
+export const PacketSnapshotSchema = z.object({
+  id: Id,
+  applicationId: Id,
+  createdAt: z.string(),
+  digest: z.string().regex(/^[a-f0-9]{64}$/),
+  payload: PacketPayloadSchema,
+});
+export type PacketSnapshot = z.infer<typeof PacketSnapshotSchema>;
+export const ExportArtifactSchema = z.object({
+  id: Id,
+  componentId: z.string(),
+  filename: z.string().max(100),
+  format: z.enum(["docx", "pdf", "json", "md"]),
+  sha256: z.string(),
+  bytes: z.number().int().nonnegative(),
+  pages: z.number().int().positive().nullable(),
+});
+export const ProposalExportSchema = z.object({
+  id: Id,
+  snapshotId: Id,
+  jobKey: z.string(),
+  status: z.enum(["queued", "running", "succeeded", "failed"]),
+  createdAt: z.string(),
+  finishedAt: z.string().nullable(),
+  artifacts: z.array(ExportArtifactSchema),
+  measurements: z.array(
+    z.object({
+      componentId: z.string(),
+      pages: z.number().int().positive().nullable(),
+      limit: z.number().int().positive().nullable(),
+      passed: z.boolean().nullable(),
+      fingerprint: z.string(),
+      note: z.string(),
+    }),
+  ),
+  errors: z.array(z.string()),
+  renderer: z.string(),
+});
+export type ProposalExport = z.infer<typeof ProposalExportSchema>;
+export const LegacyStateSchema = z.object({
   schemaVersion: z.literal(1),
   revision: z.number().int().nonnegative(),
   projects: z.array(ProjectSchema),
   sources: z.array(SourceSchema),
   opportunities: z.array(OpportunitySchema),
+  applications: z.array(
+    ApplicationSchema.extend({
+      sections: z
+        .array(
+          DraftSectionSchema.extend({
+            key: z.enum(["summary", "significance", "approach"]),
+          }),
+        )
+        .length(3),
+    }),
+  ),
+});
+export const StateSchema = z.object({
+  schemaVersion: z.literal(2),
+  revision: z.number().int().nonnegative(),
+  projects: z.array(ProjectSchema),
+  sources: z.array(SourceSchema),
+  opportunities: z.array(OpportunitySchema),
   applications: z.array(ApplicationSchema),
+  contentLibrary: z.array(ContentItemSchema).default([]),
+  packetSnapshots: z.array(PacketSnapshotSchema).default([]),
+  proposalExports: z.array(ProposalExportSchema).default([]),
 });
 export type State = z.infer<typeof StateSchema>;
 export const ProposalSchema = z.object({
@@ -317,6 +477,7 @@ export const CommandSchema = z.discriminatedUnion("type", [
     sourceIds: z.array(Id).max(10),
     citations: z.array(CitationSchema).max(50).default([]),
     proposalToken: Id.optional(),
+    blocks: z.array(ProposalBlockSchema).max(1000).optional(),
   }),
   z.object({
     type: z.literal("setStage"),
@@ -329,6 +490,68 @@ export const CommandSchema = z.discriminatedUnion("type", [
     issueId: short,
     reason: z.string().trim().min(5).max(1000),
   }),
+  z.object({
+    type: z.literal("adoptTemplate"),
+    applicationId: Id,
+    templateId: z.enum(["legacy-three-section", "nsf-standard-research"]),
+  }),
+  z.object({
+    type: z.literal("confirmTemplate"),
+    applicationId: Id,
+    answers: ApplicabilityAnswersSchema,
+    mappings: z
+      .array(
+        z.object({
+          requirementId: Id,
+          sectionId: Id.nullable(),
+          note: z.string().max(3000),
+        }),
+      )
+      .max(100),
+    by: short.min(1),
+    note: z.string().min(5).max(3000),
+  }),
+  z.object({
+    type: z.literal("reviewSection"),
+    applicationId: Id,
+    sectionKey: Id,
+    revisionId: Id,
+    by: short.min(1),
+  }),
+  z.object({
+    type: z.literal("saveContent"),
+    applicationId: Id,
+    sectionKey: Id,
+    itemId: Id.optional(),
+    title: short.min(1),
+    category: ContentItemSchema.shape.category,
+    scope: z.string().min(5).max(3000),
+  }),
+  z.object({
+    type: z.literal("approveContent"),
+    itemId: Id,
+    revision: z.number().int().positive(),
+    by: short.min(1),
+  }),
+  z.object({ type: z.literal("retireContent"), itemId: Id }),
+  z.object({
+    type: z.literal("insertContent"),
+    applicationId: Id,
+    sectionKey: Id,
+    itemId: Id,
+    revision: z.number().int().positive(),
+    contextNote: z.string().min(5).max(3000),
+    confirmContext: z.literal(true),
+  }),
+  z.object({
+    type: z.literal("resolveReuse"),
+    applicationId: Id,
+    sectionKey: Id,
+    itemId: Id,
+    action: z.enum(["keep", "apply"]),
+    reason: z.string().min(5).max(3000),
+  }),
+  z.object({ type: z.literal("freezePacket"), applicationId: Id }),
   z.object({ type: z.literal("resetDemo") }),
 ]);
 export type Command = z.infer<typeof CommandSchema>;

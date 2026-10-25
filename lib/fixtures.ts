@@ -143,7 +143,10 @@ export function createDemo(): State {
     };
   });
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
+    contentLibrary: [],
+    packetSnapshots: [],
+    proposalExports: [],
     revision: 0,
     projects: [project],
     sources,

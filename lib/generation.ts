@@ -30,7 +30,13 @@ export function generationContext(state: State, input: GenerationInput) {
   if (!app) throw new KitError("NOT_FOUND", "Application not found.", 404);
   const project = state.projects.find((p) => p.id === app.projectId)!;
   const call = state.opportunities.find((c) => c.id === app.opportunityId)!;
-  const section = app.sections.find((s) => s.key === input.sectionKey)!;
+  const section = app.sections.find((s) => s.key === input.sectionKey);
+  if (!section)
+    throw new KitError(
+      "SECTION_NOT_FOUND",
+      "Choose a section in this application.",
+      404,
+    );
   const sources = input.sourceIds.map((id) =>
     state.sources.find((s) => s.id === id && s.projectId === project.id),
   );
@@ -43,7 +49,14 @@ export function generationContext(state: State, input: GenerationInput) {
     (r) => r.origin === "sponsor" && r.review === "confirmed",
   );
   const data = {
-    section: { label: section.label, wordLimit: section.wordLimit },
+    section: {
+      label: section.label,
+      wordLimit: section.wordLimit,
+      binding: app.binding,
+      instructions: app.binding?.manifest?.sections.find(
+        (s) => s.id === section.key,
+      )?.instructions,
+    },
     project: project.profile,
     call: { title: call.title, confirmedRequirements: requirements },
     sources: selected.map((s) => ({
