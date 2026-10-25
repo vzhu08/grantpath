@@ -44,6 +44,9 @@ try {
   const r = await fetch(origin + "/api/workspace");
   assert.equal(r.status, 200);
   assert.equal((await r.json()).schemaVersion, 4);
+  const feature=await fetch(origin+"/api/resubmissions/view");
+  assert.equal(feature.status,200);
+  assert.deepEqual((await feature.json()).concerns,{});
   await writeFile(
     "test-results/resubmissions-dev-smoke.json",
     JSON.stringify(

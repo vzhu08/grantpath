@@ -69,6 +69,14 @@ export function validateResubmissionGraph(state:Workspace) {
     if(f.snapshots.filter(s=>s.projectId===project.id).length>50||f.packets.filter(s=>s.projectId===project.id).length>50||f.attempts.filter(s=>s.projectId===project.id).length>20||f.receipts.filter(r=>r.projectId===project.id).length>200)fail("Project resubmission history capacity exceeded.",413);
   }
   assertUnique(f.receipts.map(r=>`${r.projectId}:${r.command}:${r.operationId}`),"Operation receipts");
+  for(const receipt of f.receipts){find(state.projects,receipt.projectId);let projectId:string;let expectedIds:string[];
+    if(receipt.command==="createSubmissionCapture"){const record=find(f.captures,receipt.resultIds[0]!);projectId=record.projectId;expectedIds=[record.id];}
+    else if(receipt.command==="freezeSubmissionSnapshot"){const record=find(f.snapshots,receipt.resultIds[0]!);projectId=record.projectId;expectedIds=[record.id];}
+    else if(receipt.command==="createResubmissionAttempt"){const record=find(f.attempts,receipt.resultIds[0]!);projectId=record.projectId;expectedIds=[record.id,record.targetApplicationId];}
+    else if(receipt.command==="saveResponsePacket"){const record=find(f.packets,receipt.resultIds[0]!);projectId=record.projectId;expectedIds=[record.id];}
+    else fail("Unknown retained resubmission receipt command.");
+    if(projectId!==receipt.projectId||JSON.stringify(expectedIds)!==JSON.stringify(receipt.resultIds))fail("Retained operation receipt references a missing or foreign result.");
+  }
   return state;
 }
 export function protectResubmissionDemoReset(state:Workspace) {

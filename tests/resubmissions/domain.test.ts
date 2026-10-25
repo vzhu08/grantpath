@@ -6,6 +6,7 @@ import { feedbackCitation,quoteFeedback,coverageGaps } from "../../lib/resubmiss
 import { validateResubmissionGraph } from "../../lib/resubmissions/validation";
 import { packetJSON,packetMarkdown } from "../../lib/resubmissions/exports";
 import { newSource,cite } from "../../lib/evidence";
+import { ResubmissionCommandSchema } from "../../lib/resubmissions/schema";
 describe("resubmission truth and cycles",()=>{
   it("freezes explicit partial coverage; later capture/project/call changes leave original digest unchanged",()=>{
     const h=harness(),before=canonical(h.state.resubmissions.snapshots[0]);
@@ -24,6 +25,7 @@ describe("resubmission truth and cycles",()=>{
   it("freeze retry returns same immutable snapshot before stale revision rejection",()=>{const h=harness();expect(h.run(h.freeze,0).selectedId).toBe(h.snapshotId);expect(h.state.resubmissions.snapshots).toHaveLength(1);});
   it("capture-create retry recovers its original mutable capture before stale revision rejection",()=>{const h=harness();expect(h.run({type:"createSubmissionCapture",operationId:"capture-create-1",projectId:"demo-project",originalApplicationId:"original",method:"pasted",supersedesId:null,correctionReason:""},0).selectedId).toBe(h.captureId);expect(h.state.resubmissions.captures).toHaveLength(1);});
   it("failed stale commands and graph failures leave the original candidate byte-identical",()=>{const h=harness(),before=canonical(h.state);expect(()=>h.run({type:"saveConcern",attemptId:h.attemptId,fields:{interpretation:"wrong",citations:[{sourceId:"missing",version:1,hash:"bad",quote:"x",start:0,end:1}],importance:"major",disposition:"change",confirmed:true,mappings:[],noEditReason:"",rationale:""},status:"accepted"})).toThrow();expect(canonical(h.state)).toBe(before);expect(()=>h.run({type:"archiveAttempt",attemptId:h.attemptId,reason:"Archive for later."},0)).toThrow(/newer save/);});
+  it("rejects whitespace-only researcher labels and retained decision reasons",()=>{expect(ResubmissionCommandSchema.safeParse({type:"reviewAttempt",attemptId:"attempt",expectedFingerprint:"a".repeat(64),by:" "}).success).toBe(false);expect(ResubmissionCommandSchema.safeParse({type:"archiveAttempt",attemptId:"attempt",reason:"     "}).success).toBe(false);});
 });
 describe("feedback quotation and coverage integrity",()=>{
   it("normalizes BOM/newlines and retains selected repeated occurrence offsets including non-BMP text",()=>{

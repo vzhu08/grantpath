@@ -1,6 +1,6 @@
 # Task 03 — Resubmission response matrix release evidence
 
-Status: independent core implemented and checked; shared application integration is queued behind Task 02. This is not an application-complete release or a deployment claim.
+Status: integrated schema 4 and feature browser/restart acceptance passed. Baseline/vault regression, dev smoke and final private review health verification are in progress; the final release gate remains open.
 
 Human product/scope owner: requesting user. Task 03 implementation/schema steward: this chat. Checkout `C:/Users/vzhu0/.codex/worktrees/f678/grantguide`, branch `feature/resubmission-matrix-03`, starting baseline `4b7d2059957d92d75f18984685a25bb2324a8b54` (workspace schema 2, roadmap 01 complete). The imported implementation specification retains exact SHA-256 `7D995546E39A2D13FBE6D52E1735772A6D867ADC9ED0A224080ECD34367C85A1` from the primary source.
 
@@ -10,7 +10,7 @@ Researcher problem: reviewer comments get detached from proposed changes, actual
 
 Technical impressiveness, clarity, impact and novelty are standing priorities. This release uses the existing local application and kit normalization/AI adapters; original work is the resubmission graph, capture truth, cycle separation, dependency invalidation, bounded comparison and frozen response packet. No measured time-saving, funding or market-uniqueness claim is made. Optional NIH profiles, sponsor DOCX/PDF, collaboration, external delivery and live AI tests are deferred. The human subsequently specified a demo tomorrow, October 26, 2026, with an approximate next-24-hours window; no exact cutoff or demo duration was supplied.
 
-## Independent implementation
+## Implemented workflow
 
 - Strict feature schemas, server-assigned IDs/times and bounded retained histories.
 - Mutable captures and attested immutable snapshots, coverage exclusions, correction lineage, copied historical research/call support and SHA-256 manifests.
@@ -22,19 +22,19 @@ Technical impressiveness, clarity, impact and novelty are standing priorities. T
 - Selective immutable internal Markdown/JSON packets, inert Markdown escaping and safe loopback download handlers.
 - Optional suggestion/response previews, exact allowed-range validation, synthetic-only fixtures, per-request live consent, shared process limiter key, 15-minute bound tokens and post-durable-save token effects.
 
-## Shared integration contract — queued, no competing migration
+## Integrated storage and application contract
 
-Task 02 owns the shared-file lease. Its contract milestone is `67daccc`, not its final checked release. Task 03 has not modified pre-existing shared files, central docs, manifests, layout/styles or imported modules.
+The parent explicitly transferred the shared-file lease after Task 02's checked `d3c252b8a0ab7874e76d32570ab89c5042d9af5e`. Task 03 stacked that source, then incorporated checked main `b4485b6730dac3585a33ebc1e1bfe739af20cc21` and its dependency updates. Main's squash ancestry caused source conflicts; the conflicted main files were verified identical to d3 before retaining the integrated schema 4 versions. Parent-owned central docs/CI and updated manifests were preserved. Task 03 does not author central coordination/status files.
 
-After the parent supplies Task 02's exact checked commit and transfers the lease:
+Implemented interfaces for the next task lead:
 
-1. Preserve its schema 3 vault collections (`documents`, `documentVersions`, `parseAttempts`, `attachmentSelections`, `ethicsRecords`, `ethicsTasks`, `handoffs`, `operationReceipts`), Requirement.vault and Source fileOrigin additions. Add schema 4 with `resubmissions: ResubmissionsSchema` and empty feature collections, plus application `cycleId: initial` / `originAttemptId: null`. Preserve byte-exact backup/migration behavior and all proposal/vault history.
-2. Add `...ResubmissionCommandSchema.options` to workspace commands. Dispatch `applyResubmissionCommand` before ordinary handling; recover feature receipts before the global expected-revision gate. Its candidate state already advances global revision. Call `commitResubmissionPreview(result)` only after the repository has durably atomically saved the candidate.
-3. Validate `validateResubmissionGraph` on reads and every candidate write, including ordinary draft/source/project edits. Apply the 25 MiB new-write bound without making a larger pre-existing valid store unreadable.
-4. Ordinary `saveApplication` must select only the initial cycle. Never replace an original submitted app. Keep cycle labels in selectors. Demo reset must retain all referenced dependencies; the feature helper currently refuses reset once resubmission history exists.
-5. Mount the feature component in drafting/review. Server-derived `/api/resubmissions/view` supplies row/attempt/document fingerprints, readiness issues, comparison and one agenda item per shared action; client code must not import node crypto. Derive Reviewed from current fingerprints, not the persisted historic attempt state.
-6. New suggest/respond handlers share the existing `grantpathGenerationLimit` global. Wire the shared helper explicitly if needed without adding another independent limiter. Capture token consumption after durable persistence, never before it.
-7. Add migration, repository/restart/security/browser acceptance on isolated ports, regression, final build, dev smoke and production review health/build identity verification.
+1. Schema 4 preserves all schema 3 vault collections, Requirement.vault, Source fileOrigin, proposal library/packets/exports and histories. `V3StateSchema` remains available. `migrateV3` adds required `resubmissions` and live application cycle defaults; v1/v2 chain through it. The repository saves the original bytes to a unique exclusive backup first. Frozen proposal payload applications get no new defaults, preserving their old digests.
+2. Workspace commands include the dedicated strict `ResubmissionCommandSchema` options. `applyResubmissionCommand` returns an isolated candidate and advances its revision. Create/freeze/packet receipts recover before stale revision rejection. `commitResubmissionPreview(result)` runs only after atomic durable write; failed storage retains an unaccepted preview.
+3. `validateResubmissionGraph` runs on reads and every write/internal transaction, including ordinary source/draft/project edits. Broken current feature data fails closed. The new-write serialized cap is 25 MiB; additive migration can preserve an already larger valid store for read/export without deleting data.
+4. Ordinary `saveApplication` selects only the initial cycle. Each attempt has a distinct target ID and cycle, recomputed requirements, no inherited Ready/Submitted state or waivers. Reset refuses to discard feature-referenced history. The ordinary application selector displays cycle IDs.
+5. Drafting exposes separate Proposal drafting and Resubmission matrix subviews. `/api/resubmissions/view` supplies current row/attempt/document fingerprints, comparison and a de-duplicated action agenda after vault runtime hydration. Reviewed is derived against current dependencies, not the historic state field.
+6. `acquireGeneration()` in `lib/resubmissions/limiter.ts` is explicitly shared by existing draft generation and both feature endpoints: one active request, six attempts/minute, 22-second signal. Previews use 50,000-unit prompt bounds, strict selected ranges, synthetic-only fixture contexts, explicit live consent, no tools, 15-minute memory tokens and acceptance-time input fingerprint revalidation.
+7. Markdown/JSON download uses only frozen content. Current packets include selected row data, latest human decisions with retained dependency manifests, exact evidence/target copies, original coverage/attestation, sponsor decisions, open/stale/conflict states and separate application readiness. No sponsor attachment is produced.
 
 ## Actual verification so far
 
@@ -48,25 +48,40 @@ Commands in this isolated checkout:
 | `npm run check` | Intermediate independent core: exit 0, TypeScript, 158 tests across 13 suites, production build. Later UI/integrity additions still require the final integrated repeat. |
 | `npm test -- tests/resubmissions` | Later fixture/call-capture/archived-mapping run: exit 0, 35 tests across 4 suites. Subsequent retained-dependency/file-origin/mapping edits await the queued final checks. |
 | Selected module example commands | Documents, extraction, AI and recommendations demos exited 0, local/synthetic modes only. The full test run included the selected module suites. |
+| Locked `npm ci` after main b448 | Exit 0; 117 packages, audit 0. Updated AI SDK/React/Playwright/Vitest patch versions retained. |
+| Filesystem `npm run check` after integration | Exit 0; TypeScript, 197 tests/20 suites and production build. |
+| `npm run check` including portable fixes and copy regression | Exit 0; 217 tests/23 suites and production build. Final receipt/reviewer-label checks and focused subview build follow below. |
+| `node --import tsx scripts/resubmissions-acceptance.ts` | Exit 0 against production port 3103, isolated `.test-data/resubmissions-05qucr`; actual restart, frozen downloads, preview/HTTP boundaries, 409 buffers, fresh UI capture/cycle/feedback/concern and desktop/mobile checks. |
+| Latest focused repository/domain checks | Exit 0, 25 tests; includes corrupt receipt preservation and nonblank actor/reason boundaries. |
 
 The comparison writer used isolated checkout `C:/Users/vzhu0/.codex/worktrees/task03-comparison/grantguide`, branch `feature/resubmission-comparison-03`, exclusive `comparison.ts` and `comparison.test.ts`. Commit `49d9d21e3947ff3f94d16099d30c621db23d46e1` integrated as `a0d098c`; its npm ci, typecheck, 11 tests and whitespace check exited 0. Read-only reviewer `/root/resubmission_integrity_review` supplied executable adversarial cases; the lead fixed coverage union mismatch, downgrade reasons, correction lineage, mixed provenance, retained call support, selected-history disclosure, archived revisions and token commit timing.
 
 The UI writer `/root/resubmission_ui` used `C:/Users/vzhu0/.codex/worktrees/task03-ui/grantguide`, branch `feature/resubmission-ui-03`, exclusive new `components/resubmissions/**`. Commit `089b3d5e7e291a1631ff0fdf27187e78ecf90472` integrated as `625eeb6`; npm ci, final TypeScript and staged whitespace checks exited 0. Offline static React rendering verified the manual forms and labels. No browser/build claim follows from that render. Lead follow-ups added removal of superseded response citations and editable comparison mappings for renamed/archived target sections. Optional AI UI is deferred; bounded endpoints and manual editing remain the intended first release.
 
-Additional new files provide a synthetic all-14-section rehearsal workspace, a guarded isolated browser/process-restart acceptance script (`node --import tsx scripts/resubmissions-acceptance.ts`) and a non-overwriting private review seed (`node --import tsx scripts/resubmissions-seed-review.ts`). Both scripts reject execution before the integrated feature workspace schema exists. They have been authored, not yet run against the integrated application.
+Additional files provide a synthetic all-14-section rehearsal workspace, isolated browser/process-restart acceptance, a non-overwriting private review seed and reserved-port dev smoke. The feature browser proof inspected `test-results/resubmissions/{result.json,resubmission-before-change.png,resubmission-desktop.png,resubmission-mobile.png}`. Mobile width was 390 pixels, with no horizontal overflow or uncaught page errors. Initial browser test failures were locator mistakes (a hidden existing dropdown option and a dirty-status header), corrected without changing application conflict behavior.
 
-The parent reserved the shared machine's heavy-verification slot for Task 02 after measured RAM/process contention. Task 03 has no active heavy run and will use at most two Vitest workers when released. This is an execution-resource queue; no correctness gate has been removed.
+Verification is sequential with at most two Vitest workers. Windows sandbox hard-link denial produced 14 inherited vault failures; an isolated probe confirmed `EPERM`, matching Task 02. The filesystem-access rerun passed without weakening immutable storage. Peak runs were coordinated with the parent's main hotfix build and infrastructure review; no unrelated processes were stopped.
 
 Independent reviewer proof: two supported rows and one unfinished experiment displayed `[Resolved, Resolved, In progress]`; editing the first linked evidence source displayed `[Needs review, Resolved, In progress]`. Its 27,089-byte packet and original snapshot remained identical through JSON restart/graph validation. This is domain proof, not yet browser/persistence integration evidence.
 
 NSF official current-guide index and Chapter IV.E were rechecked October 25, 2026; source metadata is in `lib/resubmissions/nsf-profile.ts`. It records preparation guidance and required human decisions, not sponsor eligibility.
 
-## Pending verification and handoff
+## Portable repairs assigned by the parent
 
-Required app integration, migration/restart fixtures, browser A01–22 coverage, final integrated `npm run check`, `npm run dev`, `npm run review`, explicit `/api/health` and review URL remain pending the shared lease and verification slot. Review reservations: `PORT=3003`, private `GRANTPATH_DATA_DIR=.local-data/task-03-review`; browser `3103`; dev `3203`. Tests use synthetic unique `.test-data` directories. No primary workspace/data or port 3000 server was read into fixtures or modified.
+The independent infrastructure review confirmed three issues in main b448. Each repair was committed separately with base-compatible tests and no Task 03 imports, so the parent could cherry-pick them before schema 4:
 
-Task 02 candidate `e9da61d` was inspected read-only, not incorporated before lease release. It retains V2StateSchema, schema 3 vault defaults, migrateV1/migrateV2 byte backups, vaultRuntimeState/excerpt hydration, write/load/internal graph checks and a serialized repository transaction API. Task 03 will preserve those actual interfaces. The feature now uses the existing `citationStale` adapter so integrated vault original-file changes also invalidate linked decisions, and frozen evidence copies retain fileOrigin metadata when present.
+- `3a694870e2d8670d4e7a7c8ef5357a248696b37d`: current selected-only and quoted evidence now blocks readiness for missing/corrupt/replaced/excluded originals through unwaivable `vault-evidence-*` issues. Rules version 3.1; five focused tests passed. Legitimate manual sources and historical frozen packets remain valid.
+- `f187da549d8516d4e73f4d7d895a77c653db2a74`: malformed UTF-8/JSON upload metadata returns METADATA 400 before storage; three tests passed.
+- `5c5f1c952c8d9d14e2fed21006a41a8859dc3e68`: browser-safe structured/legacy API message decoding in full proposal generation/export paths; eleven tests passed.
 
-RM-01–08 independent code exists, but their app exit evidence is incomplete until integration. A01 migration, durable A18 retries/conflicts and the A22 whole-app browser journey are specifically still pending. Domain suites cover capture immutability/coverage, quote isolation, split/merge/conflicts, evidence gaps, administrative versus scientific invalidation, selective packets, bounds, comparison and optional preview binding. No central API/status/roadmap document has been marked complete by this task.
+Known backup limitation reported by infrastructure review: the existing `repository.backup()` copies workspace metadata and vault blobs/extractions, but omits proposal-export artifacts. For a complete restore, stop the app and copy the entire private data directory, including `proposal-exports`, with its matching metadata. A broad backup redesign was deferred; no claim that the narrower utility is a complete proposal-artifact backup is made.
+
+## Pending final verification and handoff
+
+Baseline/proposal and vault browser regression, dev smoke, final locked-main check/build and private review health/build identity verification remain pending. Reservations: review `PORT=3003`, `GRANTPATH_DATA_DIR=.local-data/task-03-review`; browser 3103; dev 3203. All tests use synthetic unique `.test-data` directories. No primary workspace/data or port 3000 server was read into fixtures or modified.
+
+Task 02's vaultRuntimeState/excerpt hydration, serialized internal transaction API, integrity checks, immutable files, ethics and handoffs are preserved. Feature fingerprints also track vault original-file head/integrity/exclusion. Historical links remain readable after file replacement, archive or reclassification; current decisions need renewed review.
+
+RM-01–08 code and feature acceptance are integrated. A01 migration/durable recovery and A18 receipts/conflicts have repository tests; A22 full regression is the remaining browser gate. Optional AI controls are deferred; the bounded endpoints and explicit acceptance workflow are tested while the complete manual workflow is available in the UI. No central API/status/roadmap document is authored by this task.
 
 Live AI, sponsor submission, external delivery, deployment and human applicant evaluation are unrun. Ordinary tests are offline with mocked transports. Markdown/JSON are the only response packet formats; no sponsor DOCX/PDF release is claimed.
