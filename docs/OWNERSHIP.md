@@ -21,6 +21,7 @@ The user authorized two independent implementation chats and useful subagents in
 | New `lib/reminders/**`, `components/reminders/**`, `app/api/reminders/**`, `tests/reminders/**`, `scripts/reminders-*` and task 07 implementation/release docs | Task 07 implementation lead | Requesting user | Managed `239a/grantguide`, `feature/07-website-reminders`; human-approved open-site banners only |
 | New `lib/discovery/**`, `components/discovery/**`, `app/api/discovery/**`, `tests/discovery/**`, `scripts/discovery-*` and task 09 implementation/release docs | Task 09 implementation lead | Requesting user | Managed `93cb/grantguide`, `feature/09-nsf-grant-discovery`; NSF/Grants.gov manual-only scope |
 | Independent subagent reviews | Each task lead's assigned reviewer | Requesting user | Read-only unless assigned an exclusive file set in another isolated checkout/branch |
+| `docs/reviews/PRE_UI_ACCEPTANCE.md`, `docs/reviews/pre-ui-evidence/**`; no application edits | Existing review chat `01a171d9-b270-72d2-8d9b-73364c6a3834` | Requesting user | Prepare matrix now with read-only agents; final combined/rendered acceptance after checked02–09 main and explicit heavy-slot transfer, isolated data/port3120. No heavy lease now; GO required before redesign |
 
 ## Immediate research ownership
 
