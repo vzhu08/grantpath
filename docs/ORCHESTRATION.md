@@ -140,6 +140,10 @@ Handoff includes exact commit(s), changed paths, subagent results, commands/exit
 
 ## Future tasks
 
+After the current main update/local deployment finishes, the user requested a **new infrastructure review chat** to verify actual frontend/backend wiring, dependency graph, document import and API contracts against checked main, using isolated data and useful agents. Do not present unmerged feature checkpoints as connected main behavior.
+
+Task 10 (teams) is explicitly **skipped** for the hackathon. Research 11 (GrantWeave), 12 (AimFit) and 13 (Bootstrap) must wait until this infrastructure review is complete and their concrete prerequisite implementations are checked and merged into main. Initial gate candidates: 11 needs actual award/budget/provenance/constraint inputs (05/06 plus existing call/source support); 12 needs actual cost/budget and versioned assumption/proposal inputs (06/01) plus human design-family/validation choices; 13 needs actual review/resubmission/evidence gaps and resource/cost inputs (03/04/02/06). Live feeds and 11/12 scenario adapters are optional where the bounded design does not require them. Reassess against code; do not start nominal research on guessed contracts or impose optional predecessors unnecessarily. Every new doc must cite the actual merged revision/interfaces and ask the human consequential domain questions.
+
 Bring priorities and steering to the parent chat. Before dispatching another task, inspect current chat/branch status and this registry, read its spec/scoped instructions, assign exclusive paths and dependencies, reserve separate data/ports, and record evidence requirements. Substantial new scope still requires human instruction; this registry does not preauthorize future roadmap work.
 
 Use event-based progress/blocker/handoff messages to the parent. Do not add scheduled polling or reminders without a user request. If a worker completes independent work before its integration dependency, save a scoped checkpoint and report the precise dependency; do not label the feature complete.

@@ -120,6 +120,8 @@ Completed [implementation specification](implementation/09_LIVE_GRANT_DISCOVERY_
 
 ## 10 — Team workspaces and institutional connectors
 
+**Hackathon decision:** the human explicitly skipped task 10 because its improvement does not justify the effort. Retain the description as later backlog; do not dispatch it or make it a prerequisite for the bounded local demo.
+
 **Outcome:** collaborate with investigators/research offices and reduce repeated entry. **Inputs:** authenticated identities/roles, memberships, audit policy and actual permission for a selected external system.
 
 **Bounded release:** first private owner/editor/viewer workspaces with server-enforced access, comments, review requests and conflict-safe edits. Then one read-only connector with an explicit source of truth. Drive, accounting, calendar OAuth and IRB-system sync are separate releases. Output permission-aware applications, audit history and controlled sync with visible conflicts/errors.
@@ -127,6 +129,8 @@ Completed [implementation specification](implementation/09_LIVE_GRANT_DISCOVERY_
 **Dependencies:** migrate local storage to a multi-tenant authorization design, manage tokens/credentials, audit records and obtain institutional access. **Acceptance:** changing record IDs never exposes another workspace; revocation blocks access; retries do not duplicate imports; stale external data cannot overwrite newer accepted changes; failures preserve local work. **Limit:** institutions may have no public API; contracts/access/privacy can dominate effort. Formal ethics approval remains institutional.
 
 ## 11 — GrantWeave: compatible funding combinations
+
+**Research gate:** authorized after the requested infrastructure review and actual necessary award/budget/provenance prerequisites are checked and merged into main. Do not begin with guessed unimplemented interfaces. The implementation doc must reference the merged codebase.
 
 **Decision:** can three to five particular calls/awards jointly support a researcher-confirmed work plan, and which restrictions bind? Output feasible alternatives or unsatisfied constraints, never treat summed maxima as secured funds.
 
@@ -138,6 +142,8 @@ Completed [implementation specification](implementation/09_LIVE_GRANT_DISCOVERY_
 
 ## 12 — AimFit: study design under a funding ceiling
 
+**Research gate:** authorized after the requested infrastructure review and actual necessary cost/budget/versioned-assumption prerequisites are checked and merged into main. Human design-family/statistical validation choices remain explicit; the doc must cite real code interfaces.
+
 **Decision:** which affordable study options still address the research question, and which conclusions can each support? Expose scope changes and infeasible targets.
 
 **Inputs:** one validated design family, researcher-defined question, source-linked effect/precision assumptions, fixed/per-unit costs, attrition/resources, cap, timeline and approved alternatives. **Bounded release:** choose a design family with a statistics adviser, implement validated numerical calculations, independently compare reference cases and enumerate a small acceptable set of variants. Output costed options, sample/resource choices, sensitivity, unmet targets and corresponding claim changes. AI may explain/draft revisions, never invent effects or supply authoritative arithmetic. Researcher approval precedes application updates.
@@ -147,6 +153,8 @@ Completed [implementation specification](implementation/09_LIVE_GRANT_DISCOVERY_
 **Limit:** power/affordability do not prove merit, validity or feasibility. Never optimize repeatedly on observed outcomes to manufacture significance. Recruitment, ethics, equipment and time can bind. Trials, wet labs and arbitrary redesign need separate validated models. **Success measure:** numerical correctness and expert acceptance; researchers can explain assumptions and permissible conclusions.
 
 ## 13 — Bootstrap: cheapest credible preliminary-evidence plan
+
+**Research gate:** authorized after the infrastructure review and actual necessary evidence-gap/review/resource-cost prerequisites are checked and merged. Do not assume optional GrantWeave/AimFit scenarios are mandatory or implemented. Ground the doc in actual merged code and human-approved scientific candidates.
 
 **Decision:** which next affordable piece of evidence is worth obtaining to address a specific proposal gap? Optimize useful evidence rather than favorable findings.
 

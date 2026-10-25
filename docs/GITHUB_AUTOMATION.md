@@ -6,6 +6,8 @@ The user requested useful parallel agents and deterministic automation for routi
 
 `CI` runs on every pull request, pushes to main, merge-queue groups and manual dispatch. It validates workflows with a pinned/checksummed actionlint release, tests the merge policy, installs the lockfile, checks high/critical dependency advisories, runs `npm run check`, installs Chromium and runs the isolated local browser journey. One job avoids repeated installs/builds. npm caching and superseded-run cancellation reduce waste. Synthetic diagnostics are retained for seven days; no provider secrets are read.
 
+Roadmap 02 adds `node scripts/vault-browser.mjs` after the baseline journey in that same required job, on isolated port 3102/data. It verifies immutable upload/version/review/excerpt/handoff downloads, changed-file visibility and restart behavior. Main integration still requires the exact current passing revision; workflow changes receive parent/maintainer integration rather than self-authorizing automatic merge.
+
 The exact required status-check context is **`Validate (types, tests, build, browser)`**. Do not add path filters that leave this required check pending. Real LibreOffice/font export verification remains a separate prerequisite until its renderer environment is part of CI; ordinary tests must continue to run without it.
 
 ## Automatic merge policy
