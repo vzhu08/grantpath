@@ -6,6 +6,7 @@ import { once } from "node:events";
 import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import assert from "node:assert/strict";
+import { proposalBrowserAcceptance } from "./proposal-browser.mjs";
 
 const base = path.resolve(".test-data");
 await mkdir(base, { recursive: true });
@@ -34,6 +35,10 @@ async function start() {
         ...process.env,
         GRANTPATH_DATA_DIR: data,
         RUN_LIVE_AI: "false",
+        // Ordinary acceptance deliberately covers renderer-unavailable recovery.
+        // Actual installed-renderer acceptance is a separate explicit command.
+        GRANTPATH_LIBREOFFICE_PATH: "",
+        GRANTPATH_FONT_DIR: "",
         NEXT_TELEMETRY_DISABLED: "1",
       },
       stdio: ["ignore", "pipe", "pipe"],
@@ -451,6 +456,7 @@ try {
       exact: true,
     }),
   ).toBeDisabled();
+  await proposalBrowserAcceptance({ page, origin, artifacts });
   assert.deepEqual(pageErrors, [], "No uncaught browser errors");
   // The persistent review helper must exit cleanly and reuse its own server.
   const reviewDirectory = path.join(data, "review-helper"),

@@ -16,6 +16,7 @@
     "test:browser": "node scripts/e2e.mjs",
     "check": "npm run typecheck && npm test && npm run build",
     "test:exports": "node --import tsx scripts/verify-proposal-exports.ts",
+    "test:proposal-workflow": "node --import tsx scripts/verify-proposal-workflow.ts",
     "review": "node scripts/local-server.mjs"
   },
   "dependencies": {

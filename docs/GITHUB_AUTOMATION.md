@@ -18,6 +18,8 @@ Weekly Dependabot npm updates are grouped as patch/minor changes, labeled `depen
 
 ## One-time repository settings
 
+On October 25, 2026 the user explicitly authorized making `vzhu08/grantpath` public. Visibility is now public; strict up-to-date required CI, administrator enforcement, required conversation resolution, no force pushes/deletion, squash merging, branch deletion after merge and native auto-merge were applied and verified through GitHub's API. The normal labeled-PR policy above is now eligible. Local data, environment secrets, uploads and generated artifacts remain ignored. No account upgrade is required for this public repository.
+
 Lead/operator applies these after the CI PR is inspected; no settings are silently weakened. Enable squash merging, automatic branch deletion and native auto-merge support:
 
 ```sh

@@ -1,3 +1,4 @@
+import { activeSectionKeys, proposalIssues } from "./proposals/checks";
 import { matchOpportunities } from "./calls";
 import { citationStale, latest, validCitation } from "./evidence";
 import { type Application, type State } from "./schema";
@@ -33,10 +34,11 @@ export function readiness(state: State, app: Application) {
       location,
       message,
       fix,
-      waived:
-        app.waivers.find(
-          (w) => w.issueId === id && w.fingerprint === fingerprint,
-        )?.reason ?? null,
+      waived: /^(scope-|condition-|pages-)/.test(id)
+        ? null
+        : (app.waivers.find(
+            (w) => w.issueId === id && w.fingerprint === fingerprint,
+          )?.reason ?? null),
     });
   };
   const project = state.projects.find((p) => p.id === app.projectId)!;
@@ -134,7 +136,7 @@ export function readiness(state: State, app: Application) {
             "blocker",
             location,
             "Required sponsor section is empty or has no mapping to a starter section.",
-            "Map this requirement to one of the three starter sections and draft it.",
+            "Map this requirement to a proposal section and draft it.",
           );
         else if (req.wordLimit && wordCount(revision.text) > req.wordLimit)
           add(
@@ -154,10 +156,18 @@ export function readiness(state: State, app: Application) {
         );
     }
   }
-  for (const section of app.sections) {
+  const activeKeys = activeSectionKeys(app);
+  for (const section of app.sections.filter((section) =>
+    activeKeys.has(section.key),
+  )) {
     const revision = section.revisions.at(-1),
       location = section.label;
     if (!revision?.text.trim()) {
+      if (
+        app.binding?.manifest?.sections.find((s) => s.id === section.key)
+          ?.requiredness === "optional"
+      )
+        continue;
       add(
         `empty-${section.key}`,
         "blocker",
@@ -257,8 +267,10 @@ export function readiness(state: State, app: Application) {
       "The researcher has not recorded a source check.",
       "Compare the saved call with its official source and record review.",
     );
+  for (const issue of proposalIssues(state, app))
+    add(issue.id, issue.severity, issue.location, issue.message, issue.fix);
   return {
-    rulesVersion: "grantpath-readiness-1",
+    rulesVersion: "grantpath-readiness-2",
     applicationRevision: app.revision,
     evaluatedAt: new Date().toISOString(),
     issues,

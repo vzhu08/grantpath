@@ -8,6 +8,13 @@ import { extractCall, extractRequirements } from "./calls";
 import { latest, newSource, validCitation } from "./evidence";
 import { readiness } from "./readiness";
 import {
+  isProposalCommand,
+  applyProposalCommand,
+  validateStateIntegrity,
+} from "./proposals/workflow";
+import { migrateV1 } from "./proposals/migration";
+import { textBlocks, visibleText } from "./proposals/blocks";
+import {
   StateSchema,
   MutationSchema,
   type State,
@@ -62,6 +69,14 @@ export function applyCommand(
   const invalidate = (
     predicate: (app: State["applications"][number]) => boolean,
   ) => state.applications.filter(predicate).forEach(touch);
+  if (isProposalCommand(c)) {
+    selectedId = applyProposalCommand(state, c, at);
+    state.revision++;
+    return {
+      state: validateStateIntegrity(StateSchema.parse(state)),
+      selectedId,
+    };
+  }
   if (c.type === "saveProject") {
     if (c.id) {
       const p = find(state.projects, c.id);
@@ -290,6 +305,19 @@ export function applyCommand(
       selectedId = app.id;
     }
   } else if (c.type === "resetDemo") {
+    if (
+      state.packetSnapshots.some(
+        (packet) => packet.payload.project.provenance === "demo",
+      ) ||
+      state.contentLibrary.some(
+        (item) =>
+          state.projects.find((p) => p.id === item.projectId)?.provenance ===
+          "demo",
+      )
+    )
+      fail(
+        "Demo records are retained because frozen packets or reusable content reference them. Your saved provenance has not been reset.",
+      );
     const demo = createDemo();
     const protectedCallIds = new Set(
       state.applications
@@ -387,7 +415,9 @@ export function applyCommand(
       app.requirementsSourceVersion = call.sourceVersion;
       touch(app);
     } else if (c.type === "saveDraft") {
-      const section = app.sections.find((s) => s.key === c.sectionKey)!;
+      const section =
+        app.sections.find((s) => s.key === c.sectionKey) ??
+        fail("Choose a section in this application.", 404);
       const sources = c.sourceIds.map((id) => find(state.sources, id));
       if (sources.some((s) => s.projectId !== project.id))
         fail("Draft evidence must belong to this project.");
@@ -441,6 +471,14 @@ export function applyCommand(
           createdAt: at,
         };
       }
+      if (c.blocks && visibleText({ blocks: c.blocks }) !== c.text)
+        fail(
+          "Structured content and visible text do not match. Refresh the editor before saving.",
+        );
+      revision.blocks = c.blocks ?? textBlocks(revision.text);
+      revision.representationVersion = 1;
+      revision.bindingRevision = app.binding?.revision ?? null;
+      revision.reusedContent ??= section.revisions.at(-1)?.reusedContent ?? [];
       if (revision.citations.some((ref) => !validCitation(ref, state.sources)))
         fail(
           "A generated citation is invalid. Regenerate with current evidence.",
@@ -450,6 +488,10 @@ export function applyCommand(
       section.revisions.push(revision);
       touch(app);
     } else if (c.type === "waiveIssue") {
+      if (/^(scope-|condition-|pages-)/.test(c.issueId))
+        fail(
+          "A waiver cannot resolve unsupported scope, unknown applicability or measured page compliance. Review the source rule or re-render the content.",
+        );
       const issue = readiness(state, app).issues.find(
         (i) => i.id === c.issueId,
       );
@@ -497,7 +539,28 @@ export function createRepository(directory: string) {
   }
   async function load(): Promise<State> {
     try {
-      return StateSchema.parse(JSON.parse(await readFile(filename, "utf8")));
+      const raw = await readFile(filename);
+      const input = JSON.parse(raw.toString("utf8"));
+      if (input.schemaVersion === 1) {
+        const migrated = migrateV1(input);
+        const backup = await open(
+          path.join(
+            directory,
+            `workspace.v1-${Date.now()}-${randomUUID()}.backup.json`,
+          ),
+          "wx",
+          0o600,
+        );
+        try {
+          await backup.writeFile(raw);
+          await backup.sync();
+        } finally {
+          await backup.close();
+        }
+        await write(migrated);
+        return migrated;
+      }
+      return validateStateIntegrity(StateSchema.parse(input));
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === "ENOENT") {
         const state = createDemo();
@@ -520,11 +583,41 @@ export function createRepository(directory: string) {
     read: () => enqueue(load),
     mutate: (input: Mutation) =>
       enqueue(async () => {
-        const current = await load();
+        let current = await load();
+        if (
+          ["freezePacket", "setStage", "waiveIssue"].includes(
+            input.command.type,
+          ) &&
+          current.proposalExports.length
+        )
+          current = await (
+            await import("./proposals/runtime-state")
+          ).proposalRuntimeState(current);
         const result = applyCommand(current, input);
+        result.state.proposalExports.forEach((job) => {
+          delete job.runtimeRendererMatch;
+        });
         await write(result.state);
         return result;
       }),
+    internal: <T>(
+      operation: (state: State) => T | Promise<T>,
+      expectedRevision?: number,
+    ) =>
+      enqueue(async () => {
+        const state = await load();
+        if (
+          expectedRevision !== undefined &&
+          state.revision !== expectedRevision
+        )
+          fail("Saved state changed. Reload and retry.", 409);
+        const result = await operation(state);
+        state.revision++;
+        const validated = validateStateIntegrity(StateSchema.parse(state));
+        await write(validated);
+        return { state: validated, result };
+      }),
+    directory,
     filename,
   };
 }

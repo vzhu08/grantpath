@@ -28,6 +28,7 @@ export type EditorProps = {
   mutate: Mutate;
   busy: boolean;
   dirty: (value: boolean) => void;
+  refresh?: () => Promise<void>;
 };
 export const EditorRegistry = createContext<{
   ids: Record<string, boolean>;

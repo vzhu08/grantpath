@@ -11,6 +11,7 @@ import {
 } from "../components/opportunities-panel";
 import { Checklist } from "../components/checklist";
 import { Drafts } from "../components/drafts";
+import { ProposalPanel } from "../components/proposal-panel";
 import { Badge, Field, download, EditorRegistry } from "../components/common";
 
 const steps = [
@@ -152,7 +153,9 @@ export default function Workspace() {
     state?.applications.filter((a) => a.projectId === project?.id) ?? [];
   const app = apps.find((a) => a.id === appId) ?? apps[0];
   const call = state?.opportunities.find((c) => c.id === app?.opportunityId);
-  const props = state ? { state, mutate, busy, dirty: setDirty } : null;
+  const props = state
+    ? { state, mutate, busy, dirty: setDirty, refresh: () => load(false) }
+    : null;
   const review = state && app ? readiness(state, app) : null;
   function openApplication(id: string) {
     navigate(() => {
@@ -534,7 +537,17 @@ export default function Workspace() {
                             call={call}
                           />
                         ) : (
-                          <Drafts {...props} key={app.id} app={app} />
+                          <>
+                            <ProposalPanel {...props} key={app.id} app={app} />
+                            {app.binding?.templateId !==
+                              "nsf-standard-research" && (
+                              <Drafts
+                                {...props}
+                                key={app.id + "-legacy"}
+                                app={app}
+                              />
+                            )}
+                          </>
                         ))}
                     </>
                   )}
