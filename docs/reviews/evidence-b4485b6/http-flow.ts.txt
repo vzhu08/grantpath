@@ -1,0 +1,125 @@
+import assert from 'node:assert/strict';
+import { readFile, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+import { createHash } from 'node:crypto';
+import { readiness } from '../../lib/readiness';
+import { cite, latest } from '../../lib/evidence';
+import { sourceFileStale } from '../../lib/vault/domain';
+import { generationContext } from '../../lib/generation';
+import type { State } from '../../lib/schema';
+
+const origin = 'http://127.0.0.1:3120';
+const root = path.resolve('.test-data/infra-review-b4485b6');
+const data = path.join(root, 'data');
+const evidence: any = { sourceRevision: 'b4485b6730dac3585a33ebc1e1bfe739af20cc21', build: 'LjphVZDJouChizrnx1j9P', origin, data, results: [], findings: [] };
+const sha = (b: Uint8Array) => createHash('sha256').update(b).digest('hex');
+async function call(url: string, init: RequestInit = {}, status = 200) {
+  const r = await fetch(origin + url, { ...init, signal: AbortSignal.timeout(25000), headers: { ...(init.method && init.method !== 'GET' ? { origin } : {}), ...init.headers } });
+  const bytes = Buffer.from(await r.arrayBuffer());
+  let body: any; try { body = JSON.parse(bytes.toString()); } catch { body = undefined; }
+  evidence.results.push({ method: init.method ?? 'GET', url, status: r.status, expected: status, noStore: r.headers.get('cache-control'), error: body?.error?.code });
+  assert.equal(r.status, status, `${init.method ?? 'GET'} ${url}: ${bytes.toString().slice(0,300)}`);
+  return { body, bytes, headers: r.headers };
+}
+async function state(): Promise<State> { return (await call('/api/workspace')).body; }
+async function mutate(command: any, expectedRevision?: number, status = 200) {
+  return (await call('/api/workspace', { method: 'POST', headers: {'content-type':'application/json'}, body: JSON.stringify({ expectedRevision: expectedRevision ?? (await state()).revision, command }) }, status)).body;
+}
+async function settled() {
+  for (let i = 0; i < 100; i++) {
+    const s = await state();
+    if (!s.parseAttempts.some(p => ['pending','running'].includes(p.status))) return s;
+    await new Promise(r => setTimeout(r, 100));
+  }
+  throw new Error('bounded parse polling timed out');
+}
+async function upload(filename: string, bytes: Uint8Array, documentId?: string, key?: string) {
+  const meta = { projectId:'demo-project', ...(documentId ? {documentId} : {}), filename, claimedMime: filename.endsWith('.pdf') ? 'application/pdf' : filename.endsWith('.docx') ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : filename.endsWith('.md') ? 'text/markdown' : 'text/plain', title:'Infrastructure synthetic evidence', category:'Methods', owner:'Synthetic reviewer', expectedRevision:(await state()).revision, idempotencyKey:key ?? `infra-${Date.now()}` };
+  const result = (await call('/api/documents', {method:'POST',headers:{'content-type':'application/octet-stream','x-upload-metadata':Buffer.from(JSON.stringify(meta)).toString('base64url')},body:new Uint8Array(bytes)},201)).body;
+  await settled();
+  return {...result, meta};
+}
+const downloadUrl = (doc: string, v: string) => `/api/documents/${doc}/versions/${v}/download`;
+async function generationStatus(s: State, appId: string, sourceId: string) {
+  try { generationContext(s, {applicationId:appId,sectionKey:'summary',sourceIds:[sourceId],expectedRevision:s.revision,mode:'live',confirmUsage:true}); return 'allowed-context-only'; }
+  catch(e: any) { return e.code ?? e.message; }
+}
+async function main() {
+  const health = (await call('/api/health')).body;
+  assert.equal(health.revision, evidence.sourceRevision); assert.equal(health.build,evidence.build);
+  await call('/'); await call('/api/ready');
+  const s0 = await state(); assert.equal(s0.schemaVersion,3); assert.equal(s0.documents.length,0);
+  await call('/api/workspace',{method:'POST',headers:{'content-type':'text/plain'},body:'{}'},415);
+  await call('/api/workspace',{method:'POST',headers:{'content-type':'application/json',origin:'https://foreign.example'},body:'{}'},403);
+  await call('/api/workspace',{headers:{'sec-fetch-site':'cross-site'}},403);
+  await call('/api/workspace',{method:'POST',headers:{'content-type':'application/json'},body:'{'},400);
+  await call('/api/workspace',{method:'POST',headers:{'content-type':'application/json'},body:'x'.repeat(120001)},413);
+  await call('/api/documents',{method:'POST',headers:{'content-type':'application/octet-stream','x-upload-metadata':'ew'},body:'x'},500);
+  evidence.findings.push({id:'F2',actual:500,expected:400,repro:'X-Upload-Metadata ew decodes to incomplete JSON {; binary body x'});
+  const badMeta = {projectId:'demo-project',filename:'evidence.csv',claimedMime:'text/csv',title:'Synthetic bad file',category:'Methods',owner:'Synthetic reviewer',expectedRevision:(await state()).revision,idempotencyKey:'infra-bad-type'};
+  await call('/api/documents',{method:'POST',headers:{'content-type':'application/octet-stream','x-upload-metadata':Buffer.from(JSON.stringify(badMeta)).toString('base64url')},body:'a,b'},415);
+  badMeta.filename='bad.txt';badMeta.claimedMime='application/pdf';badMeta.idempotencyKey='infra-bad-mime';
+  await call('/api/documents',{method:'POST',headers:{'content-type':'application/octet-stream','x-upload-metadata':Buffer.from(JSON.stringify(badMeta)).toString('base64url')},body:'a,b'},415);
+  badMeta.filename='bad.txt';badMeta.claimedMime='text/plain';badMeta.idempotencyKey='infra-bad-utf8';
+  await call('/api/documents',{method:'POST',headers:{'content-type':'application/octet-stream','x-upload-metadata':Buffer.from(JSON.stringify(badMeta)).toString('base64url')},body:new Uint8Array([255,254,0])},422);
+  await call('/api/documents',{method:'POST',headers:{'content-type':'application/octet-stream','x-upload-metadata':Buffer.from(JSON.stringify(badMeta)).toString('base64url')},body:new Uint8Array(10000001)},413);
+  const appResult = await mutate({type:'saveApplication',projectId:'demo-project',opportunityId:s0.opportunities[0]!.id});
+  const appId = appResult.selectedId;
+  const firstBytes = Buffer.from('\ufeffLine one\r\nSynthetic 😀 passage for review.');
+  const first = await upload('evidence.txt',firstBytes,undefined,'infra-text-one');
+  let s = await settled();
+  const attempt = s.parseAttempts.find(p=>p.documentVersionId===first.versionId)!;
+  assert.equal(attempt.status,'parsed');
+  const textUrl = `/api/documents/${first.documentId}/versions/${first.versionId}/text?attemptId=${attempt.id}`;
+  const extracted = (await call(textUrl)).body;
+  const text = extracted.text;
+  assert.equal(text,'Line one\nSynthetic 😀 passage for review.');
+  await mutate({type:'promoteFileExcerpt',projectId:'demo-project',documentVersionId:first.versionId,parseAttemptId:attempt.id,start:text.indexOf('Synthetic'),end:text.length,title:'Infrastructure reviewed passage',by:'Synthetic reviewer',reason:'Compared exact synthetic passage with original'});
+  s = await state(); const source=s.sources.at(-1)!;
+  const citation = cite(source,'Synthetic 😀 passage for review.');
+  for(const section of s.applications.find(a=>a.id===appId)!.sections) {
+    await mutate({type:'saveDraft',applicationId:appId,sectionKey:section.key,label:section.label,wordLimit:section.wordLimit,text:'We propose a synthetic study using the reviewed passage.',sourceIds:[source.id],citations:section.key==='summary'?[citation]:[]});
+  }
+  s = await state(); const baselineIssues=readiness(s,s.applications.find(a=>a.id===appId)!).issues;
+  const beforeRevision=s.revision;
+  await mutate({type:'saveDraft',applicationId:appId,sectionKey:'summary',label:'Project summary',wordLimit:250,text:'A retained synthetic draft.',sourceIds:[source.id],citations:[citation]},beforeRevision);
+  await mutate({type:'saveDraft',applicationId:appId,sectionKey:'summary',label:'Project summary',wordLimit:250,text:'Stale request must not save.',sourceIds:[source.id],citations:[citation]},beforeRevision,409);
+  s=await state(); assert.equal(s.applications.find(a=>a.id===appId)!.sections[0]!.revisions.at(-1)!.text,'A retained synthetic draft.');
+  const dl=await call(downloadUrl(first.documentId,first.versionId));assert.equal(sha(dl.bytes),sha(firstBytes)); assert.match(dl.headers.get('content-disposition')!,/attachment/);assert.equal(dl.headers.get('x-content-type-options'),'nosniff');
+  await call(downloadUrl('foreign',first.versionId),{},404);
+  await call(downloadUrl(first.documentId,first.versionId),{headers:{'sec-fetch-site':'cross-site'}},403);
+  const blob=path.join(data,'vault','blobs',`${first.versionId}.bin`);
+  await writeFile(blob,'synthetic corrupted bytes');
+  const corrupt=await state(); assert.equal(corrupt.documentVersions.find(v=>v.id===first.versionId)!.integrity,'corrupt');
+  const corruptIssues=readiness(corrupt,corrupt.applications.find(a=>a.id===appId)!).issues;
+  const corruptGen=await generationStatus(corrupt,appId,source.id);
+  assert.equal(corruptGen,'EVIDENCE_REVIEW');
+  const addedIntegrityIssues=corruptIssues.filter(i=>!readiness(s,s.applications.find(a=>a.id===appId)!).issues.some(j=>j.id===i.id));
+  assert.deepEqual(addedIntegrityIssues,[]);
+  evidence.findings.push({id:'F1a',originalIntegrity:'corrupt',readinessAddedIssues:addedIntegrityIssues,generationContext:corruptGen,summary:'Cited original corruption adds no readiness issue'});
+  await call(downloadUrl(first.documentId,first.versionId),{},503);
+  await writeFile(blob,firstBytes);
+  const second=await upload('evidence.txt',Buffer.from('Replacement synthetic evidence.'),first.documentId,'infra-text-two');
+  s=await state(); assert.equal(s.documents.find(d=>d.id===first.documentId)!.versionIds.length,2);
+  const staleIssues=readiness(s,s.applications.find(a=>a.id===appId)!).issues;
+  assert.equal(sourceFileStale(s.sources.find(x=>x.id===source.id)!,s),true);
+  assert(staleIssues.some(i=>i.id==='citations-stale-summary'));
+  assert(!staleIssues.some(i=>i.id==='sources-significance'||i.id==='sources-approach'));
+  evidence.findings.push({id:'F1b',sourceFileStale:true,citationSectionBlocked:true,selectedOnlySectionsBlocked:false});
+  const old=await call(downloadUrl(first.documentId,first.versionId)); assert.equal(sha(old.bytes),sha(firstBytes));
+  const md=await upload('notes.md',Buffer.from('# Synthetic heading\n\nSynthetic Markdown passage.'),undefined,'infra-markdown');
+  const pdfBytes=await readFile('modules/documents/fixtures/text.pdf'); const pdf=await upload('fixture.pdf',pdfBytes,undefined,'infra-pdf');
+  const docxBytes=await readFile('modules/documents/fixtures/brief.docx');const docx=await upload('fixture.docx',docxBytes,undefined,'infra-docx');
+  const malformed=await upload('malformed.pdf',Buffer.from('%PDF-1.7\nnot valid PDF objects\n%%EOF'),undefined,'infra-malformed');
+  s=await state();
+  for(const item of [md,pdf,docx]) { const p=s.parseAttempts.find(p=>p.documentVersionId===item.versionId)!;assert.equal(p.status,'parsed'); }
+  const malformedAttempt=s.parseAttempts.find(p=>p.documentVersionId===malformed.versionId)!; assert.equal(malformedAttempt.status,'failed');
+  const malformedDl=await call(downloadUrl(malformed.documentId,malformed.versionId));assert.equal(malformedDl.bytes.toString(),'%PDF-1.7\nnot valid PDF objects\n%%EOF');
+  const h=(await call(`/api/applications/${appId}/handoffs`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({expectedRevision:s.revision,phase:'application',idempotencyKey:'infra-handoff'})},201)).body;
+  const handoff=(await call(`/api/applications/${appId}/handoffs/${h.handoffId}`)).body;
+  evidence.workflow={appId,sourceId:source.id,documentId:first.documentId,versionId:first.versionId,replacementVersionId:second.versionId,firstSha256:sha(firstBytes),handoffId:h.handoffId,formats:[md,pdf,docx].map(x=>({versionId:x.versionId,status:'parsed'})),malformedStatus:malformedAttempt.status,baselineIssueIds:baselineIssues.map(i=>i.id),handoffKeys:Object.keys(handoff)};
+  await writeFile(path.join(root,'before-restart-state.json'),JSON.stringify(await state(),null,2));
+  await writeFile(path.join(root,'result.json'),JSON.stringify(evidence,null,2));
+  console.log(JSON.stringify({checks:evidence.results.length,findings:evidence.findings,workflow:evidence.workflow},null,2));
+}
+try {await main();} catch(e:any) {evidence.failure={message:e.message,stack:e.stack};await writeFile(path.join(root,'result.json'),JSON.stringify(evidence,null,2));throw e;}

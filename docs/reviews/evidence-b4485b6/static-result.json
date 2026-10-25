@@ -1,0 +1,120 @@
+{
+  "sourceRevision": "b4485b6730dac3585a33ebc1e1bfe739af20cc21",
+  "missingRelativeImports": [],
+  "clientClosureCount": 29,
+  "clientNodeBuiltins": [],
+  "lockfileVersion": 3,
+  "rootManifestMismatch": false,
+  "directVersionMismatches": [],
+  "versions": {
+    "@ai-sdk/anthropic": {
+      "manifest": "4.0.85",
+      "lock": "4.0.85",
+      "installed": "4.0.85"
+    },
+    "@ai-sdk/openai": {
+      "manifest": "4.0.99",
+      "lock": "4.0.99",
+      "installed": "4.0.99"
+    },
+    "ai": {
+      "manifest": "7.0.148",
+      "lock": "7.0.148",
+      "installed": "7.0.148"
+    },
+    "docx": {
+      "manifest": "9.14.0",
+      "lock": "9.14.0",
+      "installed": "9.14.0"
+    },
+    "mammoth": {
+      "manifest": "1.13.0",
+      "lock": "1.13.0",
+      "installed": "1.13.0"
+    },
+    "next": {
+      "manifest": "16.4.3",
+      "lock": "16.4.3",
+      "installed": "16.4.3"
+    },
+    "papaparse": {
+      "manifest": "5.7.0",
+      "lock": "5.7.0",
+      "installed": "5.7.0"
+    },
+    "pdf-lib": {
+      "manifest": "1.17.1",
+      "lock": "1.17.1",
+      "installed": "1.17.1"
+    },
+    "pdfjs-dist": {
+      "manifest": "6.4.299",
+      "lock": "6.4.299",
+      "installed": "6.4.299"
+    },
+    "react": {
+      "manifest": "19.3.1",
+      "lock": "19.3.1",
+      "installed": "19.3.1"
+    },
+    "react-dom": {
+      "manifest": "19.3.1",
+      "lock": "19.3.1",
+      "installed": "19.3.1"
+    },
+    "zod": {
+      "manifest": "4.6.7",
+      "lock": "4.6.7",
+      "installed": "4.6.7"
+    },
+    "@playwright/test": {
+      "manifest": "1.64.1",
+      "lock": "1.64.1",
+      "installed": "1.64.1"
+    },
+    "@types/node": {
+      "manifest": "26.6.5",
+      "lock": "26.6.5",
+      "installed": "26.6.5"
+    },
+    "@types/papaparse": {
+      "manifest": "5.5.2",
+      "lock": "5.5.2",
+      "installed": "5.5.2"
+    },
+    "@types/react": {
+      "manifest": "19.3.0",
+      "lock": "19.3.0",
+      "installed": "19.3.0"
+    },
+    "@types/react-dom": {
+      "manifest": "19.3.0",
+      "lock": "19.3.0",
+      "installed": "19.3.0"
+    },
+    "fflate": {
+      "manifest": "0.8.3",
+      "lock": "0.8.3",
+      "installed": "0.8.3"
+    },
+    "tsx": {
+      "manifest": "4.23.15",
+      "lock": "4.23.15",
+      "installed": "4.23.15"
+    },
+    "typescript": {
+      "manifest": "6.0.3",
+      "lock": "6.0.3",
+      "installed": "6.0.3"
+    },
+    "vitest": {
+      "manifest": "5.0.5",
+      "lock": "5.0.5",
+      "installed": "5.0.5"
+    }
+  },
+  "limitations": [
+    "Regex source scan does not replace TypeScript or compiled bundle inspection.",
+    "Bare package imports and alias reachability are not fully resolved by this scan."
+  ]
+}

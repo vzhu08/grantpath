@@ -1,0 +1,42 @@
+{
+  "sourceRevision": "b4485b6730dac3585a33ebc1e1bfe739af20cc21",
+  "probe": "pure source functions; no disk repository/parser/server/provider",
+  "validatedBy": [
+    "StateSchema",
+    "validateStateIntegrity",
+    "validateVaultState"
+  ],
+  "baseline": {
+    "blockers": 0,
+    "issueIds": [
+      "no-citations-significance",
+      "no-citations-approach"
+    ]
+  },
+  "variants": [
+    {
+      "integrity": "corrupt",
+      "blockers": 0,
+      "stage": "Ready for review",
+      "generation": "EVIDENCE_REVIEW",
+      "addedIssues": []
+    },
+    {
+      "integrity": "missing",
+      "blockers": 0,
+      "stage": "Ready for review",
+      "generation": "EVIDENCE_REVIEW",
+      "addedIssues": []
+    }
+  ],
+  "replacement": {
+    "sourceFileStale": true,
+    "issueIds": [
+      "citations-stale-summary",
+      "no-citations-significance",
+      "no-citations-approach"
+    ],
+    "selectedOnlySectionsHaveStaleBlocker": false,
+    "sourceHeadUnchanged": true
+  }
+}

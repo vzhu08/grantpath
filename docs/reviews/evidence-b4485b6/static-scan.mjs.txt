@@ -1,0 +1,16 @@
+// Read-only source/manifest scan. Run from repository root with Node.
+import fs from 'node:fs';
+import path from 'node:path';
+const all=[];
+const walk=p=>{for(const e of fs.readdirSync(p,{withFileTypes:true})){const q=path.join(p,e.name);if(e.isDirectory())walk(q);else if(/\.[cm]?[jt]sx?$/.test(q))all.push(q);}};
+['app','components','lib','modules','packages'].forEach(walk);
+const missing=[],edges=new Map();
+for(const f of all){const deps=[];for(const m of fs.readFileSync(f,'utf8').matchAll(/(?:import\s+(?!type\s)(?:[^'";]*?\sfrom\s*)?|export\s+[^'";]*?\sfrom\s*|import\s*\()\s*['"]([^'"]+)['"]/g)){const x=m[1];if(!x.startsWith('.')){deps.push(x);continue;}const p=path.normalize(path.join(path.dirname(f),x));const found=[p,p+'.ts',p+'.tsx',p+'.js',path.join(p,'index.ts'),path.join(p,'index.tsx')].find(p=>fs.existsSync(p)&&fs.statSync(p).isFile());if(!found)missing.push({file:f,import:x});else deps.push(found);}edges.set(f,deps);}
+const seen=new Set(),builtins=[];const visit=f=>{if(seen.has(f))return;seen.add(f);for(const d of edges.get(f)||[]){if(d.startsWith('node:'))builtins.push({file:f,import:d});else if(edges.has(d))visit(d);}};visit(path.normalize('app/page.tsx'));
+const manifest=JSON.parse(fs.readFileSync('package.json','utf8')),lock=JSON.parse(fs.readFileSync('package-lock.json','utf8'));
+const pins={...manifest.dependencies,...manifest.devDependencies};
+const versions=Object.fromEntries(Object.keys(pins).map(k=>[k,{manifest:pins[k],lock:lock.packages['node_modules/'+k]?.version,installed:JSON.parse(fs.readFileSync(path.join('node_modules',k,'package.json'),'utf8')).version}]));
+const mismatches=Object.entries(versions).filter(([,v])=>v.manifest!==v.lock||v.lock!==v.installed);
+const result={sourceRevision:'b4485b6730dac3585a33ebc1e1bfe739af20cc21',missingRelativeImports:missing,clientClosureCount:seen.size,clientNodeBuiltins:builtins,lockfileVersion:lock.lockfileVersion,rootManifestMismatch:JSON.stringify(manifest.dependencies)!==JSON.stringify(lock.packages[''].dependencies)||JSON.stringify(manifest.devDependencies)!==JSON.stringify(lock.packages[''].devDependencies),directVersionMismatches:mismatches,versions,limitations:['Regex source scan does not replace TypeScript or compiled bundle inspection.','Bare package imports and alias reachability are not fully resolved by this scan.']};
+console.log(JSON.stringify(result,null,2));
+if(missing.length||builtins.length||mismatches.length||result.rootManifestMismatch)process.exitCode=1;
