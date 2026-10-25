@@ -21,6 +21,7 @@ export function AwardPanel(props: AwardPanelProps) {
   const attempts = useRef<{ serialized: string; operationId: string; expectedRevision: number } | null>(null);
   async function send(command: AwardCommand) {
     if (recovery.current) { setError("Resolve the pending save with an exact retry, or keep edits and reconcile as a new save."); return null; }
+    setError(""); setMessage("");
     const serialized = JSON.stringify(command);
     if (attempts.current?.serialized !== serialized) attempts.current = { serialized, operationId: `award-op-${crypto.randomUUID()}`, expectedRevision: state.revision };
     const waitForRecovery = () => new Promise<{ resultIds: string[] } | null>(resolve => { recovery.current = { resolve }; });

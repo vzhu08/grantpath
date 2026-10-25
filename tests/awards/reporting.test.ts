@@ -7,6 +7,7 @@ import { validateAwardsIntegrity, assertAwardResetSafe } from "../../lib/awards/
 import { proposedAnnualTarget } from "../../lib/awards/agenda";
 import { contentDigest } from "../../lib/awards/canonical";
 import { SECTION_KEYS, type ProgressRevision } from "../../lib/awards/schema";
+import { reportReviewProblems } from "../../lib/awards/freshness";
 import { fixture, CLOCK } from "./fixture";
 
 function withProgress() {
@@ -26,6 +27,15 @@ function withProgress() {
 }
 
 describe("honest annual narrative worksheet", () => {
+  it("allows an explicitly reviewed historical source but blocks a subsequent unreviewed version", () => {
+    const f = fixture(); f.execute(f.initialCommand()); const context = f.context(), revised = newSource({ ...f.output, text: f.output.versions[0]!.text + " Reviewed correction." });
+    f.output.versions.push({ ...revised.versions[0]!, version: 2 });
+    expect(reportReviewProblems(f.awards, f.awards.records[0]!.id, context, f.host.sources).length).toBe(1);
+    context.historicalSourceReviews = [{ sourceId: f.output.id, version: 1, latestVersion: 2, actor: "Reviewer", reason: "Inspected the correction; this historical claim remains supported." }];
+    expect(reportReviewProblems(f.awards, f.awards.records[0]!.id, context, f.host.sources)).toHaveLength(0);
+    f.output.versions.push({ ...revised.versions[0]!, version: 3 });
+    expect(reportReviewProblems(f.awards, f.awards.records[0]!.id, context, f.host.sources).length).toBe(1);
+  });
   it("keeps completed/inconclusive work, delayed work, plans and missing goals distinct", () => {
     const { f } = withProgress(), sections = assembleWorksheet(f.awards, f.awards.records[0]!.id, f.context(), f.host);
     expect(sections.accomplishments.some(b => b.claimKind === "actual_result" && b.text.includes("inconclusive"))).toBe(true);

@@ -5,6 +5,7 @@ import { SECTION_KEYS, type AwardRecord, type FactualBlock, type SectionKey, typ
 import { orderedSections, ANNUAL_TEMPLATE } from "../../lib/awards/templates";
 import { previewWorksheet } from "../../lib/awards/assembly";
 import { localDate } from "../../lib/dates";
+import { reportReviewProblems } from "../../lib/awards/freshness";
 import type { AwardPanelProps } from "./types";
 import type { AwardSend } from "./panel";
 
@@ -49,7 +50,7 @@ export function AnnualWorksheetEditor({ state, awards, award, busy, send }: Awar
     } catch (e) { setError((e as Error).message); }
   }
   const bind = { awardId: award.id, expectedAwardRevision: award.revision, actor, reason };
-  const stale = revision && (revision.context.termsVersionId !== award.currentConfirmedTermsVersionId || revision.context.progressRefs.some(ref => updates.find(u => u.id === ref.updateId)?.revisions.at(-1)?.id !== ref.revisionId) || revision.context.sourceRefs.some(ref => state.sources.find(s => s.id === ref.sourceId)?.versions.at(-1)?.version !== ref.version));
+  const stale = !!revision && reportReviewProblems(awards, award.id, revision.context, state.sources).length > 0;
   return <div><h3>NSF annual narrative worksheet</h3><p>{ANNUAL_TEMPLATE.scopeNote}</p><p className="muted">Exact portal-template fidelity is unverified. Structured products/PAR, participant roster and other portal fields remain separate. Unknown special requirements are not “none.”</p>
     <p>Pinned terms: {terms.id}. {termsId !== award.currentConfirmedTermsVersionId && <button type="button" onClick={() => { setTermsId(award.currentConfirmedTermsVersionId); setPeriodId(""); markDirty(true); }}>Reconcile against current terms · reselect period and review blocks</button>}</p>
     <div className="card"><Field label="Confirmed reporting budget period"><select value={periodId} onChange={e => { setPeriodId(e.target.value); markDirty(true); }}><option value="">Select actual period</option>{terms.payload.budgetPeriods.map(p => <option key={p.id} value={p.id}>{p.label}: {p.start} — {p.end}</option>)}</select></Field>

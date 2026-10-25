@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { spawn, type ChildProcess } from "node:child_process";
 import { once } from "node:events";
+import { request as httpRequest } from "node:http";
 import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { chromium, expect } from "@playwright/test";
@@ -26,6 +27,7 @@ async function start() {
     windowsHide: true, stdio: ["ignore", "pipe", "pipe"],
   });
   server.stdout!.on("data", value => output += value); server.stderr!.on("data", value => output += value);
+  await writeFile(path.join(artifacts, "server-process.json"), JSON.stringify({ pid: server.pid, data, port, parentPid: process.pid, revision: process.env.APP_REVISION, build: process.env.GRANTPATH_BUILD_ID }, null, 2));
   for (let i = 0; i < 120; i++) { if (server.exitCode !== null) throw Error(output); try { if ((await fetch(origin + "/api/health")).ok) return; } catch {} await new Promise(r => setTimeout(r, 200)); }
   throw Error("Owned award acceptance server failed to start: " + output);
 }
@@ -93,7 +95,7 @@ try {
   s = await state(); assert.equal(s.awards.reportSnapshots.length, 2); assert.equal(JSON.stringify(s.resubmissions), priorHistory);
   assert.equal(await (await fetch(origin + exportURL + "?format=md")).text(), oldMD); assert.equal(await (await fetch(origin + exportURL + "?format=json")).text(), oldJSON);
   const forbidden = await fetch(origin + "/api/workspace", { method: "POST", headers: { origin: "https://example.invalid", "content-type": "application/json" }, body: "{}" }); assert.equal(forbidden.status, 403);
-  const hostileHost = await fetch(origin + "/api/awards/templates", { headers: { host: "example.invalid" } }); assert.equal(hostileHost.status, 403);
+  const hostileHost = await new Promise<number>((resolve, reject) => { const request = httpRequest(origin + "/api/awards/templates", { headers: { host: "example.invalid" } }, response => { response.resume(); resolve(response.statusCode!); }); request.once("error", reject); request.end(); }); assert.equal(hostileHost, 403);
   const oversized = await fetch(origin + "/api/workspace", { method: "POST", headers: { origin, "content-type": "application/json" }, body: JSON.stringify({ padding: "😀".repeat(40_000) }) }); assert.equal(oversized.status, 413);
   browser = await chromium.launch({ headless: true }); const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, timezoneId: "America/New_York", acceptDownloads: true }), page = await context.newPage();
   let injectingNetworkFailure = false;
@@ -109,9 +111,10 @@ try {
   await page.route("**/api/workspace", async route => { if (route.request().method() === "POST" && !injected) { injected = true; await route.fulfill({ status: 409, contentType: "application/json", body: JSON.stringify({ error: { message: "Synthetic competing-save conflict; preserve all award buffers." } }) }); } else await route.continue(); });
   await page.getByRole("button", { name: "Save actual update", exact: true }).click(); await expect(page.getByText("Synthetic competing-save conflict; preserve all award buffers.", { exact: true })).toBeVisible(); await expect(page.getByLabel("What actually happened", { exact: true })).toHaveValue(buffer);
   await page.unroute("**/api/workspace"); await page.getByRole("button", { name: "Keep edits and reconcile as a new save", exact: true }).click(); await page.getByRole("button", { name: "Use latest save revision (keep editor text)", exact: true }).click();
-  const count = (await state()).awards.progressUpdates.length; injectingNetworkFailure = true; let lost = false;
-  await page.route("**/api/workspace", async route => { if (route.request().method() === "POST" && !lost) { lost = true; const response = await route.fetch(); assert.equal(response.status(), 200); await route.abort("failed"); } else await route.continue(); });
-  await page.getByRole("button", { name: "Save actual update", exact: true }).click(); await expect(page.getByRole("button", { name: "Retry exact last operation · recover original result", exact: true })).toBeVisible(); await page.unroute("**/api/workspace");
+  const count = (await state()).awards.progressUpdates.length; injectingNetworkFailure = true; let lost = false, lossFinished!: () => void;
+  const lossComplete = new Promise<void>(resolve => { lossFinished = resolve; });
+  await page.route("**/api/workspace", async route => { if (route.request().method() === "POST" && !lost) { lost = true; const response = await route.fetch(); assert.equal(response.status(), 200); await route.abort("failed"); lossFinished(); } else await route.continue(); });
+  await page.getByRole("button", { name: "Save actual update", exact: true }).click(); await lossComplete; await expect(page.getByRole("button", { name: "Retry exact last operation · recover original result", exact: true })).toBeEnabled(); await page.unrouteAll({ behavior: "wait" });
   await page.getByRole("button", { name: "Retry exact last operation · recover original result", exact: true }).click(); await expect(page.getByText("Recovered the original saved operation and record IDs. Editor text is retained.", { exact: true })).toBeVisible();
   assert.equal((await state()).awards.progressUpdates.length, count + 1); await expect(page.getByLabel("What actually happened", { exact: true })).toHaveValue(buffer); injectingNetworkFailure = false;
   await page.getByRole("button", { name: "Annual worksheet", exact: true }).click(); await expect(page.getByRole("heading", { name: "Historical reviewed snapshots", exact: true })).toBeVisible();
@@ -123,7 +126,7 @@ try {
   await page.getByLabel("Review note, absence decision or missing-input disclosure", { exact: true }).fill("Reviewed the exact saved narrative and missing inputs; no sponsor certification.");
   await page.getByLabel("If retaining older evidence: reason after inspecting every newer supplied source", { exact: true }).fill("Inspected the later correction; the retained historical delay remains supported.");
   await page.getByRole("button", { name: "Assemble evidence-linked preview · review required", exact: true }).click();
-  async function saveClick(name: string) { const [response] = await Promise.all([page.waitForResponse(r => r.url().endsWith("/api/workspace") && r.request().method() === "POST"), page.getByRole("button", { name, exact: true }).click()]); assert.equal(response.status(), 200, await response.text()); return response.json(); }
+  async function saveClick(name: string) { await expect(page.getByRole("button", { name, exact: true })).toBeEnabled(); const [response] = await Promise.all([page.waitForResponse(r => r.url().endsWith("/api/workspace") && r.request().method() === "POST"), page.getByRole("button", { name, exact: true }).click()]); assert.equal(response.status(), 200, await response.text()); return response.json(); }
   await saveClick("Save exact worksheet revision");
   for (const key of SECTION_KEYS) await saveClick(`Review saved ${key} with visible gaps`);
   await saveClick("Save reviewed draft snapshot with gaps");
