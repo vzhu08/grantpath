@@ -33,7 +33,7 @@ export function saveCaptureSection(state: Workspace, capture: CaptureRecord, c: 
     if (!capture.originalApplicationId) fail("Choose an original application before copying saved drafts.");
     const app = find(state.applications, capture.originalApplicationId), sourceSection = app.sections.find(s => s.key === c.sectionId);
     const rev = sourceSection?.revisions.find(r => r.id === c.savedRevisionId) ?? fail("The selected saved draft revision is unavailable.");
-    section = { sectionId: c.sectionId, label: sourceSection!.label, revisionId: rev.id, text: rev.text, citations: structuredClone(rev.citations), origin: rev.mode, sourceApplicationId: app.id, representation: "normalized-plain-text-v1" };
+    section = { sectionId: c.sectionId, label: sourceSection!.label, revisionId: rev.id, text: normalized(c.sectionId,rev.text).text, citations: structuredClone(rev.citations), origin: rev.mode, sourceApplicationId: app.id, representation: "normalized-plain-text-v1" };
     if(rev.mode==="manual"&&!env.fixture)capture.provenance="researcher";
   } else {
     const doc = normalized(c.sectionId, c.text);

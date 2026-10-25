@@ -39,6 +39,10 @@ export function packetMarkdown(packet:PacketRecord) {
   // content, and never follows current evidence or target references.
   const p=packet.payload as ReturnType<typeof packetPayload>;
   const lines=["# Internal response review packet","",`Packet: ${packet.id}`,`Manifest: 1 | SHA-256: ${packet.digest}`,"",quote(p.limitations.join("\n")),"","## Capture and scope",quote(JSON.stringify(p.original.coverage)),quote(JSON.stringify(p.original.attestation)),"","## Sponsor decisions",quote(JSON.stringify(p.context)),"","## Current review issues",...p.issues.map((x:string)=>"- "+escapeMarkdown(x)),""];
+  lines.push("## Assembled internal response draft",quote(p.document.opening?.text??""));
+  const order=[...p.document.order,...p.rows.map((row:{concern:{id:string}})=>row.concern.id).filter((id:string)=>!p.document.order.includes(id))];
+  for(const [index,id]of order.entries()){const row=p.rows.find((row:{concern:{id:string}})=>row.concern.id===id);if(row)lines.push(`### Response ${index+1}: ${escapeMarkdown(row.concern.fields.interpretation)}`,`Review state: ${escapeMarkdown(row.state)}`,quote(row.response?.text??"[MISSING: no accepted response has been saved.]"));}
+  lines.push(quote(p.document.closing?.text??""),"","## Detailed concern review");
   for(const [index,row] of p.rows.entries()) {
     lines.push(`## ${index+1}. Concern ${row.concern.id}`,`State: ${escapeMarkdown(row.state)} | Origin: ${row.concern.origin}`,"",quote(row.concern.fields.interpretation));
     for(const feedback of row.feedback) lines.push("",`### ${escapeMarkdown(feedback.label)} — version ${feedback.version}`,quote(feedback.text),`Range: ${feedback.citation.start}–${feedback.citation.end}; ${escapeMarkdown(feedback.hash)}`);
@@ -48,7 +52,7 @@ export function packetMarkdown(packet:PacketRecord) {
     for(const target of row.targetPassages) lines.push(`Target ${escapeMarkdown(target.label)} / ${target.revision.id}`,quote(target.revision.text));
     lines.push("","### Response",quote(row.response?.text??"No accepted response."),"",quote(JSON.stringify(row.completion??{status:"open"})));
   }
-  lines.push("","## Application readiness (separate from response review)",quote(JSON.stringify(p.applicationReadiness)),"","## Response document",quote(p.document.opening?.text??""),quote(p.document.closing?.text??""),"","## Conflicts",quote(JSON.stringify(p.conflicts)),"","## Original narrative");
+  lines.push("","## Application readiness (separate from response review)",quote(JSON.stringify(p.applicationReadiness)),"","## Response document review",quote(JSON.stringify({review:p.document.review,currentFingerprint:p.document.currentFingerprint})),"","## Conflicts",quote(JSON.stringify(p.conflicts)),"","## Original narrative");
   for(const section of p.original.sections) lines.push(`### ${escapeMarkdown(section.label)}`,quote(section.text));
   lines.push("","## Target narrative");for(const section of p.target.sections) lines.push(`### ${escapeMarkdown(section.label)}`,quote(section.revision?.text??""));
   return lines.join("\n")+"\n";
