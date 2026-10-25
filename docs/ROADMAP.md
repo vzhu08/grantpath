@@ -8,6 +8,8 @@ The baseline is a single-user local app with project/text evidence, exactly six 
 
 ## How humans and agents should use this backlog
 
+Apply the standing [hackathon project goals](PROJECT_BRIEF.md): technical impressiveness, clarity, impact and novelty within a fixed event time budget. This backlog is not an event completion checklist or a mandatory implementation order. Choose a bounded, distinctive demonstration whose researcher value and technical mechanism judges can see; weigh remaining effort, integration risk and rehearsal time before adding breadth. Reuse working foundations, defer low-value generalization and preserve a credible end-to-end path. Implementation 02–04 is authorized; for selected 05–09 the user authorized a new implementation chat after each reviewed research handoff. Research 05/07/09 is complete and implementation dispatched; 06 research is unlocked, 08 held for 06. Prerequisite information, human decisions and exclusive integration gates remain required.
+
 Choose one bounded addition for an explicitly authorized release. Check its dependencies against the current code and verified behavior. Keep source versions and accepted edits connected across the workflow. Make uncertainty and failure visible. Separate deterministic arithmetic from AI suggestions. Do not ship extra modules simply to fill navigation. Use synthetic or authorized data for demos.
 
 Every release must demonstrate a complete persisted workflow, traceable inputs, missing-data/stale-source/failure cases, and regression checks for the original manual journey. A plan is not an experiment; a cached demo feed is not live; an exported report is not certified. Evaluate time saved and corrections needed. Award-rate improvement requires longitudinal evaluation with appropriate comparisons, not a model grade.
@@ -54,6 +56,8 @@ The order below ranks feasibility of the described bounded versions, not effort 
 
 **Dependencies:** frozen proposals, source references, tasks and drafting. Pasted text is sufficient; file support can use 02. **Acceptance:** every concern resolves to the original comment; cosmetic rewriting does not close an evidence gap; no completed experiment is claimed without a recorded result; old/new versions are comparable. **Limit:** resolving comments cannot guarantee funding, and conflicting suggestions/call conditions require a decision.
 
+Implementation plan: [Resubmission response matrix specification](implementation/03_RESUBMISSION_RESPONSE_MATRIX_IMPLEMENTATION.md) - general workflow, NSF first; researched plan, feature implementation pending.
+
 ## 04 — Evidence-linked AI rubric review
 
 **Outcome:** identify unclear claims, inconsistent facts and weak support. **Inputs:** frozen draft, actual call rubric, selected scientific context and evidence records.
@@ -61,6 +65,8 @@ The order below ranks feasibility of the described bounded versions, not effort 
 **Bounded release:** one structured review pass plus deterministic checks. Return criterion-level findings with draft spans, rationale, severity, uncertainty and suggested actions. Persist accepted/dismissed findings and revision tasks. Prefer statuses; any optional numeric grade must show its rubric and tool-generated nature, retain prior runs and never imply award probability. Keep administrative blockers separate from scientific suggestions.
 
 **Dependencies:** stable snapshots, confirmed criteria and evidence retrieval; a domain-expert evaluation set before scientific-quality claims. **Acceptance:** detect planted contradictory sample sizes, unsupported pilot results and missing sections; locate relevant passages; admit insufficient evidence; reruns preserve accepted findings. **Limit:** plausible critique is not calibrated peer review, scientific validity or a likely panel score.
+
+Implementation plan: [Evidence linked rubric review specification](implementation/04_EVIDENCE_LINKED_RUBRIC_REVIEW_IMPLEMENTATION.md) - v1.1 with confirmed NSF-first workflow, scored criteria/reasons/fixes, requesting-user approval ownership and local ChatGPT-plan allowance mode. Implementation is now authorized in a separate chat; account access and feature acceptance remain to be verified.
 
 ## 05 — Award obligations and progress-update drafting
 
@@ -72,6 +78,8 @@ The order below ranks feasibility of the described bounded versions, not effort 
 
 ## 06 — Budget planning and expenditure ledger
 
+Task 05's completed [award specification](implementation/05_AWARD_OBLIGATIONS_PROGRESS_REPORTS_IMPLEMENTATION.md) now supplies the parent-reviewed logical research boundary. Task 06 planning is dispatched; actual checked award DTO/migration/receipt/amendment/restart behavior is still required before code integration.
+
 **Outcome:** track requested, awarded, spent, committed and remaining amounts by category/period. **Inputs:** proposal budget, approved award/amendments, category/rate assumptions, transactions, commitments and a defined CSV format.
 
 **Bounded release:** one currency per award, explicit periods/category mappings, integer minor-unit or exact decimal money, deterministic personnel/equipment/other totals. Separate actuals, commitments and forecasts. Include optional receipt links, duplicate detection and an audit trail. The user confirms indirect-cost bases/rates. Output proposal budgets and budget-versus-actual/remaining balances; amendments preserve transaction history.
@@ -79,6 +87,10 @@ The order below ranks feasibility of the described bounded versions, not effort 
 **Dependencies:** award records, deterministic calculations and versioning; reconcile with an institutional source before authoritative balances. **Acceptance:** repeat imports never double-count; rejected rows remain visible; refunds/credits work; totals reconcile exactly; negative balances remain visible; amendments retain before/after values; an expense is not counted again as a commitment. **Limit:** a project ledger is not institutional accounting. A positive balance does not prove allowability or legal availability.
 
 ## 07 — Scheduled reminders outside the app
+
+**Human-approved hackathon cut:** banners inside the open website are sufficient for the October 26 demo. Closed-website delivery is deferred, not completed by a banner. Research now targets durable in-app reminder state and preserves agenda/ICS; the broader external-delivery goal below remains later scope.
+
+Completed [implementation specification](implementation/07_SCHEDULED_REMINDERS_IMPLEMENTATION.md); separate implementation chat dispatched. [External-delivery research](research/07/EXTERNAL_DELIVERY_RESEARCH.md) is retained as deferred evidence, not current demo infrastructure.
 
 **Outcome:** receive a reminder while the app is closed. **Inputs:** confirmed deadlines, lead times, timezone, explicit recipient/channel and opt-in preferences.
 
@@ -95,6 +107,10 @@ The order below ranks feasibility of the described bounded versions, not effort 
 **Dependencies:** 06 ledger, budget versions/exports, actual sponsor requirements and institutional review. **Acceptance:** totals match the selected snapshot; category mapping loses no transactions; period edits recalculate correctly; unsupported adjustments are excluded/flagged; later transactions do not silently change saved reports. **Limit:** a generated report is not audited, universally sponsor-ready or a GAAP reporting system. Authorized finance staff review/certify; submission automation is separate.
 
 ## 09 — Live grant discovery and feed synchronization
+
+**Human-approved hackathon cut:** U.S. NSF opportunities via Grants.gov, refreshed manually. The human confirmed manual refresh is sufficient for the next roughly 24 hours and tomorrow's demo. Scheduled refresh is deferred rather than a blocker for this accepted demo scope; the broader synchronization goal below remains later scope.
+
+Completed [implementation specification](implementation/09_LIVE_GRANT_DISCOVERY_IMPLEMENTATION.md); separate implementation chat dispatched. Real public API access/terms and provider-ID seed pairings remain implementation preflight gates, not research-verified runtime claims.
 
 **Outcome:** discover new/amended opportunities without manually maintaining the catalog. **Inputs:** one documented official feed/API, researcher profiles, source metadata and ingestion settings.
 

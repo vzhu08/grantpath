@@ -1,5 +1,7 @@
 # Using the kit at kickoff
 
+For this project, apply [PROJECT_BRIEF.md](PROJECT_BRIEF.md) and `../AGENTS.md` first: GrantPath is a time-constrained hackathon build pursuing technical impressiveness, clarity, impact and novelty. Keep the critical judge path and distinctive working mechanism ahead of optional feature breadth. Reserve integration and rehearsal time. The 24-hour schedule below is a reusable example, not this project's confirmed event clock or deployment authorization; current local-only scope and task ownership remain authoritative.
+
 Use the [human–AI team workflow](HUMAN_AI_TEAM_WORKFLOW.md) to assign human accountability and approval owners, follow the 24-hour checkpoints, and report evidence and actionable blockers. It supports manual coordination; optional orchestration and existing technical controls remain unchanged.
 
 Read event requirements and deadline, define the judge path and one distinctive capability, and fill the project brief/scorecard. Search the catalog, inspect minimal contracts/fixtures, choose the smallest dependency closure, generate or plan adoption, configure only required environment names, run doctor/checks, assign ownership and authorize a deployed skeleton. Do not equate this toolkit's longer build with the event's deadline.
