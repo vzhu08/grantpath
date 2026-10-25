@@ -1,0 +1,48 @@
+name: Auto-merge
+
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize, labeled, unlabeled, ready_for_review]
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      pull_request:
+        description: Pull request number to evaluate using the normal safety gates
+        type: string
+        required: true
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: read
+  checks: read
+
+concurrency:
+  group: auto-merge-${{ github.event.pull_request.number || github.event.workflow_run.head_branch || github.event.inputs.pull_request || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  evaluate:
+    name: Evaluate checked pull request
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      # Privileged events run only policy code already on the default branch.
+      # Never check out a pull-request ref in this workflow.
+      - name: Check out the trusted merge policy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+      - name: Merge only an explicitly selected, fully checked revision
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const { pathToFileURL } = await import('node:url');
+            const policyUrl = pathToFileURL(`${process.env.GITHUB_WORKSPACE}/.github/scripts/merge-policy.mjs`);
+            const { runMergePolicy } = await import(policyUrl.href);
+            await runMergePolicy({ github, core, context });
+

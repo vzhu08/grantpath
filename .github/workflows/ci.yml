@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  merge_group:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  CI: true
+  NEXT_TELEMETRY_DISABLED: "1"
+  RUN_LIVE_AI: "false"
+  AI_PROVIDER: ""
+  AI_MODEL: ""
+  OPENAI_API_KEY: ""
+  ANTHROPIC_API_KEY: ""
+
+jobs:
+  validate:
+    name: Validate (types, tests, build, browser)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out the tested revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24.12.0"
+          cache: npm
+      - name: Verify merge automation policy
+        run: node --test .github/scripts/merge-policy.test.mjs
+      - name: Validate GitHub workflow syntax
+        run: bash .github/scripts/check-workflows.sh
+      - name: Install the locked dependencies
+        run: npm ci --no-fund
+      - name: Check dependency advisories
+        run: npm audit --audit-level=high
+      - name: Typecheck, test, and build
+        run: npm run check
+      - name: Install the test browser
+        run: npx playwright install --with-deps chromium
+      - name: Exercise the local browser journey
+        run: npm run test:browser
+      - name: Retain test diagnostics
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: acceptance-${{ github.run_id }}-${{ github.run_attempt }}
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 7
+
