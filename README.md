@@ -13,6 +13,8 @@ npm run dev
 
 Open **http://127.0.0.1:3000**. For production: `npm run build` then `npm start`. Both servers bind to loopback. Run one process per data directory.
 
+For a persistent local review link, run `npm run build` then `npm run review`. The hidden production server stays running and prints its loopback URL. It refreshes only its own older server instance; unrelated processes are preserved. Set `PORT` to choose another port. Future task handoffs should verify and include this review link.
+
 Data survives refresh/restart in the gitignored `.local-data/workspace.json`; `GRANTPATH_DATA_DIR` selects another server-owned directory. Saves are serialized and atomic, with revision-conflict detection. Back up this directory before upgrades. Corrupt storage is reported and never reset to fixtures.
 
 ## Included
@@ -46,5 +48,7 @@ See [actual verification](docs/implementation/STATUS.md), [demo runbook](docs/DE
 ## Future goals
 
 The [roadmap](docs/ROADMAP.md) preserves all 13 future goals with boundaries, dependencies and acceptance criteria for humans and agents. Start with the [agent handoff](docs/AGENT_HANDOFF.md). Original PDFs remain in `docs/reference/`; the separately researched [NSF roadmap 01 specification](docs/implementation/FULL_PROPOSAL_TEMPLATES.md) is retained.
+
+Roadmap 01 has begun: the [canonical DOCX-to-PDF renderer](docs/implementation/PROPOSAL_RENDERER.md) is implemented and verified with actual LibreOffice output. `npm run test:exports` requires the separately configured renderer/fonts. Full NSF editor/reuse integration remains a later gate in that specification.
 
 Reused [Hackathon Kit](https://github.com/oliverchennn/hackathon-kit) at `22a5f44a27375e88ac2cd1754f6976704f725bc5`. Original hashes/provenance remain in `kit.project.json`; application customizations and patched dependencies are documented separately. No symlinks or runtime imports depend on the temporary kit checkout. [MIT license](LICENSE), [third-party notices](THIRD_PARTY_NOTICES.md).

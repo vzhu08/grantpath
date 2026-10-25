@@ -20,3 +20,13 @@ Live AI was not run: credentials and explicit paid-test intent were not supplied
 ## Next authorized work
 
 The user subsequently requested a GitHub repository under the normal `vzhu08` account, pushing this initial build, then beginning roadmap 01. The completed separate-chat plan is `FULL_PROPOSAL_TEMPLATES.md`, with its rendered PDF in the project root. It selects NSF Research narrative preparation. Begin PT-01 only after the initial repository push: pin DOCX rendering, configure the real font and LibreOffice, verify heading/list/table fidelity and intentional overflow. The rest of roadmap 01 remains unimplemented until its own acceptance gates pass. Other roadmap items remain future goals.
+
+## Roadmap 01 progress
+
+The initial repository was created privately at https://github.com/vzhu08/grantpath and main received verified baseline commit 7481ffe. The user then authorized useful isolated agents, automated checks/eligible merges, and a local review link after this and future tasks.
+
+PT-01 renderer is implemented; default checks now pass 78 tests in six suites, plus production build. Actual LibreOffice 26.8.1.1 with installed Times New Roman produced 1/3/3 pages; exact-PDF font embedding, Letter dimensions, Unicode, placeholders, final table row and every page's visual layout were verified. Details: PROPOSAL_RENDERER.md. No application migration or full NSF authoring UI is claimed.
+
+CI automation PR #1 passed hosted types/tests/build/browser and was merged. The NSF manifest PR #2 is independently scoped and undergoing the same hosted checks. The private account plan returned HTTP 403 for main branch protection and did not enable native auto-merge; validation remains active and the auto-merge policy stays disabled unless the user changes the account/visibility setup. No protection bypass is used. Dependabot can create routine update PRs/commits; checks run deterministically.
+
+The local production server is healthy at http://127.0.0.1:3000. Use npm run build then npm run review for subsequent application handoffs. Server logs/data and renderer executables/artifacts stay ignored.

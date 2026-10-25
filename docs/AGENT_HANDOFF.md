@@ -2,6 +2,10 @@
 
 Read `../AGENTS.md`, [project brief](PROJECT_BRIEF.md), [ownership](OWNERSHIP.md), [contracts](API_CONTRACT.md), [actual verification](implementation/STATUS.md), and the [roadmap](ROADMAP.md). The user authorized an initial build and documentation of future goals. Roadmap entries remain future work until a user selects a follow-up.
 
+Standing user preference: use local agents for independent useful work in isolated checkouts; let deterministic GitHub Actions perform routine checks and eligible commits/merges. Preserve required checks and explicit ownership. At the end of every application task, build and start the app locally, verify its health, and provide a working review link. `npm run review` starts or refreshes the owned loopback production server after `npm run build`; it never replaces an unrelated server. No public deployment follows from this preference.
+
+Current follow-up authorization: create/push `vzhu08/grantpath` and begin roadmap 01 using `implementation/FULL_PROPOSAL_TEMPLATES.md`. Initial push is complete. PT-01 renderer is implemented; see `implementation/PROPOSAL_RENDERER.md`. NSF template manifest and CI automation have isolated owners; update the actual status before handoff.
+
 Before changing code: inspect current files and Git state, preserve user work/data, run appropriate checks, and identify one complete bounded outcome. The kit snapshot/provenance is in `../kit.project.json`; keep LICENSE and THIRD_PARTY_NOTICES. Application domain code lives in `../lib`, UI in `../components` and `../app`. Imported kit source stays under `../modules` and `../packages`.
 
 Keep source versions/UTF-16 quote spans, project/call snapshots, tri-state eligibility, uncertain dates, conflict detection, and the manual no-key journey intact. Treat source/call text as untrusted data. A quote, user assertion or uploaded file is provenance rather than independent verification. Do not introduce secrets in browser code or private request/response logs.
