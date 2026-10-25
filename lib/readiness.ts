@@ -1,3 +1,4 @@
+import { activeSectionKeys, proposalIssues } from "./proposals/checks";
 import { matchOpportunities } from "./calls";
 import { citationStale, latest, validCitation } from "./evidence";
 import { type Application, type State } from "./schema";
@@ -154,7 +155,10 @@ export function readiness(state: State, app: Application) {
         );
     }
   }
-  for (const section of app.sections) {
+  const activeKeys = activeSectionKeys(app);
+  for (const section of app.sections.filter((section) =>
+    activeKeys.has(section.key),
+  )) {
     const revision = section.revisions.at(-1),
       location = section.label;
     if (!revision?.text.trim()) {
@@ -257,6 +261,8 @@ export function readiness(state: State, app: Application) {
       "The researcher has not recorded a source check.",
       "Compare the saved call with its official source and record review.",
     );
+  for (const issue of proposalIssues(state, app))
+    add(issue.id, issue.severity, issue.location, issue.message, issue.fix);
   return {
     rulesVersion: "grantpath-readiness-1",
     applicationRevision: app.revision,

@@ -1,9 +1,12 @@
 import { createHash, randomUUID } from "node:crypto";
 import { KitError } from "../../packages/runtime/src/index";
 import { latest, validCitation } from "../evidence";
+import { contentSourceFingerprint } from "./checks";
 import { readiness } from "../readiness";
 import {
   StateSchema,
+  PacketPayloadSchema,
+  type ContentItem,
   type State,
   type Command,
   type Application,
@@ -22,6 +25,7 @@ const kinds = [
   "adoptTemplate",
   "confirmTemplate",
   "reviewSection",
+  "setExternalTask",
   "saveContent",
   "approveContent",
   "retireContent",
@@ -131,9 +135,26 @@ export function validateStateIntegrity(state: State) {
       )
         error("A template requirement mapping is invalid.");
   }
-  for (const snapshot of state.packetSnapshots)
+  for (const snapshot of state.packetSnapshots) {
+    const p = snapshot.payload;
+    for (const section of p.application.sections)
+      for (const draft of section.revisions) {
+        if (draft.citations.some((c) => !validCitation(c, p.sources)))
+          error("Frozen packet source support is missing.");
+        if (
+          draft.projectRevision !== p.project.revision &&
+          !p.project.history.some((v) => v.revision === draft.projectRevision)
+        )
+          error("Frozen project revision is missing.");
+        if (
+          draft.callRevision !== p.call.revision &&
+          !p.call.history.some((v) => v.revision === draft.callRevision)
+        )
+          error("Frozen call revision is missing.");
+      }
     if (sha256(canonicalStringify(snapshot.payload)) !== snapshot.digest)
       error("A frozen packet digest does not match its retained inputs.");
+  }
   return state;
 }
 function touch(app: Application, at: string) {
@@ -184,6 +205,57 @@ export function adoptionPreview(app: Application) {
     })),
     notice:
       "Copies become new revisions needing review. Original sections and all revisions remain archived. A generic template does not confirm a particular solicitation.",
+  };
+}
+function copySupport(
+  state: State,
+  app: Application,
+  item: ContentItem,
+  version: ContentItem["versions"][number],
+) {
+  const targetCall = record(state.opportunities, app.opportunityId);
+  const map = new Map<string, string>();
+  for (const original of version.sources) {
+    if (
+      original.projectId === app.projectId ||
+      original.id === targetCall.sourceId
+    ) {
+      map.set(original.id, original.id);
+      continue;
+    }
+    if (
+      state.sources.filter((source) => source.projectId === app.projectId)
+        .length >= 10
+    )
+      error(
+        "Target evidence limit reached. Select target-project support before reusing more content.",
+      );
+    const clone = structuredClone(original);
+    clone.id = id("reuse-source");
+    clone.projectId = app.projectId;
+    clone.type = original.type === "call" ? "other" : original.type;
+    clone.title =
+      (original.provenance === "demo" ? "DEMO " : "") +
+      "Reviewed copy: " +
+      original.title;
+    clone.copyOrigin = {
+      sourceId: original.id,
+      projectId: original.projectId,
+      itemId: item.id,
+      revision: version.revision,
+    };
+    state.sources.push(clone);
+    map.set(original.id, clone.id);
+  }
+  return {
+    citations: version.citations.map((ref) => ({
+      ...ref,
+      sourceId: map.get(ref.sourceId) ?? ref.sourceId,
+    })),
+    selectedSources: version.selectedSources.map((ref) => ({
+      ...ref,
+      sourceId: map.get(ref.sourceId) ?? ref.sourceId,
+    })),
   };
 }
 export function applyProposalCommand(
@@ -299,6 +371,22 @@ export function applyProposalCommand(
     touch(app, at);
     return app.id;
   }
+  if (c.type === "setExternalTask") {
+    if (!app.binding.manifest?.externalTasks.some((task) => task.id === c.id))
+      error("Choose an external task in this pinned template.");
+    app.externalTasks ??= [];
+    app.externalTasks = app.externalTasks.filter((task) => task.id !== c.id);
+    app.externalTasks.push({
+      id: c.id,
+      status: c.status,
+      note: c.note,
+      by: c.by,
+      at,
+      bindingRevision: app.binding.revision,
+    });
+    touch(app, at);
+    return c.id;
+  }
   if (c.type === "freezePacket") {
     const project = record(state.projects, app.projectId);
     const report = readiness(state, app);
@@ -314,10 +402,20 @@ export function applyProposalCommand(
         r.citation ? [r.citation.sourceId] : [],
       ),
     ]);
-    const payload = {
-      application: structuredClone({ ...app, requirementsHistory: [] }),
-      project: structuredClone({ ...project, history: [] }),
-      call: structuredClone({ ...call, history: [] }),
+    const payload = PacketPayloadSchema.parse({
+      application: structuredClone({
+        ...app,
+        requirementsHistory: [],
+        archivedSections: [],
+        sections: app.sections.map((section) => ({
+          ...section,
+          revisions: section.revisions.length
+            ? [section.revisions.at(-1)!]
+            : [],
+        })),
+      }),
+      project: structuredClone(project),
+      call: structuredClone(call),
       sources: structuredClone(state.sources.filter((s) => used.has(s.id))),
       library: structuredClone(
         state.contentLibrary.filter((item) =>
@@ -328,9 +426,9 @@ export function applyProposalCommand(
           ),
         ),
       ),
-      issues: report.issues,
+      issues: report.issues.map(({ fingerprint, ...issue }) => issue),
       rulesVersion: report.rulesVersion,
-    };
+    });
     if (canonicalStringify(payload).length > 1_000_000)
       error(
         "This frozen packet exceeds 1,000,000 characters. Reduce retained selected evidence or section content before freezing.",
@@ -387,6 +485,9 @@ export function applyProposalCommand(
     item.scope = c.scope;
     item.versions.push({
       revision: item.versions.length + 1,
+      scope: c.scope,
+      category: c.category,
+      selectedSources: structuredClone(current!.selectedSources),
       text: current!.text,
       blocks: structuredClone(current!.blocks ?? textBlocks(current!.text)),
       citations: structuredClone(current!.citations),
@@ -412,6 +513,7 @@ export function applyProposalCommand(
         itemId: item.id,
         sectionKey: section.key,
         seenRevision: newest.revision,
+        sourceFingerprint: contentSourceFingerprint(item, state),
         reason: c.reason,
         at,
       });
@@ -425,12 +527,68 @@ export function applyProposalCommand(
         error(
           "The copied content was edited. Compare versions and apply the revised text manually; automatic replacement would lose your edits.",
         );
+      const previousBlocks = current!.blocks ?? textBlocks(current!.text);
+      const oldBlocks = JSON.stringify(old.blocks),
+        blockStrings = previousBlocks.map((block) => JSON.stringify(block));
+      let first = -1;
+      for (
+        let index = 0;
+        index <= previousBlocks.length - old.blocks.length;
+        index++
+      )
+        if (
+          JSON.stringify(
+            previousBlocks.slice(index, index + old.blocks.length),
+          ) === oldBlocks
+        ) {
+          first = index;
+          break;
+        }
+      if (first < 0)
+        error(
+          "The copied block structure was edited. Compare the library revision and apply it manually to preserve formatting.",
+        );
+      const support = copySupport(state, app, item, newest);
+      const blocks = [
+        ...previousBlocks.slice(0, first),
+        ...structuredClone(newest.blocks),
+        ...previousBlocks.slice(first + old.blocks.length),
+      ];
       const next = copiedRevision(
         app,
         state,
-        current!.text.replace(old.text, newest.text),
+        visibleText({ blocks }),
         current!,
       );
+      next.blocks = blocks;
+      const removed = new Set(
+        old.citations.map(
+          (ref) =>
+            ref.sourceId + ":" + ref.version + ":" + ref.start + ":" + ref.end,
+        ),
+      );
+      next.citations = [
+        ...current!.citations.filter(
+          (ref) =>
+            !removed.has(
+              ref.sourceId +
+                ":" +
+                ref.version +
+                ":" +
+                ref.start +
+                ":" +
+                ref.end,
+            ),
+        ),
+        ...support.citations,
+      ];
+      next.selectedSources = [
+        ...new Map(
+          [...current!.selectedSources, ...support.selectedSources].map(
+            (ref) => [ref.sourceId, ref],
+          ),
+        ).values(),
+      ];
       next.reusedContent = current!.reusedContent!.map((ref) =>
         ref.itemId === item.id
           ? { ...ref, revision: newest.revision, contextNote: c.reason }
@@ -452,24 +610,7 @@ export function applyProposalCommand(
     error(
       "The researcher must approve this exact library revision before reuse.",
     );
-  const sourceMap = new Map<string, string>();
-  for (const original of version.sources) {
-    if (original.projectId === null || original.projectId === app.projectId) {
-      sourceMap.set(original.id, original.id);
-      continue;
-    }
-    if (state.sources.filter((s) => s.projectId === app.projectId).length >= 10)
-      error(
-        "This target project already has ten evidence notes. Select target evidence or reduce notes before copying cross-project support.",
-      );
-    const clone = structuredClone(original);
-    clone.id = id("reuse-source");
-    clone.projectId = app.projectId;
-    clone.title = "Reviewed reuse evidence: " + original.title;
-    clone.provenance = "researcher";
-    state.sources.push(clone);
-    sourceMap.set(original.id, clone.id);
-  }
+  const support = copySupport(state, app, item, version);
   const text = (current?.text ? current.text + "\n\n" : "") + version.text;
   if (text.length > 20_000)
     error("This insertion would exceed the section text limit.");
@@ -479,25 +620,13 @@ export function applyProposalCommand(
     ...structuredClone(version.blocks),
   ];
   next.text = visibleText({ blocks: next.blocks });
-  next.citations = [
-    ...(current?.citations ?? []),
-    ...version.citations.map((ref) => ({
-      ...ref,
-      sourceId: sourceMap.get(ref.sourceId) ?? ref.sourceId,
-    })),
-  ];
-  const selected = [
-    ...(current?.selectedSources ?? []),
-    ...version.sources
-      .filter((s) => s.projectId !== null)
-      .map((s) => ({
-        sourceId: sourceMap.get(s.id)!,
-        version: latest(s).version,
-        hash: latest(s).hash,
-      })),
-  ];
+  next.citations = [...(current?.citations ?? []), ...support.citations];
   next.selectedSources = [
-    ...new Map(selected.map((s) => [s.sourceId, s])).values(),
+    ...new Map(
+      [...(current?.selectedSources ?? []), ...support.selectedSources].map(
+        (ref) => [ref.sourceId, ref],
+      ),
+    ).values(),
   ];
   next.reusedContent = [
     ...(current?.reusedContent ?? []),

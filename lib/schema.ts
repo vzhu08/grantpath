@@ -93,6 +93,14 @@ export const SourceSchema = z.object({
   ]),
   url: SafeUrl,
   provenance: Provenance,
+  copyOrigin: z
+    .object({
+      sourceId: Id,
+      projectId: Id.nullable(),
+      itemId: Id,
+      revision: z.number().int(),
+    })
+    .optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
   versions: z
@@ -266,6 +274,18 @@ export const ApplicationSchema = z.object({
   sections: z.array(DraftSectionSchema).min(1).max(32),
   binding: ProposalBindingSchema.optional(),
   bindingHistory: z.array(ProposalBindingSchema).optional(),
+  externalTasks: z
+    .array(
+      z.object({
+        id: Id,
+        status: z.enum(["Missing", "In progress", "Ready"]),
+        note: z.string().max(3000),
+        by: short,
+        at: z.string(),
+        bindingRevision: z.number().int(),
+      }),
+    )
+    .optional(),
   archivedSections: z.array(DraftSectionSchema).optional(),
   reuseDecisions: z
     .array(
@@ -273,6 +293,7 @@ export const ApplicationSchema = z.object({
         itemId: Id,
         sectionKey: Id,
         seenRevision: z.number().int(),
+        sourceFingerprint: z.string().optional(),
         reason: z.string().min(5).max(3000),
         at: z.string(),
       }),
@@ -313,6 +334,21 @@ export const ContentItemSchema = z.object({
     .array(
       z.object({
         revision: z.number().int().positive(),
+        scope: z.string().min(5).max(3000),
+        category: z.enum([
+          "methods",
+          "facilities",
+          "team",
+          "biography",
+          "other",
+        ]),
+        selectedSources: z.array(
+          z.object({
+            sourceId: Id,
+            version: z.number().int(),
+            hash: z.string(),
+          }),
+        ),
         text,
         blocks: z.array(ProposalBlockSchema).max(1000),
         citations: z.array(CitationSchema),
@@ -510,6 +546,14 @@ export const CommandSchema = z.discriminatedUnion("type", [
       .max(100),
     by: short.min(1),
     note: z.string().min(5).max(3000),
+  }),
+  z.object({
+    type: z.literal("setExternalTask"),
+    applicationId: Id,
+    id: Id,
+    status: z.enum(["Missing", "In progress", "Ready"]),
+    note: z.string().min(5).max(3000),
+    by: short.min(1),
   }),
   z.object({
     type: z.literal("reviewSection"),

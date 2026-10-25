@@ -305,6 +305,19 @@ export function applyCommand(
       selectedId = app.id;
     }
   } else if (c.type === "resetDemo") {
+    if (
+      state.packetSnapshots.some(
+        (packet) => packet.payload.project.provenance === "demo",
+      ) ||
+      state.contentLibrary.some(
+        (item) =>
+          state.projects.find((p) => p.id === item.projectId)?.provenance ===
+          "demo",
+      )
+    )
+      fail(
+        "Demo records are retained because frozen packets or reusable content reference them. Your saved provenance has not been reset.",
+      );
     const demo = createDemo();
     const protectedCallIds = new Set(
       state.applications
