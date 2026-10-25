@@ -13,9 +13,10 @@ export async function POST(request: Request) {
     const h = request.headers.get("x-upload-metadata") ?? "";
     if (Buffer.byteLength(h) > 4096 || !/^[A-Za-z0-9_-]+$/.test(h))
       throw new KitError("METADATA", "Invalid bounded upload metadata.", 400);
-    const meta = UploadMetadataSchema.parse(
-      JSON.parse(Buffer.from(h, "base64url").toString("utf8")),
-    );
+    let decoded:unknown;
+    try{decoded=JSON.parse(new TextDecoder("utf-8",{fatal:true}).decode(Buffer.from(h,"base64url")));}
+    catch{throw new KitError("METADATA","Upload metadata must be valid UTF-8 JSON.",400);}
+    const meta=UploadMetadataSchema.parse(decoded);
     const length = request.headers.get("content-length");
     if (length && (!/^\d+$/.test(length) || Number(length) > 10000000))
       throw new KitError("BODY_LIMIT", "File exceeds 10,000,000 bytes.", 413);

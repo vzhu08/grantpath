@@ -20,6 +20,8 @@ Schema 3 adds document/version/parse, attachment selection, manual ethics/task, 
 
 Attachment parsing, human relevance/format review and manual ethics confirmation are independent. Future-phase ethics does not block current submission; finite before-research expiry considers the explicit required date or known project start. Readiness and generation use current physical integrity and reviewed-source-head checks. Archive retains referenced originals; demo reset cannot orphan researcher work. No sponsor submission or institutional approval occurs. See [checked release](implementation/02_DOCUMENT_VAULT_RELEASE.md) for exact bounds, checks and limitations.
 
+Operational backup limit: the current repository helper copies workspace metadata and vault blobs/extractions; it does not yet copy completed proposal-export artifacts. For a full local restore, stop the app and preserve the complete data directory and any separately configured export output directory. A metadata/vault-only helper backup must not be represented as a complete proposal-artifact backup.
+
 ## Proposal preparation
 
 Workspace commands add `adoptTemplate`, `confirmTemplate`, `reviewSection`, `setExternalTask`, `saveContent`, `approveContent`, `retireContent`, `insertContent`, `resolveReuse` and `freezePacket`. Draft saves accept paragraphs, headings, lists and rectangular tables with exact visible-text agreement. Approval, insertion and update decisions pin exact revisions. Template adoption archives starter drafts. Library insertions preserve source provenance and require explicit target-context review. Waivers cannot establish supported scope, applicability or page compliance.
