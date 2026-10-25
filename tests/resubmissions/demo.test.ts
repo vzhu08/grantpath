@@ -7,6 +7,7 @@ import { validateResubmissionGraph } from "../../lib/resubmissions/validation";
 import { resubmissionView } from "../../lib/resubmissions/view";
 import { harness } from "./harness";
 import { cite } from "../../lib/evidence";
+import { StateSchema } from "../../lib/schema";
 describe("judge-visible resubmission proof",()=>{
   it("preserves all14 sections and shows supported clarification / unfinished experiment / targeted reopen / immutable packet",()=>{
     const demo=createResubmissionDemoWorkspace(),{state}=demo;
@@ -28,5 +29,11 @@ describe("judge-visible resubmission proof",()=>{
     const captureId=h.run({type:"createSubmissionCapture",operationId:"call-capture-create",projectId:app.projectId,originalApplicationId:app.id,method:"saved-drafts",supersedesId:null,correctionReason:""}).selectedId!;
     h.run({type:"saveCaptureSection",captureId,captureRevision:1,sectionId:"summary",label:"Summary",text:"",savedRevisionId:"original-call-draft"});
     expect(()=>h.run({...h.freeze,captureId,captureRevision:2,operationId:"call-capture"})).not.toThrow();expect(last(h.state.resubmissions.snapshots).evidence[0]!.type).toBe("call");
+  });
+  it("reviewed copies retain repeated citations while selecting each research source only once",()=>{
+    const h=harness(),app=h.state.applications[0]!,source=h.state.sources.find(s=>s.id==="demo-methods")!,citation=cite(source,"Calibration drift and missing measurements will be documented.");
+    app.sections[0]!.revisions.push({id:"many-citations",text:"Synthetic submitted calibration description.",citations:Array.from({length:20},()=>({...citation})),selectedSources:[{sourceId:source.id,version:1,hash:source.versions[0]!.hash}],projectRevision:1,callRevision:1,callSourceVersion:1,missingInputs:[],mode:"fixture",promptVersion:"synthetic-resubmission-v1",createdAt:h.env.at});
+    const captureId=h.run({type:"createSubmissionCapture",operationId:"many-citations-capture",projectId:app.projectId,originalApplicationId:app.id,method:"saved-drafts",supersedesId:null,correctionReason:""}).selectedId!;h.run({type:"saveCaptureSection",captureId,captureRevision:1,sectionId:"summary",label:"Summary",text:"",savedRevisionId:"many-citations"});const snapshotId=h.run({...h.freeze,captureId,captureRevision:2,operationId:"many-citations-freeze",coverage:{...h.freeze.coverage,included:["Summary"]}}).selectedId!;
+    const attemptId=h.run({...h.create,snapshotId,mode:"reviewed-copy",confirmCopy:true,mappings:[{originalSectionId:"summary",targetSectionIds:["summary"],note:"Reviewed stable identity."}],operationId:"many-citations-attempt"}).selectedId!,attempt=h.state.resubmissions.attempts.find(a=>a.id===attemptId)!,target=h.state.applications.find(a=>a.id===attempt.targetApplicationId)!,revision=target.sections[0]!.revisions[0]!;expect(revision.citations).toHaveLength(20);expect(revision.selectedSources).toHaveLength(1);expect(StateSchema.safeParse(h.state).success).toBe(true);
   });
 });

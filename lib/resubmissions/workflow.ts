@@ -79,7 +79,7 @@ export function applyResubmissionCommand(original:Workspace,input:{expectedRevis
         if(destinations.has(sectionId))fail("A reviewed copy with multiple originals into one target needs an explicit manual combined revision. Keep the mapping and use a blank target.");
         destinations.add(sectionId);
         const source=snapshot.sections.find(s=>s.sectionId===mapping.originalSectionId)!;
-        target.sections.find(s=>s.key===sectionId)!.revisions.push({id:env.id("draft"),text:source.text,citations:structuredClone(source.citations),selectedSources:source.citations.map(c=>({sourceId:c.sourceId,version:c.version,hash:c.hash})),projectRevision:project.revision,callRevision:call.revision,callSourceVersion:call.sourceVersion,missingInputs:["Inherited submitted text requires target-context review."],mode:source.origin,promptVersion:`inherited-submission-v1:${snapshot.id}:${source.revisionId??"pasted"}`,createdAt:env.at});
+        target.sections.find(s=>s.key===sectionId)!.revisions.push({id:env.id("draft"),text:source.text,citations:structuredClone(source.citations),selectedSources:[...new Map(source.citations.filter(c=>state.sources.some(s=>s.id===c.sourceId&&s.projectId===project.id)).map(c=>[c.sourceId,{sourceId:c.sourceId,version:c.version,hash:c.hash}])).values()],projectRevision:project.revision,callRevision:call.revision,callSourceVersion:call.sourceVersion,missingInputs:["Inherited submitted text requires target-context review."],mode:source.origin,promptVersion:`inherited-submission-v1:${snapshot.id}:${source.revisionId??"pasted"}`,createdAt:env.at});
       }
     }
     selectedId=attempt.id;resultIds=[attempt.id,target.id];
