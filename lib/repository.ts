@@ -1,4 +1,8 @@
 import { migrateV2 } from "./vault/migration";
+import { migrateV3 } from "./resubmissions/migration";
+import { isResubmissionCommand } from "./resubmissions/schema";
+import { applyResubmissionCommand,commitResubmissionPreview } from "./resubmissions/workflow";
+import { validateResubmissionGraph,protectResubmissionDemoReset } from "./resubmissions/validation";
 import {
   applyVaultCommand,
   isVaultCommand,
@@ -65,8 +69,10 @@ export function applyCommand(
   state: State,
   input: Mutation,
   vaultExcerpt?: string,
-): { state: State; selectedId?: string } {
+): { state: State; selectedId?: string;resultIds?:string[];replayed?:boolean;consumedPreviewToken?:string } {
   const { command: c } = MutationSchema.parse(input);
+  // The feature command recovers a receipt before checking expectedRevision.
+  if(isResubmissionCommand(c))return applyResubmissionCommand(state,{expectedRevision:input.expectedRevision,command:c});
   if (input.expectedRevision !== state.revision)
     fail(
       "A newer save exists. Your editor text is preserved. Reload saved data and reconcile your changes before retrying.",
@@ -101,13 +107,13 @@ export function applyCommand(
       if (a.stage === "Ready for review") a.stage = "Preparing";
     }
     state.revision++;
-    return { state: validateVaultState(StateSchema.parse(state)), selectedId };
+    return { state: validateResubmissionGraph(validateVaultState(StateSchema.parse(state))), selectedId };
   }
   if (isProposalCommand(c)) {
     selectedId = applyProposalCommand(state, c, at);
     state.revision++;
     return {
-      state: validateStateIntegrity(StateSchema.parse(state)),
+      state: validateResubmissionGraph(validateStateIntegrity(StateSchema.parse(state))),
       selectedId,
     };
   }
@@ -335,7 +341,7 @@ export function applyCommand(
     const project = find(state.projects, c.projectId),
       call = find(state.opportunities, c.opportunityId);
     const existing = state.applications.find(
-      (a) => a.projectId === project.id && a.opportunityId === call.id,
+      (a) => a.projectId === project.id && a.opportunityId === call.id && a.cycleId==="initial" && !a.originAttemptId,
     );
     if (existing) selectedId = existing.id;
     else {
@@ -344,6 +350,7 @@ export function applyCommand(
       selectedId = app.id;
     }
   } else if (c.type === "resetDemo") {
+    protectResubmissionDemoReset(state);
     if (
       state.documents.length ||
       state.ethicsRecords.length ||
@@ -569,21 +576,23 @@ export function applyCommand(
     }
   }
   state.revision++;
-  return { state: StateSchema.parse(state), selectedId };
+  return { state: validateResubmissionGraph(StateSchema.parse(state)), selectedId };
 }
 export function createRepository(directory: string) {
   const filename = path.join(directory, "workspace.json");
   let tail: Promise<unknown> = Promise.resolve();
-  async function write(state: State) {
-    state = validateVaultState(
+  async function write(state: State,migrating=false) {
+    state = validateResubmissionGraph(validateVaultState(
       validateStateIntegrity(StateSchema.parse(state)),
-    );
+    ));
+    const serialized=JSON.stringify(state,null,2);
+    if(!migrating&&Buffer.byteLength(serialized,"utf8")>25*1024*1024)fail("The workspace exceeds 25 MiB. It remains readable and exportable; preserve it and plan a capacity change without pruning history.",413);
     await mkdir(directory, { recursive: true });
     const temp = path.join(directory, `.workspace-${randomUUID()}.tmp`);
     try {
       const file = await open(temp, "wx", 0o600);
       try {
-        await file.writeFile(JSON.stringify(state, null, 2), "utf8");
+        await file.writeFile(serialized, "utf8");
         await file.sync();
       } finally {
         await file.close();
@@ -630,9 +639,9 @@ export function createRepository(directory: string) {
     }
     try {
       const input = JSON.parse(raw.toString("utf8"));
-      if (input.schemaVersion === 1 || input.schemaVersion === 2) {
+      if ([1,2,3].includes(input.schemaVersion)) {
         const migrated =
-          input.schemaVersion === 1 ? migrateV1(input) : migrateV2(input);
+          input.schemaVersion === 1 ? migrateV1(input) : input.schemaVersion===2?migrateV2(input):migrateV3(input);
         const backup = await open(
           path.join(
             directory,
@@ -647,12 +656,12 @@ export function createRepository(directory: string) {
         } finally {
           await backup.close();
         }
-        await write(migrated);
+        await write(migrated,true);
         return migrated;
       }
-      return validateVaultState(
+      return validateResubmissionGraph(validateVaultState(
         validateStateIntegrity(StateSchema.parse(input)),
-      );
+      ));
     } catch (error) {
       throw new KitError(
         "STORAGE_ERROR",
@@ -695,10 +704,12 @@ export function createRepository(directory: string) {
           excerpt = artifact.slice(c.start, c.end);
         }
         const result = applyCommand(current, input, excerpt);
+        if(result.replayed)return result;
         result.state.proposalExports.forEach((job) => {
           delete job.runtimeRendererMatch;
         });
         await write(result.state);
+        commitResubmissionPreview(result);
         return result;
       }),
     internal: <T>(
@@ -714,9 +725,9 @@ export function createRepository(directory: string) {
           fail("Saved state changed. Reload and retry.", 409);
         const result = await operation(state);
         state.revision++;
-        const validated = validateVaultState(
+        const validated = validateResubmissionGraph(validateVaultState(
           validateStateIntegrity(StateSchema.parse(state)),
-        );
+        ));
         await write(validated);
         return { state: validated, result };
       }),

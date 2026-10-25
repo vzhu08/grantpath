@@ -1,0 +1,78 @@
+.panel {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.panel :global(.card) {
+  background: var(--paper, #fffefa);
+  border: 1px solid var(--line, #dfe5dd);
+  border-radius: 12px;
+  padding: 18px;
+  margin: 14px 0;
+  min-width: 0;
+}
+.panel :global(.row) {
+  display: flex;
+  align-items: center;
+}
+.panel :global(.field) {
+  min-width: 0;
+  margin: 12px 0;
+}
+.panel :global(.field > label) {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+.panel :global(input:not([type="checkbox"])),
+.panel :global(textarea),
+.panel :global(select) {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+.panel :global(input[type="checkbox"]) {
+  width: auto;
+  margin-right: 6px;
+}
+.panel :global(fieldset) {
+  min-width: 0;
+  max-width: 100%;
+  margin: 12px 0;
+}
+.panel :global(button) {
+  max-width: 100%;
+  white-space: normal;
+}
+.panel :global(details > summary) {
+  cursor: pointer;
+  padding: 4px 0;
+}
+.panel :global(.badge) {
+  display: inline-block;
+  padding: 3px 8px;
+  margin: 0 0 0 8px;
+  border-radius: 20px;
+  background: var(--green-light, #e8f1eb);
+  font-size: 12px;
+}
+.panel :global(.error) {
+  color: var(--red, #a13f35);
+}
+.panel :global(blockquote) {
+  border-left: 3px solid var(--green, #175b46);
+  margin: 12px 0;
+  padding: 4px 14px;
+  background: var(--background, #f6f7f2);
+}
+.panel :global([hidden]) {
+  display: none !important;
+}
+@media (max-width: 600px) {
+  .panel :global(.card) {
+    padding: 12px;
+  }
+  .panel :global(button) {
+    min-height: 38px;
+  }
+}

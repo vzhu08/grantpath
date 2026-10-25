@@ -4,6 +4,7 @@ import {
   VaultCollections,
   VaultCommandOptions,
 } from "./vault/schema";
+import { ResubmissionsSchema,emptyResubmissions,ResubmissionCommandSchema } from "./resubmissions/schema";
 import { z } from "zod";
 import { ProposalBlockSchema } from "./proposals/blocks";
 import {
@@ -273,6 +274,10 @@ export const ProposalBindingSchema = z.object({
 export type ProposalBinding = z.infer<typeof ProposalBindingSchema>;
 export const ApplicationSchema = z.object({
   id: Id,
+  // Optional in this reused schema so historical frozen proposal payloads keep
+  // their exact bytes/digests. Current workspace graph checks require both.
+  cycleId: Id.optional(),
+  originAttemptId: Id.nullable().optional(),
   projectId: Id,
   opportunityId: Id,
   revision: z.number().int().positive(),
@@ -458,9 +463,13 @@ export const V2StateSchema = z.object({
   packetSnapshots: z.array(PacketSnapshotSchema).default([]),
   proposalExports: z.array(ProposalExportSchema).default([]),
 });
-export const StateSchema = V2StateSchema.extend({
+export const V3StateSchema = V2StateSchema.extend({
   schemaVersion: z.literal(3),
   ...VaultCollections,
+});
+export const StateSchema = V3StateSchema.extend({
+  schemaVersion:z.literal(4),
+  resubmissions:ResubmissionsSchema,
 });
 export type State = z.infer<typeof StateSchema>;
 export const ProposalSchema = z.object({
@@ -482,6 +491,7 @@ export const GenerationInputSchema = z
 export type GenerationInput = z.infer<typeof GenerationInputSchema>;
 export const CommandSchema = z.discriminatedUnion("type", [
   ...VaultCommandOptions,
+  ...ResubmissionCommandSchema.options,
   z.object({
     type: z.literal("saveProject"),
     id: Id.optional(),

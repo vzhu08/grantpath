@@ -1,6 +1,7 @@
 import { LegacyStateSchema, StateSchema, type State } from "../schema";
 import { legacyBinding, validateStateIntegrity } from "./workflow";
 import { textBlocks } from "./blocks";
+import { migrateV3 } from "../resubmissions/migration";
 export function migrateV1(input: unknown): State {
   const old = LegacyStateSchema.parse(input);
   const applications = old.applications.map((app) => {
@@ -26,7 +27,7 @@ export function migrateV1(input: unknown): State {
     };
   });
   return validateStateIntegrity(
-    StateSchema.parse({
+    migrateV3({
       ...old,
       schemaVersion: 3,
       applications,

@@ -125,7 +125,7 @@ describe(
       const raw = JSON.stringify(old);
       await writeFile(path.join(directory, "workspace.json"), raw);
       const s = await repo.read();
-      expect(s.schemaVersion).toBe(3);
+      expect(s.schemaVersion).toBe(4);
       expect(s.applications).toEqual(old.applications);
       const backups = (await readdir(directory)).filter((n) =>
         n.includes(".backup"),
