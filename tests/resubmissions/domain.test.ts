@@ -22,6 +22,7 @@ describe("resubmission truth and cycles",()=>{
     expect(h.state.applications[0]!.sections.every(s=>!s.revisions.length)).toBe(true);
   });
   it("freeze retry returns same immutable snapshot before stale revision rejection",()=>{const h=harness();expect(h.run(h.freeze,0).selectedId).toBe(h.snapshotId);expect(h.state.resubmissions.snapshots).toHaveLength(1);});
+  it("capture-create retry recovers its original mutable capture before stale revision rejection",()=>{const h=harness();expect(h.run({type:"createSubmissionCapture",operationId:"capture-create-1",projectId:"demo-project",originalApplicationId:"original",method:"pasted",supersedesId:null,correctionReason:""},0).selectedId).toBe(h.captureId);expect(h.state.resubmissions.captures).toHaveLength(1);});
   it("failed stale commands and graph failures leave the original candidate byte-identical",()=>{const h=harness(),before=canonical(h.state);expect(()=>h.run({type:"saveConcern",attemptId:h.attemptId,fields:{interpretation:"wrong",citations:[{sourceId:"missing",version:1,hash:"bad",quote:"x",start:0,end:1}],importance:"major",disposition:"change",confirmed:true,mappings:[],noEditReason:"",rationale:""},status:"accepted"})).toThrow();expect(canonical(h.state)).toBe(before);expect(()=>h.run({type:"archiveAttempt",attemptId:h.attemptId,reason:"Archive for later."},0)).toThrow(/newer save/);});
 });
 describe("feedback quotation and coverage integrity",()=>{

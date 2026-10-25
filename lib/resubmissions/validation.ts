@@ -4,6 +4,7 @@ import { feedbackCitation } from "./feedback";
 
 export function validateResubmissionGraph(state:Workspace) {
   const f=ResubmissionsSchema.parse(state.resubmissions);
+  for(const app of state.applications){if(!app.cycleId||app.originAttemptId===undefined)fail("Current workspace application cycle metadata is missing. Preserve the file and run the matching schema migration.");if(app.originAttemptId){const attempt=find(f.attempts,app.originAttemptId);if(attempt.targetApplicationId!==app.id||attempt.projectId!==app.projectId)fail("Application origin attempt scope does not match.");}else if(app.cycleId!=="initial")fail("A non-initial application cycle must reference its retained attempt.");}
   const records=[...f.captures,...f.snapshots,...f.attempts,...f.feedback,...f.concerns,...f.actions,...f.responses,...f.conflicts,...f.packets];
   assertUnique(records.map(r=>r.id),"Resubmission record identifiers");
   for(const record of records)find(state.projects,record.projectId);

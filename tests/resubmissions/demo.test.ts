@@ -25,7 +25,7 @@ describe("judge-visible resubmission proof",()=>{
   });
   it("saved submitted call citations are pinned while feedback never becomes research evidence",()=>{
     const h=harness(),app=h.state.applications[0]!,call=h.state.opportunities[0]!,source=h.state.sources.find(s=>s.id===call.sourceId)!;app.sections[0]!.revisions.push({id:"original-call-draft",text:"Original call instruction",citations:[cite(source,"FICTIONAL DEMO CALL")],selectedSources:[],projectRevision:1,callRevision:1,callSourceVersion:1,missingInputs:[],mode:"fixture",promptVersion:"synthetic-resubmission-v1",createdAt:h.env.at});
-    const captureId=h.run({type:"createSubmissionCapture",projectId:app.projectId,originalApplicationId:app.id,method:"saved-drafts",supersedesId:null,correctionReason:""}).selectedId!;
+    const captureId=h.run({type:"createSubmissionCapture",operationId:"call-capture-create",projectId:app.projectId,originalApplicationId:app.id,method:"saved-drafts",supersedesId:null,correctionReason:""}).selectedId!;
     h.run({type:"saveCaptureSection",captureId,captureRevision:1,sectionId:"summary",label:"Summary",text:"",savedRevisionId:"original-call-draft"});
     expect(()=>h.run({...h.freeze,captureId,captureRevision:2,operationId:"call-capture"})).not.toThrow();expect(last(h.state.resubmissions.snapshots).evidence[0]!.type).toBe("call");
   });

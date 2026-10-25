@@ -5,6 +5,7 @@ import { Citation, RevisionLink, type ConcernRecord } from "./schema";
 import { assertUnique, attemptFor, clock, evidenceCopy, fail, find, last, revisionCopy, sha256, type Workspace } from "./context";
 import { feedbackCitation } from "./feedback";
 import { concernActions } from "./matrix";
+import { sourceFileExcluded } from "../vault/domain";
 
 const id=z.string().min(1).max(100).regex(/^[a-zA-Z0-9_-]+$/);
 const common={mode:z.enum(["fixture","live"]),confirmUsage:z.boolean(),expectedRevision:z.number().int().nonnegative()};
@@ -16,7 +17,7 @@ export type SuggestRequest=z.infer<typeof SuggestInput>;
 export type RespondRequest=z.infer<typeof RespondInput>;
 type Transport={structured:(request:{prompt:string;maxOutputTokens:number;signal?:AbortSignal},schema:z.ZodType)=>Promise<{output:unknown}>};
 const promptVersion="resubmission-grounded-v1";
-type Preview={kind:"suggest"|"respond";attemptId:string;concernId:string|null;stateRevision:number;inputFingerprint:string;output:z.infer<typeof Suggestions>|z.infer<typeof ResponsePreview>;mode:"fixture"|"live";metadata:NonNullable<ConcernRecord["generation"]>;expires:number};
+type Preview={kind:"suggest"|"respond";request:SuggestRequest|RespondRequest;attemptId:string;concernId:string|null;stateRevision:number;inputFingerprint:string;output:z.infer<typeof Suggestions>|z.infer<typeof ResponsePreview>;mode:"fixture"|"live";metadata:NonNullable<ConcernRecord["generation"]>;expires:number};
 const globals=globalThis as typeof globalThis&{grantpathResubmissionPreviews?:Map<string,Preview>};
 export const previews=(globals.grantpathResubmissionPreviews??=new Map());
 function checkRevision(state:Workspace,expected:number) {if(state.revision!==expected)fail("Saved inputs changed. Your manual text is preserved; reload before previewing.",409);if(!state.resubmissions)fail("The resubmission integration is unavailable in this workspace version.",503);}
@@ -34,7 +35,8 @@ export function responseContext(state:Workspace,input:RespondRequest) {
   const available=concernActions(state,concern),actions=input.actionIds.map(id=>available.find(a=>a.id===id)??fail("Selected action does not support this concern."));
   const links=actions.flatMap(a=>a.fields.evidence),revisions=actions.flatMap(a=>a.fields.revisions);
   const evidence=input.evidenceKeys.map(key=>links.find(link=>sha256(link)===key)??fail("Select an exact evidence link from these actions.")),target=input.revisionKeys.map(key=>revisions.find(link=>sha256(link)===key)??fail("Select an exact target link from these actions."));
-  const evidenceCopies=evidence.map(link=>({...link,source:{...evidenceCopy(state,attempt.projectId,link.citation),text:link.citation.quote}})),targetCopies=target.map(link=>{const copy=revisionCopy(state,attempt,link);return {link,copy:{applicationId:copy.applicationId,sectionId:copy.sectionId,label:copy.label,range:copy.range,revision:{id:copy.revision.id,text:link.range?.quote??copy.revision.text,mode:copy.revision.mode,promptVersion:copy.revision.promptVersion}}};});
+  if(evidence.some(link=>sourceFileExcluded(find(state.sources,link.citation.sourceId),state)))fail("Excluded ethics/approval file content cannot establish scientific response evidence.");
+  const evidenceCopies=evidence.map(link=>{const source=find(state.sources,link.citation.sourceId),origin=source.versions.find(v=>v.version===link.citation.version)?.fileOrigin;return {...link,source:{...evidenceCopy(state,attempt.projectId,link.citation),text:link.citation.quote},currentHead:{version:last(source.versions).version,hash:last(source.versions).hash,fileHead:origin?state.documents.find(d=>d.id===origin.documentId)?.versionIds.at(-1)??null:null,integrity:origin?state.documentVersions.find(v=>v.id===origin.documentVersionId)?.integrity??"missing":null}};}),targetCopies=target.map(link=>{const copy=revisionCopy(state,attempt,link);return {link,copy:{applicationId:copy.applicationId,sectionId:copy.sectionId,label:copy.label,range:copy.range,revision:{id:copy.revision.id,text:link.range?.quote??copy.revision.text,mode:copy.revision.mode,promptVersion:copy.revision.promptVersion}}};});
   const snapshot=find(state.resubmissions.snapshots,attempt.snapshotId),app=find(state.applications,attempt.targetApplicationId),call=find(state.opportunities,app.opportunityId),project=find(state.projects,attempt.projectId);
   const feedback=concern.fields.citations.map(c=>{const {source}=feedbackCitation(state,attempt,c);return {label:source.label,citation:c};});
   const synthetic=attempt.provenance==="demo"&&concern.provenance==="demo"&&actions.every(a=>a.provenance==="demo")&&project.provenance==="demo"&&call.provenance==="demo"&&snapshot.provenance==="demo"&&evidenceCopies.every(e=>e.source.provenance==="demo")&&concern.fields.citations.every(c=>feedbackCitation(state,attempt,c).source.provenance==="demo")&&targetCopies.every(t=>t.copy.revision.mode==="fixture"||t.copy.revision.promptVersion.startsWith("synthetic-resubmission-v1"));
@@ -75,10 +77,11 @@ export async function generatePreview(state:Workspace,kind:"suggest"|"respond",r
   try{output=kind==="suggest"?validateSuggestions(output,context as ReturnType<typeof suggestionContext>,state):validateResponse(output,context as ReturnType<typeof responseContext>,state);}catch(error){if(error instanceof KitError)throw error;throw new KitError("INVALID_GENERATED_OUTPUT","Preview output failed strict validation. Manual work is preserved.",422);}
   const now=Date.now();for(const [token,p]of previews)if(p.expires<=now)previews.delete(token);if(previews.size>=30)fail("Preview capacity reached. Accept/discard a preview or wait for expiry.",429);
   const token=clock().id("resubmission-preview"),metadata={promptVersion,inputFingerprint,provider,model,generatedAt:new Date(now).toISOString(),humanEdited:false};
-  previews.set(token,{kind,attemptId:context.attempt.id,concernId:kind==="respond"?(input as RespondRequest).concernId:null,stateRevision:state.revision,inputFingerprint,output:output as Preview["output"],mode:input.mode,metadata,expires:now+15*60_000});
+  previews.set(token,{kind,request:input,attemptId:context.attempt.id,concernId:kind==="respond"?(input as RespondRequest).concernId:null,stateRevision:state.revision,inputFingerprint,output:output as Preview["output"],mode:input.mode,metadata,expires:now+15*60_000});
   return {token,preview:output,mode:input.mode,inputRevision:state.revision,inputFingerprint,metadata,usage:null,cost:null};
 }
 export function requirePreview(token:string,kind:"suggest"|"respond",state:Workspace,attemptId:string,concernId:string|null) {
-  const preview=previews.get(token);if(!preview||preview.expires<=Date.now()||preview.kind!==kind||preview.attemptId!==attemptId||preview.concernId!==concernId||preview.stateRevision!==state.revision)fail("Preview expired, changed, belongs to another operation or was already accepted. Regenerate or keep editing manually.",409);return preview;
+  const preview=previews.get(token);if(!preview||preview.expires<=Date.now()||preview.kind!==kind||preview.attemptId!==attemptId||preview.concernId!==concernId||preview.stateRevision!==state.revision)fail("Preview expired, changed, belongs to another operation or was already accepted. Regenerate or keep editing manually.",409);
+  const current=kind==="suggest"?suggestionContext(state,preview.request as SuggestRequest):responseContext(state,preview.request as RespondRequest);if(sha256({kind,input:preview.request,data:current.data})!==preview.inputFingerprint)fail("Selected preview inputs changed. Regenerate or preserve your manual response.",409);return preview;
 }
 export function validateAcceptedCandidate(fields:ConcernRecord["fields"],candidate:z.infer<typeof Suggestions>["candidates"][number]) {for(const c of fields.citations)if(!candidate.citations.some(selected=>inRange(c,selected)))fail("Accepted suggestion citations must stay within its reviewed exact passages.");}

@@ -1,5 +1,5 @@
 import type { PacketRecord, ResubmissionCommand, AttemptRecord } from "./schema";
-import { appendBound, evidenceCopy, find, jsonCopy, last, revisionCopy, sha256, type Clock, type Workspace } from "./context";
+import { appendBound,canonical, evidenceCopy, find, jsonCopy, last, revisionCopy, sha256, type Clock, type Workspace } from "./context";
 import { attemptIssues, concernActions, concernFingerprint, concernResponse, concernState, conflictResolved, documentFingerprint,completionIssues } from "./matrix";
 import { feedbackCitation } from "./feedback";
 import { compareAttempt } from "./comparison-view";
@@ -29,7 +29,7 @@ export function savePacket(state:Workspace,c:Extract<ResubmissionCommand,{type:"
   const payload=packetPayload(state,attempt,c), packet:PacketRecord={id:env.id("response-packet"),attemptId:attempt.id,projectId:attempt.projectId,provenance:attempt.provenance,createdAt:env.at,updatedAt:env.at,manifestVersion:1,payload,digest:sha256(payload)};
   state.resubmissions.packets.push(packet);return packet.id;
 }
-export const packetJSON=(packet:PacketRecord)=>JSON.stringify(packet,null,2)+"\n";
+export const packetJSON=(packet:PacketRecord)=>JSON.stringify(JSON.parse(canonical(packet)),null,2)+"\n";
 // Encode all source-controlled text as inert Markdown. Raw HTML, image/link
 // syntax, fences, and line starts cannot acquire document structure.
 export const escapeMarkdown=(value:string)=>value.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/([\\`*_{}\[\]()#!|+\-.])/g,"\\$1");

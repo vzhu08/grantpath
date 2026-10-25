@@ -167,6 +167,7 @@ export function applyResubmissionCommand(original:Workspace,input:{expectedRevis
     const attempt=attemptFor(state,c.attemptId,true),app=find(state.applications,attempt.targetApplicationId),call=find(state.opportunities,app.opportunityId);
     if(c.context.callRevision!==call.revision)fail("The target call changed before context review.",409);
     if(c.context.confirmed&&(!c.context.confirmedBy.trim()||!c.context.checkedOn||c.context.rationale.trim().length<5||c.context.sponsorType==="unresolved"))fail("Confirmed context needs a checked date, human label, rationale and formal type decision.");
+    for(const rule of c.context.rules)if(rule.status!=="unknown"&&(!rule.checkedOn||rule.decision.trim().length<5||(rule.status==="confirmed"&&(!rule.url||rule.excerpt.trim().length<5))))fail("A checked sponsor-rule decision needs a date and rationale; confirmed instructions also need their official URL and excerpt.");
     appendBound(attempt.contextHistory,"Sponsor decision history",99);attempt.contextHistory.push(structuredClone(attempt.context));attempt.context=c.context;if(!env.fixture)attempt.provenance="researcher";touchAttempt(attempt,env);selectedId=attempt.id;
   } else if(c.type==="saveAttemptMappings") {
     const attempt=attemptFor(state,c.attemptId,true);if(attempt.revision!==c.attemptRevision)fail("Attempt changed before mapping save. Preserve and reconcile your mapping choices.",409);mappingsValid(state,attempt,c.mappings);appendBound(attempt.mappingHistory,"Attempt mapping history",99);attempt.mappingHistory.push({revision:attempt.revision,mappings:structuredClone(attempt.mappings),at:attempt.updatedAt});attempt.mappings=c.mappings;touchAttempt(attempt,env);selectedId=attempt.id;
@@ -186,7 +187,7 @@ export function applyResubmissionCommand(original:Workspace,input:{expectedRevis
   resultIds=resultIds.length?resultIds:selectedId?[selectedId]:[];
   if("operationId" in c)f.receipts.push({projectId:commandProject(state,c),operationId:c.operationId,command:c.type,inputDigest:sha256(c),resultIds,createdAt:env.at});
   state.revision++;ResubmissionsSchema.parse(f);validateResubmissionGraph(state);
-  if(Buffer.byteLength(JSON.stringify(state),"utf8")>25*1024*1024)fail("The workspace exceeds 25 MiB. The existing store remains readable; export or plan a capacity change without pruning history.",413);
+  if(Buffer.byteLength(JSON.stringify(state,null,2),"utf8")>25*1024*1024)fail("The workspace exceeds 25 MiB. The existing store remains readable; export or plan a capacity change without pruning history.",413);
   return {state,selectedId,resultIds,replayed:false,consumedPreviewToken:consumeToken};
 }
 /** Call only after the candidate workspace has been durably atomically saved. */

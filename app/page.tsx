@@ -12,6 +12,7 @@ import {
 import { Checklist } from "../components/checklist";
 import { Drafts } from "../components/drafts";
 import { ProposalPanel } from "../components/proposal-panel";
+import { ResubmissionsPanel } from "../components/resubmissions";
 import { Badge, Field, download, EditorRegistry } from "../components/common";
 
 const steps = [
@@ -451,6 +452,7 @@ export default function Workspace() {
                                           (c) => c.id === a.opportunityId,
                                         )?.title
                                       }
+                                      {" / "}{a.cycleId??"initial"}
                                     </option>
                                   ))}
                                 </select>
@@ -552,6 +554,7 @@ export default function Workspace() {
                             )}
                           </>
                         ))}
+                      {tab==="drafts"&&project&&<ResubmissionsPanel state={state} projectId={project.id} applicationId={app?.id} onCommand={mutate} onSelectApplication={id=>navigate(()=>{setAppId(id);setTab("drafts");})}/>}
                     </>
                   )}
                 </>
