@@ -14,6 +14,8 @@
 
 ### Active core implementation registry
 
+**Reviewed core handoffs collected for CI, not application completion:** GrantWeave `d72bcb843f929736869e4dee365828e13793f892` (45 focused tests/types) and AimFit `a94be1504e78573da5315c1aea799678a0a6db11` (23 focused tests/types plus six Python protocol cases) passed independent parent source review. Bootstrap's original handoff was superseded by `2c78ef09759f084b59b7dbd818f3d40e7fbb18ee`: parent found contradictory copied source/file identities, lead repaired them with30 new regressions (94 tests/types total), and independent parent delta review accepted the fix. Parent collected only exclusive core/release/config paths, preserving existing research copies. These await exact-head required integration CI. AimFit remains `r-pending`; parent is adding a pinned ephemeral Linux R4.6.1/Python3.12.10 oracle comparison and hash-locked numerical wheels with identity/license evidence. Actual CI provisioning/comparison and the separate packaged host/runtime gates remain open. No frontend, routes, storage or connected feature is implied;06 retains shared/heavy priority.
+
 All three are NEW implementation chats, distinct from the completed research chats. They run in parallel on checked launch main2da6a31 with useful agents, GPT-6.1 Sol/xhigh and Standard/Fast off. Each has exclusive new capability/app-port/test/release paths, no frontend or shared runtime writes. Offline unit/reference inputs are allowed; frontend fixtures are not. Coordinate one cheap pure-test slot at a time without taking05's heavy slot. No fake local review server or full-app completion claim is appropriate for a core checkpoint.
 
 | Core implementation | Chat / managed checkout | Exclusive new scope |

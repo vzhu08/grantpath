@@ -36,6 +36,8 @@ New human requirement: previous tasks must look good first. Existing independent
 
 ## Parallel implementation11–13 — core only
 
+Reviewed source milestones are collected on the parent's integration branch for required CI:11 `d72bcb8` (45 tests/types),12 `a94be15` (23 tests/types plus six Python protocol tests),13 corrected `2c78ef0` (94 tests/types; independently accepted after fixing contradictory copied identities). These are core checkpoints, not deployed app features.12 still has actual R-oracle/packaged-runtime gates; all three retain host integration and later design-system/frontend gates. No new implementation chat is needed for these already active leads.
+
 - GrantWeave: active NEW implementation chat `01a17253-910c-7610-909c-84831a022d03`, checkout2c3a. Exact bounded funding-constraint engine, versioned model/witness/results and offline proof cases; no frontend/shared app integration.
 - AimFit: active NEW implementation chat `01a17253-baf7-7ef2-8c5d-8a59184c6d16`, checkoutb78e. Design/cost/variant/numerical core and stable data interfaces; actual R-oracle/runner checks remain required, with unvalidated numbers never promoted. No frontend/shared app integration.
 - Bootstrap: active NEW implementation chat `01a17253-d870-7153-bc75-06a35b56d908`, checkoutcc64. Manual-gap/synthetic-resource bundle planner with uncertainty/funding/history helpers; no real experiments/results or frontend/shared app integration.

@@ -46,6 +46,32 @@ jobs:
         run: npm ci --no-fund
       - name: Check dependency advisories
         run: npm audit --audit-level=high
+      - name: Set up the pinned numerical interpreter
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12.10"
+      - name: Set up the official R reference
+        uses: r-lib/actions/setup-r@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05 # v2.14.0
+        with:
+          r-version: "4.6.1"
+          Ncpus: "1"
+          use-public-rspm: "false"
+      - name: Install and identify exact Linux numerical artifacts
+        run: |
+          mkdir -p .test-data/aimfit/temp test-results/aimfit
+          python -m pip download --only-binary=:all: --no-deps --require-hashes --dest .test-data/aimfit-wheels -r .github/aimfit-linux-requirements.txt
+          python -m pip install --force-reinstall --no-index --only-binary=:all: --no-deps --require-hashes --find-links .test-data/aimfit-wheels --report test-results/aimfit/pip-install.json -r .github/aimfit-linux-requirements.txt
+          python -I -B .github/scripts/aimfit-ci-manifest.py
+          python -m pip inspect > test-results/aimfit/pip-inspect.json
+          printf 'AIMFIT_PYTHON=%s\n' "$(python -c 'import sys; print(sys.executable)')" >> "$GITHUB_ENV"
+      - name: Compare the production primitive to the official R oracle
+        env:
+          OPENBLAS_NUM_THREADS: "1"
+          OMP_NUM_THREADS: "1"
+        run: |
+          Rscript --vanilla modules/aimfit/reference/oracle.R 4.6.1 > test-results/aimfit/oracle.csv 2> test-results/aimfit/r-session.txt
+          python -I -B scripts/aimfit-compare-oracle.py test-results/aimfit/oracle.csv 4.6.1 > test-results/aimfit/comparison.json
+          python -I -B tests/aimfit/numeric_protocol_test.py
       - name: Typecheck, test, and build
         run: npm run check
       - name: Install the test browser

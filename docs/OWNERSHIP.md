@@ -4,6 +4,8 @@ Product and scope owner: requesting user. Orchestrator/integration coordinator: 
 
 Parent is responsible for keeping main updated through required checks and maintaining the latest checked main's healthy local review deployment. Completed features integrate incrementally; workers retain exclusive scopes and cannot self-merge. Primary user WIP must be preserved through reviewable commits and branch changes.
 
+Current resource clarification:06 owns shared source plus host-heavy verification on checked05 mainbde0de3. All11/12/13 cheap test slots are released after their core handoffs; parent collected reviewed exclusive core paths for GitHub CI without a competing local build/install/server. Parent owns the new `.github` numerical reference/profile evidence. UI phase1 planbe73aba plus clarification6b0e091 passed independent plan review and is collected; that acceptance grants no frontend or heavy lease. Resume the same UI chat only after all phase2 gates.
+
 ## Current application implementation
 
 The user authorized two independent implementation chats and useful subagents in each on October 25, 2026. This supersedes the planning documents' earlier single-writer/no-subagent assumptions. Concurrent writers still require separate checkouts, branches and exclusive paths.

@@ -1,5 +1,9 @@
 # Actual implementation status
 
+## Roadmap11–13 independent core checkpoints
+
+Parent source review accepted11 `d72bcb8`,12 `a94be15` and corrected13 `2c78ef0`; exclusive core/release/config paths are collected on the integration branch for exact-head required CI. Reported focused results are45,23 and94 TypeScript tests respectively, scoped types for all, plus six12 Python protocol cases.13's initial source-copy consistency P1 was repaired and independently re-reviewed.12 numerical outputs remain `r-pending` until the actual official R comparison; pinned Linux CI provisioning/artifact capture is being added, while packaged host/runtime and actual05/06 reconciliation remain separate gates. These source milestones do not add UI, routes, shared persistence or a locally deployed application feature. See the three core release notes for implemented contracts and explicit open gates.
+
 ## Roadmap05 awards and progress worksheets
 
 Final checked feature handoff `3abe165ba5a3ce2b8f7cfb6329bb5a906ae4b173`, application code `6c7ad9118130bb7d2388a1b9d30c35b7442e64cb`, stacks checked main2da6a31. Schema5 preserves prior histories and adds source-confirmed award terms/amendments, exact originating application/submission evidence, separately retained proposed/approved money, milestones, actual progress, reviewed NSF annual narrative worksheets and immutable Markdown/JSON evidence closures. See [release details](05_AWARD_OBLIGATIONS_PROGRESS_REPORTS_RELEASE.md).
