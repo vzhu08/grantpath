@@ -43,7 +43,7 @@ try {
   assert.equal(health?.service, "grantpath");
   const r = await fetch(origin + "/api/workspace");
   assert.equal(r.status, 200);
-  assert.equal((await r.json()).schemaVersion, 4);
+  assert.equal((await r.json()).schemaVersion, 5);
   const feature=await fetch(origin+"/api/resubmissions/view");
   assert.equal(feature.status,200);
   assert.deepEqual((await feature.json()).concerns,{});

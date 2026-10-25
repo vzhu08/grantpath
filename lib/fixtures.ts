@@ -1,4 +1,5 @@
 import { newSource } from "./evidence";
+import { emptyAwards } from "./awards/schema";
 import { extractCall, extractRequirements } from "./calls";
 import { cite } from "./evidence";
 import { emptyResubmissions } from "./resubmissions/schema";
@@ -144,7 +145,8 @@ export function createDemo(): State {
     };
   });
   return {
-    schemaVersion: 4,
+    schemaVersion: 5,
+    awards: emptyAwards(),
     resubmissions:emptyResubmissions(),
     documents: [],
     documentVersions: [],

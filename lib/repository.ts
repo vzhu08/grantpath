@@ -1,4 +1,8 @@
 import { migrateV2 } from "./vault/migration";
+import { migrateV4 } from "./awards/migration";
+import { applyAwardWorkspaceMutation } from "./awards/adapter";
+import { validateAwardsIntegrity, assertAwardResetSafe } from "./awards/integrity";
+import { AwardError } from "./awards/context";
 import { migrateV3 } from "./resubmissions/migration";
 import { isResubmissionCommand } from "./resubmissions/schema";
 import { applyResubmissionCommand,commitResubmissionPreview } from "./resubmissions/workflow";
@@ -65,14 +69,28 @@ function find<T extends { id: string }>(items: T[], id: string): T {
     fail("Record not found. Reload the workspace and try again.", 404)
   );
 }
+export function validateWorkspace(input: unknown): State {
+  const state = validateResubmissionGraph(validateVaultState(validateStateIntegrity(StateSchema.parse(input))));
+  state.awards = validateAwardsIntegrity(state.awards, state);
+  return state;
+}
 export function applyCommand(
   state: State,
   input: Mutation,
   vaultExcerpt?: string,
 ): { state: State; selectedId?: string;resultIds?:string[];replayed?:boolean;consumedPreviewToken?:string } {
   const { command: c } = MutationSchema.parse(input);
+  if (c.type === "awardMutation") {
+    try {
+      const result = applyAwardWorkspaceMutation(state, { expectedRevision: input.expectedRevision, operationId: c.operationId, command: c.action });
+      return { ...result, state: validateWorkspace(result.state) };
+    } catch (error) {
+      if (error instanceof AwardError) throw new KitError(error.status === 409 ? "REVISION_CONFLICT" : "AWARD_INPUT", error.message, error.status);
+      throw error;
+    }
+  }
   // The feature command recovers a receipt before checking expectedRevision.
-  if(isResubmissionCommand(c))return applyResubmissionCommand(state,{expectedRevision:input.expectedRevision,command:c});
+  if(isResubmissionCommand(c)){const result=applyResubmissionCommand(state,{expectedRevision:input.expectedRevision,command:c});return {...result,state:validateWorkspace(result.state)};}
   if (input.expectedRevision !== state.revision)
     fail(
       "A newer save exists. Your editor text is preserved. Reload saved data and reconcile your changes before retrying.",
@@ -107,13 +125,13 @@ export function applyCommand(
       if (a.stage === "Ready for review") a.stage = "Preparing";
     }
     state.revision++;
-    return { state: validateResubmissionGraph(validateVaultState(StateSchema.parse(state))), selectedId };
+    return { state: validateWorkspace(state), selectedId };
   }
   if (isProposalCommand(c)) {
     selectedId = applyProposalCommand(state, c, at);
     state.revision++;
     return {
-      state: validateResubmissionGraph(validateStateIntegrity(StateSchema.parse(state))),
+      state: validateWorkspace(state),
       selectedId,
     };
   }
@@ -350,6 +368,8 @@ export function applyCommand(
       selectedId = app.id;
     }
   } else if (c.type === "resetDemo") {
+    assertAwardResetSafe(state.awards, state.sources.filter(s => s.provenance === "demo").map(s => s.id), state.applications.filter(a => a.provenance === "demo").map(a => a.id));
+    if (state.awards.records.some(a => a.provenance === "demo")) fail("Demo award history is retained. Use a separate isolated workspace rather than deleting its application or evidence.", 409);
     protectResubmissionDemoReset(state);
     if (
       state.documents.length ||
@@ -576,15 +596,13 @@ export function applyCommand(
     }
   }
   state.revision++;
-  return { state: validateResubmissionGraph(StateSchema.parse(state)), selectedId };
+  return { state: validateWorkspace(state), selectedId };
 }
 export function createRepository(directory: string) {
   const filename = path.join(directory, "workspace.json");
   let tail: Promise<unknown> = Promise.resolve();
   async function write(state: State,migrating=false) {
-    state = validateResubmissionGraph(validateVaultState(
-      validateStateIntegrity(StateSchema.parse(state)),
-    ));
+    state = validateWorkspace(state);
     const serialized=JSON.stringify(state,null,2);
     if(!migrating&&Buffer.byteLength(serialized,"utf8")>25*1024*1024)fail("The workspace exceeds 25 MiB. It remains readable and exportable; preserve it and plan a capacity change without pruning history.",413);
     await mkdir(directory, { recursive: true });
@@ -639,9 +657,9 @@ export function createRepository(directory: string) {
     }
     try {
       const input = JSON.parse(raw.toString("utf8"));
-      if ([1,2,3].includes(input.schemaVersion)) {
+      if ([1,2,3,4].includes(input.schemaVersion)) {
         const migrated =
-          input.schemaVersion === 1 ? migrateV1(input) : input.schemaVersion===2?migrateV2(input):migrateV3(input);
+          input.schemaVersion === 1 ? migrateV1(input) : input.schemaVersion===2?migrateV2(input):input.schemaVersion===3?migrateV3(input):migrateV4(input);
         const backup = await open(
           path.join(
             directory,
@@ -659,9 +677,7 @@ export function createRepository(directory: string) {
         await write(migrated,true);
         return migrated;
       }
-      return validateResubmissionGraph(validateVaultState(
-        validateStateIntegrity(StateSchema.parse(input)),
-      ));
+      return validateWorkspace(input);
     } catch (error) {
       throw new KitError(
         "STORAGE_ERROR",
@@ -725,9 +741,7 @@ export function createRepository(directory: string) {
           fail("Saved state changed. Reload and retry.", 409);
         const result = await operation(state);
         state.revision++;
-        const validated = validateResubmissionGraph(validateVaultState(
-          validateStateIntegrity(StateSchema.parse(state)),
-        ));
+        const validated = validateWorkspace(state);
         await write(validated);
         return { state: validated, result };
       }),

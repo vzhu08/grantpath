@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { cite } from "../lib/evidence";
 import { calendarEvent, agendaStatus, deadlineLabel } from "../lib/calendar";
 import { WORKSPACE_TIMEZONE } from "../lib/dates";
+import { awardAgenda } from "../lib/awards/agenda";
 import {
   RequirementSchema,
   unknownDeadline,
@@ -432,6 +433,7 @@ export function Checklist(
       description: `Internal target. ${r.note}`,
     })),
   ];
+  const awardEvents = awardAgenda(props.state.awards, props.app.id);
   return (
     <div className="two-column wide-left">
       <section className="card">
@@ -631,6 +633,12 @@ export function Checklist(
               {error}
             </p>
           )}
+          <section aria-label="Award preparation agenda">
+            <h3>Award preparation</h3>
+            <p className="muted">Confirmed locally and applicable to current terms. Internal milestones stay internal. These statuses are preparation guidance, not sponsor delinquency or acceptance.</p>
+            {!awardEvents.length && <p className="muted">No confirmed outstanding award items.</p>}
+            {awardEvents.map(event => <article key={event.id}><Badge>Award</Badge><strong>{event.title}</strong><p>{deadlineLabel(event.deadline)}</p><p>{agendaStatus(event.deadline)==="Overdue"?"Preparation target passed":agendaStatus(event.deadline)}</p><p>{event.description} {event.responsibility}</p>{event.deadline.kind!=="unknown"&&<button type="button" className="text-button" onClick={()=>exportEvent(event.id,event.title,event.description,event.deadline)}>Export award event (.ics) ↗</button>}</article>)}
+          </section>
         </section>
       </div>
     </div>
