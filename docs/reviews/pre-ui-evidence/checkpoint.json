@@ -1,0 +1,37 @@
+{
+  "phase": "source-and-document-preparation-only",
+  "inspectedMain": "2da6a3104663d602424256217b19f2eba58c6996",
+  "schemaVersion": 4,
+  "reviewBranch": "review/pre-ui-acceptance",
+  "redesignLaunchStatus": "HOLD",
+  "finalGoNoGo": "pending final checked merged batch and explicit heavy review slot",
+  "finalReviewPort": 3120,
+  "currentSharedAndHeavyOwner": "Task 05",
+  "integrationPriority": ["05", "06", "08"],
+  "featureCoverage": [
+    {"task": "02", "runtime": "merged", "finalCombinedExecution": "pending", "source": "lib/vault", "checks": ["tests/vault", "tests/documents", "scripts/vault-browser.mjs"]},
+    {"task": "03", "runtime": "merged", "finalCombinedExecution": "pending", "source": "lib/resubmissions", "checks": ["tests/resubmissions", "scripts/resubmissions-acceptance.ts"]},
+    {"task": "04", "runtime": "not merged on inspected main", "acceptance": "provisional specification; reconcile accepted release", "spec": "docs/implementation/04_EVIDENCE_LINKED_RUBRIC_REVIEW_IMPLEMENTATION.md"},
+    {"task": "05", "runtime": "not merged on inspected main", "acceptance": "provisional specification; reconcile accepted release", "spec": "docs/implementation/05_AWARD_OBLIGATIONS_PROGRESS_REPORTS_IMPLEMENTATION.md"},
+    {"task": "06", "runtime": "not merged on inspected main", "acceptance": "provisional specification; reconcile accepted release", "spec": "docs/implementation/06_BUDGET_LEDGER_IMPLEMENTATION.md"},
+    {"task": "08", "runtime": "not merged on inspected main", "acceptance": "provisional specification; reconcile accepted release", "spec": "docs/implementation/08_SPONSOR_FINANCIAL_REPORTS_IMPLEMENTATION.md"},
+    {"task": "07", "runtime": "not merged on inspected main", "acceptance": "provisional specification; reconcile accepted release", "spec": "docs/implementation/07_SCHEDULED_REMINDERS_IMPLEMENTATION.md"},
+    {"task": "09", "runtime": "not merged on inspected main", "acceptance": "provisional specification; reconcile accepted release", "spec": "docs/implementation/09_LIVE_GRANT_DISCOVERY_IMPLEMENTATION.md"}
+  ],
+  "sourceDerivedPortInventory": [
+    {"process": "baseline and proposal browser", "source": "scripts/e2e.mjs:16", "default": 3100, "selector": "GRANTPATH_TEST_PORT", "proposedFinalSlotAllocation": 3100},
+    {"process": "baseline review helper", "source": "scripts/e2e.mjs:547", "default": "test port + 1", "selector": "GRANTPATH_REVIEW_TEST_PORT", "proposedFinalSlotAllocation": 3101},
+    {"process": "vault browser", "source": "scripts/vault-browser.mjs:9", "default": 3102, "selector": "GRANTPATH_TEST_PORT", "proposedFinalSlotAllocation": 3102},
+    {"process": "resubmission and packet-only browser", "source": "scripts/resubmissions-acceptance.ts:18-19", "default": 3103, "constraint": "asserts exactly 3103", "proposedFinalSlotAllocation": 3103},
+    {"process": "optional vault dev smoke", "source": "scripts/vault-dev-smoke.mjs:8", "default": 3202, "constraint": "hardcoded; run only if justified"},
+    {"process": "optional resubmission dev smoke", "source": "scripts/resubmissions-dev-smoke.mjs:8", "default": 3203, "constraint": "hardcoded; run only if justified"},
+    {"process": "final connected review", "source": "scripts/local-server.mjs:7", "default": 3000, "selector": "PORT", "requiredFinalSlotAllocation": 3120},
+    {"process": "new 04/05/06/07/08/09 suites", "source": "pending accepted merged releases", "defaults": "unknown until actual suite inspection", "ownershipConventionOnly": [3104, 3105, 3106, 3107, 3108, 3109]}
+  ],
+  "portInventoryCaveat": "No port availability checked now. All allocations require released owners, parent confirmation and free-port/instance verification; suites run sequentially. Normal 3000 is never an acceptance target.",
+  "checkpointsActuallyPerformed": ["read current primary instructions and coordination", "inspect exact merged source and existing test/harness coverage", "two independent read-only agent audits", "prepare matrix and port inventory"],
+  "runtimeChecksPerformed": [],
+  "currentVisualResult": "not inspected or passed in this source-only phase",
+  "knownOperationalLimitation": "Repository backup helper omits proposal-export artifacts; preserve stopped complete data directory plus separately configured export output directory for complete restoration.",
+  "nextTrigger": "Parent supplies exact final 02-09 merged main SHA plus explicit heavy review slot. Reconcile real interfaces and suite ports before execution. No polling or automatic launch."
+}
