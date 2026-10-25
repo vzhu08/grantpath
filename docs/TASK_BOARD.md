@@ -41,6 +41,8 @@ Human-requested redesign prompt: [GrantPath UI redesign](prompts/GRANTPATH_UI_RE
 
 All start NOW under the latest human instruction, with agents, GPT-6.1 Sol/xhigh and Standard/Fast off. Frontend code may change; no fixed layout/component plan, app writes or heavy checks. Required human questions remain human-owned. Independent research can finish now; dependent implementation sections stay provisional until actual checked merged contracts are inspected. These tasks do not interrupt05→06→08 or start UI early. See the authoritative registry in ORCHESTRATION.md; do not duplicate at UI launch.
 
+Direct human scope answers reported by the new leads: real-data targets a small NIH opportunity sample alongside NSF via Grants.gov; DOE/history are comparisons only. AimFit uses two independent groups, continuous outcome, equal allocation/variance and a nonclinical planning demo; its statistical-validation choice was still pending at that report. Bootstrap uses public gene-expression reanalysis with a clearly labeled demo catalog and synthetic budget/time/funding scenarios, deferring scientific validation; no real results/scientific-validity claim follows. Preserve the exact answers in each lead's own handoff and ask the human for any remaining consequential choice.
+
 ## Historical initial and roadmap 01 board
 
 - Initial four-capability build and roadmap docs: complete, 69 baseline tests and production browser journey passed; initial main pushed as 7481ffe.
