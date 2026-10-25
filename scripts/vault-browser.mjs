@@ -1,3 +1,4 @@
+import { PDFDocument, StandardFonts } from "pdf-lib";
 import { chromium, expect } from "@playwright/test";
 import { spawn } from "node:child_process";
 import { once } from "node:events";
@@ -195,7 +196,9 @@ try {
   await library
     .getByRole("button", { name: "Upload original file", exact: true })
     .click();
-  const upload = await (await up).json();
+  assert.equal((await up).status(),201);
+  const uploadedState=await state(),uploadedDoc=uploadedState.documents.find(d=>d.projectId===projectId&&d.title==="CV synthetic");
+  const upload={documentId:uploadedDoc?.id,versionId:uploadedDoc?.versionIds.at(-1)};
   assert(upload.versionId);
   await settled();
   await project();
@@ -352,7 +355,8 @@ try {
   await page
     .getByRole("button", { name: "Save handoff snapshot", exact: true })
     .click();
-  const handoff = await (await handoffResponse).json();
+  assert.equal((await handoffResponse).status(),201);
+  const handoff={handoffId:(await state()).handoffs.at(-1)?.id};
   assert(handoff.handoffId);
   current = await state();
   const frozen = JSON.stringify(current.handoffs[0]);
@@ -438,6 +442,15 @@ try {
     assert.equal(sha(Buffer.from(await r.arrayBuffer())), f.sha256);
   }
   assert.deepEqual(errors, []);
+  const near=await PDFDocument.create(),font=await near.embedFont(StandardFonts.Helvetica);
+  for(let i=0;i<100;i++)near.addPage().drawText(`Synthetic responsiveness page ${i+1}`,{x:60,y:700,font,size:12});
+  const nearBytes=await near.save(),beforeProfile=await state();
+  const profileMeta={projectId,filename:"near-limit.pdf",claimedMime:"application/pdf",title:"Archived performance fixture",category:"Synthetic performance",owner:"Synthetic acceptance",expectedRevision:beforeProfile.revision,idempotencyKey:randomUUID()};
+  const admitted=await fetch(origin+"/api/documents",{method:"POST",headers:{origin,"content-type":"application/octet-stream","x-upload-metadata":Buffer.from(JSON.stringify(profileMeta)).toString("base64url")},body:nearBytes});assert.equal(admitted.status,201);const profiled=await admitted.json();
+  const during=await state(),parsingAtProbe=during.parseAttempts.some(a=>a.documentVersionId===profiled.versionId&&["pending","running"].includes(a.status));
+  const probeStarted=performance.now(),probe=await fetch(origin+"/api/health");assert.equal(probe.status,200);const healthDuringParseMs=performance.now()-probeStarted;
+  const afterProfile=await settled(),profileAttempt=afterProfile.parseAttempts.filter(a=>a.documentVersionId===profiled.versionId).at(-1);assert.equal(profileAttempt.status,"parsed");assert.equal(profileAttempt.pages,100);
+  await command({type:"archiveDocument",documentId:profiled.documentId,archived:true});
   await writeFile(
     "test-results/vault-browser-result.json",
     JSON.stringify(
@@ -461,6 +474,7 @@ try {
           "real process restart",
         ],
         errors,
+        performance:{parsingAtProbe,healthDuringParseMs,attempt:profileAttempt},
       },
       null,
       2,

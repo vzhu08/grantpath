@@ -499,6 +499,47 @@ describe(
         ["Portal second", 100],
       ]);
     });
+    it("rejects broken task and receipt graphs without committing corrupt metadata", async () => {
+      const saved = await repo.read(),
+        badTask = structuredClone(saved);
+      badTask.ethicsTasks.push({
+        id: "broken-task",
+        recordId: "missing-record",
+        revision: 1,
+        kind: "review",
+        title: "Broken synthetic task",
+        date: null,
+        active: true,
+        at: new Date().toISOString(),
+      });
+      expect(() => validateVaultState(badTask)).toThrow();
+      const receipt = {
+        key: "receipt-one",
+        kind: "upload" as const,
+        fingerprint: "0".repeat(64),
+        resourceId: "missing-file",
+        createdAt: new Date().toISOString(),
+      };
+      await expect(
+        repo.internal((s) => s.operationReceipts.push(receipt)),
+      ).rejects.toThrow();
+      expect((await repo.read()).operationReceipts).toEqual([]);
+      const duplicate = structuredClone(saved);
+      duplicate.operationReceipts.push(receipt, { ...receipt });
+      expect(() => validateVaultState(duplicate)).toThrow(
+        /Duplicate operation receipt/,
+      );
+      await writeFile(
+        path.join(directory, "workspace.json"),
+        JSON.stringify(badTask),
+      );
+      await expect(repo.read()).rejects.toMatchObject({ status: 503 });
+      expect(
+        JSON.parse(
+          await readFile(path.join(directory, "workspace.json"), "utf8"),
+        ).ethicsTasks[0].id,
+      ).toBe("broken-task");
+    });
     it("rejects foreign references before commit and protects uploaded demo parents on reset", async () => {
       await setup();
       await upload();

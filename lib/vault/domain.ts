@@ -151,6 +151,35 @@ export function validateVaultState(state: State): State {
       }
     });
   }
+  const activeTaskKeys = new Set<string>();
+  for (const task of state.ethicsTasks) {
+    const parent = record(state.ethicsRecords, task.recordId);
+    if (!parent.revisions.some((r) => r.revision === task.revision))
+      fail("Ethics task revision is unavailable.");
+    if (task.active) {
+      const key = `${task.recordId}:${task.kind}`;
+      if (
+        task.revision !== parent.revisions.at(-1)!.revision ||
+        activeTaskKeys.has(key)
+      )
+        fail(
+          "Active ethics tasks must pin the current revision once per kind.",
+        );
+      activeTaskKeys.add(key);
+    }
+  }
+  if (
+    new Set(state.operationReceipts.map((r) => r.key)).size !==
+    state.operationReceipts.length
+  )
+    fail("Duplicate operation receipt keys in storage.");
+  for (const receipt of state.operationReceipts) {
+    if (receipt.kind === "upload")
+      record(state.documentVersions, receipt.resourceId);
+    else if (receipt.kind === "parse")
+      record(state.parseAttempts, receipt.resourceId);
+    else record(state.handoffs, receipt.resourceId);
+  }
   for (const a of state.applications)
     for (const r of a.requirements)
       if (

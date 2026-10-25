@@ -296,7 +296,7 @@ function RequirementEditor(
               .filter((r) => r.projectId === props.app.projectId)
               .map((r) => (
                 <option key={r.id} value={r.id}>
-                  {r.revisions.at(-1)?.category} �{" "}
+                  {r.revisions.at(-1)?.category} -{" "}
                   {r.revisions.at(-1)?.reference}
                 </option>
               ))}
@@ -514,7 +514,7 @@ export function Checklist(
               )}
               {req.vault && (
                 <p className="muted">
-                  {req.vault.delivery} � needed {req.vault.phase}
+                  {req.vault.delivery} - needed {req.vault.phase}
                 </p>
               )}
               {req.note && <p className="muted">Note: {req.note}</p>}
