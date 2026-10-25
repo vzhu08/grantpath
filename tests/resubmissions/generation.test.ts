@@ -1,4 +1,4 @@
-import { beforeEach,describe,it,expect } from "vitest";
+import { beforeEach,describe,it,expect,vi } from "vitest";
 import { harness } from "./harness";
 import { generatePreview,previews,suggestionContext,responseContext,validateSuggestions,buildPrompt,requirePreview } from "../../lib/resubmissions/generation";
 import { last,sha256 } from "../../lib/resubmissions/context";
@@ -36,6 +36,12 @@ describe("bounded resubmission previews",()=>{
     expect(()=>buildPrompt("suggest",{text:"x".repeat(50_001)})).toThrow(/50,000/);
     await expect(generatePreview(h.state,"suggest",{...request(h),mode:"live",confirmUsage:true},undefined,{structured:async()=>{throw Error("Provider unavailable");}})).rejects.toThrow(/failed/);
     expect(JSON.stringify(h.state)).toBe(before);
+  });
+  it("a disabled live adapter fails visibly without a fixture fallback",async()=>{
+    const h=harness(),before=JSON.stringify(h.state);vi.stubEnv("RUN_LIVE_AI","false");try{await expect(generatePreview(h.state,"suggest",{...request(h),mode:"live",confirmUsage:true})).rejects.toMatchObject({status:503});expect(previews.size).toBe(0);expect(JSON.stringify(h.state)).toBe(before);}finally{vi.unstubAllEnvs();}
+  });
+  it("in-flight mocked timeout returns408 and preserves accepted work",async()=>{
+    const h=harness(),before=JSON.stringify(h.state),signal=AbortSignal.timeout(10);await expect(generatePreview(h.state,"suggest",{...request(h),mode:"live",confirmUsage:true},signal,{structured:async request=>{request.signal?.throwIfAborted();return new Promise((_,reject)=>request.signal?.addEventListener("abort",()=>reject(new Error("Mocked provider timeout")),{once:true}));}})).rejects.toMatchObject({status:408});expect(previews.size).toBe(0);expect(JSON.stringify(h.state)).toBe(before);
   });
   it("manual intake or private concern edits cannot be relabeled as synthetic fixture input",async()=>{
     const h=harness();h.env.fixture=false;h.run({type:"saveFeedbackSource",attemptId:h.attemptId,label:"Private reviewer",kind:"individual-review",url:"",text:"Private researcher feedback."});
