@@ -40,6 +40,9 @@ identities = {str(file.relative_to(root)): digest(file) for file in (
     root / "scripts/aimfit-compare-oracle.py",
     root / ".github/aimfit-linux-requirements.txt",
 )}
+reference = json.loads((root / ".github/fixtures/aimfit-r-4.6.1-manifest.json").read_text(encoding="utf-8"))
+if digest(root / ".github/fixtures/aimfit-r-4.6.1.csv") != reference["csvSha256"] or identities["modules/aimfit/reference/oracle.R"] != reference["oracleScriptSha256"]:
+    raise SystemExit("Captured official R reference identity mismatch")
 wheels = sorted((root / ".test-data/aimfit-wheels").glob("*.whl"))
 if len(wheels) != 2:
     raise SystemExit("Expected precisely the two locked numerical wheels")

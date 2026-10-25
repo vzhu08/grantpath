@@ -1,0 +1,13 @@
+{
+  "version": "aimfit-captured-reference-v1",
+  "rVersion": "4.6.1",
+  "statsVersion": "4.6.1",
+  "caseCount": 6409,
+  "csvSha256": "ed14d244ef8b5893810f3cecfa1d3d09f5b3bf571bfe3825c1392f160f3a466a",
+  "oracleScriptSha256": "4ef5f927518b8438207ed056158e457c2a451f795d90cf96560c998d124c1b9f",
+  "captureHead": "ba05759ec48c94a7a26f9b8e1024c221757823d0",
+  "captureRun": "https://github.com/vzhu08/grantpath/actions/runs/40184431068",
+  "comparisonMaxPowerAbsoluteError": 2.8197111312522338e-11,
+  "comparisonMaxWidthAbsoluteError": 1.0663967486834736e-9,
+  "scope": "Nonclinical equal-variance two-group numerical reference only; no scientific or Windows host-runtime release."
+}

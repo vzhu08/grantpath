@@ -71,6 +71,7 @@ jobs:
         run: |
           Rscript --vanilla modules/aimfit/reference/oracle.R 4.6.1 > test-results/aimfit/oracle.csv 2> test-results/aimfit/r-session.txt
           python -I -B scripts/aimfit-compare-oracle.py test-results/aimfit/oracle.csv 4.6.1 > test-results/aimfit/comparison.json
+          python -I -B scripts/aimfit-compare-oracle.py .github/fixtures/aimfit-r-4.6.1.csv 4.6.1 > test-results/aimfit/captured-reference-comparison.json
           python -I -B tests/aimfit/numeric_protocol_test.py
       - name: Typecheck, test, and build
         run: npm run check
