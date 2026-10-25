@@ -6,31 +6,15 @@ import { GenerationInputSchema } from "../../../lib/schema";
 import { generateProposal } from "../../../lib/generation";
 import { pendingProposals, repository, uid } from "../../../lib/repository";
 import { assertLocalRequest } from "../../../lib/http";
+import { acquireGeneration } from "../../../lib/resubmissions/limiter";
 export const runtime = "nodejs";
-const globals = globalThis as typeof globalThis & {
-  grantpathGenerationLimit?: { inFlight: boolean; attempts: number[] };
-};
-const limits = (globals.grantpathGenerationLimit ??= {
-  inFlight: false,
-  attempts: [],
-});
 export async function POST(request: Request) {
-  let acquired = false;
+  let release:(()=>void)|undefined;
   const signal = AbortSignal.any([request.signal, AbortSignal.timeout(22_000)]);
   try {
     assertLocalRequest(request, true);
     const input = await readJSON(request, GenerationInputSchema, 120_000);
-    limits.attempts = limits.attempts.filter((t) => t > Date.now() - 60_000);
-    if (limits.inFlight || limits.attempts.length >= 6)
-      throw new KitError(
-        "RATE_LIMIT",
-        "Wait before trying again: one active generation and six attempts per minute are allowed.",
-        429,
-        true,
-      );
-    limits.inFlight = true;
-    limits.attempts.push(Date.now());
-    acquired = true;
+    release=acquireGeneration();
     const repo = repository(),
       state = await vaultRuntimeState(await repo.read(), repo.directory);
     for (const source of state.sources.filter((s) =>
@@ -74,6 +58,6 @@ export async function POST(request: Request) {
         : error,
     );
   } finally {
-    if (acquired) limits.inFlight = false;
+    release?.();
   }
 }

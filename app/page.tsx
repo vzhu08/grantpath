@@ -12,6 +12,7 @@ import {
 import { Checklist } from "../components/checklist";
 import { Drafts } from "../components/drafts";
 import { ProposalPanel } from "../components/proposal-panel";
+import { ResubmissionsPanel } from "../components/resubmissions";
 import { Badge, Field, download, EditorRegistry } from "../components/common";
 
 const steps = [
@@ -45,6 +46,7 @@ export default function Workspace() {
     [projectId, setProjectId] = useState("demo-project"),
     [appId, setAppId] = useState(""),
     [tab, setTab] = useState("project"),
+    [draftView,setDraftView]=useState<"proposal"|"resubmission">("proposal"),
     [creating, setCreating] = useState(false),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
@@ -451,6 +453,7 @@ export default function Workspace() {
                                           (c) => c.id === a.opportunityId,
                                         )?.title
                                       }
+                                      {" / "}{a.cycleId??"initial"}
                                     </option>
                                   ))}
                                 </select>
@@ -530,6 +533,7 @@ export default function Workspace() {
                           </div>
                         )}
                       </section>
+                      {tab==="drafts"&&<div className="button-row" aria-label="Drafting views"><button type="button" className={draftView==="proposal"?"primary":"secondary"} aria-pressed={draftView==="proposal"} onClick={()=>navigate(()=>setDraftView("proposal"))}>Proposal drafting</button><button type="button" className={draftView==="resubmission"?"primary":"secondary"} aria-pressed={draftView==="resubmission"} onClick={()=>navigate(()=>setDraftView("resubmission"))}>Resubmission matrix</button></div>}
                       {app &&
                         call &&
                         (tab === "application" ? (
@@ -539,7 +543,7 @@ export default function Workspace() {
                             app={app}
                             call={call}
                           />
-                        ) : (
+                        ) : draftView==="proposal"?(
                           <>
                             <ProposalPanel {...props} key={app.id} app={app} />
                             {app.binding?.templateId !==
@@ -551,7 +555,8 @@ export default function Workspace() {
                               />
                             )}
                           </>
-                        ))}
+                        ):null)}
+                      {tab==="drafts"&&draftView==="resubmission"&&project&&<ResubmissionsPanel state={state} projectId={project.id} applicationId={app?.id} onCommand={mutate} onSelectApplication={id=>navigate(()=>{setAppId(id);setTab("drafts");setDraftView("proposal");})}/>}
                     </>
                   )}
                 </>
