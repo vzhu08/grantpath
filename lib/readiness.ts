@@ -2,6 +2,7 @@ import {
   attachmentIssues,
   phaseApplies,
   ethicsFingerprint,
+  sourceFileExcluded,
 } from "./vault/domain";
 import type { Phase } from "./vault/schema";
 import { activeSectionKeys, proposalIssues } from "./proposals/checks";
@@ -319,6 +320,19 @@ export function readiness(
         "Selected evidence changed after this draft was saved; the earlier snapshot is retained.",
         "Review the updated evidence and save a new revision.",
       );
+    // Current readiness must apply the same original-file policy as generation
+    // to both selected-only evidence and explicit quotations. Historical drafts
+    // and frozen packets retain their exact references independently.
+    const fileEvidenceProblems=[...revision.selectedSources,...revision.citations].flatMap(ref=>{
+      const source=state.sources.find(s=>s.id===ref.sourceId);
+      if(!source)return [];
+      const origin=source.versions.find(v=>v.version===ref.version&&v.hash===ref.hash)?.fileOrigin??latest(source).fileOrigin;
+      if(!origin)return [];
+      const document=state.documents.find(d=>d.id===origin.documentId),original=state.documentVersions.find(v=>v.id===origin.documentVersionId),currentHead=document?.versionIds.at(-1),excluded=sourceFileExcluded(source,state);
+      if(!excluded&&(origin.manualEdit||(currentHead===origin.reviewedHeadId&&original?.integrity==="available")))return [];
+      return [{sourceId:source.id,version:ref.version,hash:ref.hash,documentVersionId:origin.documentVersionId,reviewedHeadId:origin.reviewedHeadId,currentHead:currentHead??null,integrity:original?.integrity??"missing",manualEdit:origin.manualEdit,excluded}];
+    });
+    if(fileEvidenceProblems.length)add(`vault-evidence-${section.key}`,"blocker",location,"An original file supporting selected or quoted evidence is missing, corrupt, replaced or excluded from research evidence.","Restore the verified original or review the current file and promote a supported excerpt, then review the draft.",{references:fileEvidenceProblems});
     if (revision.citations.some((c) => !validCitation(c, state.sources)))
       add(
         `citations-${section.key}`,
@@ -363,7 +377,7 @@ export function readiness(
   for (const issue of proposalIssues(state, app))
     add(issue.id, issue.severity, issue.location, issue.message, issue.fix);
   return {
-    rulesVersion: "grantpath-readiness-3",
+    rulesVersion: "grantpath-readiness-3.1",
     applicationRevision: app.revision,
     evaluatedAt: new Date().toISOString(),
     issues,
