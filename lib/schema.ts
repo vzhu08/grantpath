@@ -5,6 +5,8 @@ import {
   VaultCommandOptions,
 } from "./vault/schema";
 import { ResubmissionsSchema,emptyResubmissions,ResubmissionCommandSchema } from "./resubmissions/schema";
+import { AwardsStateSchema } from "./awards/schema";
+import { AwardWorkspaceCommandSchema } from "./awards/commands";
 import { z } from "zod";
 import { ProposalBlockSchema } from "./proposals/blocks";
 import {
@@ -467,10 +469,11 @@ export const V3StateSchema = V2StateSchema.extend({
   schemaVersion: z.literal(3),
   ...VaultCollections,
 });
-export const StateSchema = V3StateSchema.extend({
+export const V4StateSchema = V3StateSchema.extend({
   schemaVersion:z.literal(4),
   resubmissions:ResubmissionsSchema,
 });
+export const StateSchema = V4StateSchema.extend({ schemaVersion: z.literal(5), awards: AwardsStateSchema });
 export type State = z.infer<typeof StateSchema>;
 export const ProposalSchema = z.object({
   text: text.min(1),
@@ -490,6 +493,7 @@ export const GenerationInputSchema = z
   .strict();
 export type GenerationInput = z.infer<typeof GenerationInputSchema>;
 export const CommandSchema = z.discriminatedUnion("type", [
+  AwardWorkspaceCommandSchema,
   ...VaultCommandOptions,
   ...ResubmissionCommandSchema.options,
   z.object({

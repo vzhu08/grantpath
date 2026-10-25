@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { SubmissionSnapshot } from "../resubmissions/schema";
 
 // Independent of lib/schema: the workspace schema can safely compose this namespace.
 const id = z.string().min(1).max(100).regex(/^[a-zA-Z0-9_-]+$/);
@@ -78,14 +79,16 @@ export const TermsVersionSchema = z.object({
 export const OriginPayloadSchema = z.object({
   version: z.literal("award-origin-v1"), applicationId: id, projectId: id,
   applicationRevision: z.number().int().positive(), projectRevision: z.number().int().positive(),
+  applicationCycleId: id, originAttemptId: id.nullable(), submittedSnapshot: SubmissionSnapshot.nullable(),
   callId: id, callRevision: z.number().int().positive(), callSourceRef: SourceVersionRefSchema,
   capturedAt: at, provenance: z.enum(["demo", "researcher"]),
-  sections: z.array(z.object({ key: required, draftId: id, revision: z.number().int().positive(), text: z.string().max(60_000), citations }).strict()).max(30),
+  sections: z.array(z.object({ key: required, draftId: id, revision: z.number().int().positive(), text: z.string().max(60_000), citations: z.array(AwardCitationSchema).max(50) }).strict()).max(30),
   proposedMoneyFacts: z.array(MoneyFactV1Schema).max(20),
   packet: z.object({ id, digest, attemptId: id.nullable() }).strict().nullable(),
   submissionEvidence: z.discriminatedUnion("state", [
     z.object({ state: z.literal("unknown") }).strict(),
     z.object({ state: z.literal("human_assertion"), evidence: citations.min(1), actor: required, at }).strict(),
+    z.object({ state: z.literal("human_attested_snapshot"), snapshotId: id, digest, actor: required, at }).strict(),
   ]), sources: z.array(FrozenSourceSchema).max(60),
 }).strict().refine(p => p.proposedMoneyFacts.every(f => f.basis === "proposal_requested"), "Origin money must be proposal_requested.");
 export const OriginSnapshotSchema = z.object({ id, digest, payload: OriginPayloadSchema }).strict();

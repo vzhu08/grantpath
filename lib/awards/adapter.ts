@@ -12,5 +12,5 @@ export function applyAwardWorkspaceMutation<T extends State & { awards: AwardsSt
   const result = applyAwardMutation(state.awards, state, input, { ...options,
     captureOrigin: (applicationId, selection, at) => captureOrigin(state, applicationId, selection, at) });
   const next = result.replayed ? state : { ...state, awards: result.awards, revision: state.revision + 1 };
-  return { state: next, selectedId: result.awardId, operationResult: { resultIds: result.resultIds, replayed: result.replayed } };
+  return { state: next, selectedId: result.awardId, resultIds: result.resultIds, replayed: result.replayed };
 }

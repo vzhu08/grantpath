@@ -10,6 +10,7 @@ const attributed = { actor, reason };
 const head = { ...award, expectedHeadId: id };
 export const OriginSelectionSchema = z.object({
   draftIds: z.array(id).max(30), proposedMoneyFacts: z.array(MoneyFactV1Schema).max(20), packetId: id.nullable(),
+  submissionSnapshotId: id.nullable().optional(),
   submissionEvidence: OriginPayloadSchema.shape.submissionEvidence,
 }).strict();
 const itemInput = AwardItemSchema.shape.revisions.element.omit({ id: true, ordinal: true, actor: true, at: true });
@@ -41,6 +42,9 @@ export const AwardCommandSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("archiveAward"), ...award, ...attributed }).strict(),
 ]);
 export const AwardMutationSchema = z.object({ operationId: id, expectedRevision: z.number().int().nonnegative(), command: AwardCommandSchema }).strict();
+// Existing workspace transport remains {expectedRevision, command}; the logical
+// award command and its durable operation ID stay together inside this wrapper.
+export const AwardWorkspaceCommandSchema = z.object({ type: z.literal("awardMutation"), operationId: id, action: AwardCommandSchema }).strict();
 export type AwardCommand = z.infer<typeof AwardCommandSchema>;
 export type AwardMutation = z.infer<typeof AwardMutationSchema>;
 export const isAwardCommand = (value: { type: string }) => ["confirmInitialAward", "saveAwardChangeCandidate", "reviewAwardChange", "selectCurrentAwardTerms", "saveAwardObligation", "saveAwardMilestone", "reviewAwardObligation", "recordAwardCompletion", "saveAwardProgress", "saveAnnualReport", "reviewAnnualSection", "freezeAnnualReport", "archiveAward"].includes(value.type);

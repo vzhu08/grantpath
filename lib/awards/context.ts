@@ -2,9 +2,10 @@ import { normalizeText } from "../../modules/documents/src/index";
 import { validCitation } from "../evidence";
 import type { Source } from "../schema";
 import type { AwardCitation, FrozenSource, SourceVersionRef, OriginPayload } from "./schema";
+import { KitError } from "../../packages/runtime/src/index";
 
-export class AwardError extends Error {
-  constructor(message: string, public readonly status = 400) { super(message); this.name = "AwardError"; }
+export class AwardError extends KitError {
+  constructor(message: string, status = 400) { super(status === 409 ? "REVISION_CONFLICT" : status === 404 ? "NOT_FOUND" : "AWARD_INPUT", message, status); this.name = "AwardError"; }
 }
 export function requireAward(condition: unknown, message: string, status = 400): asserts condition {
   if (!condition) throw new AwardError(message, status);
@@ -12,7 +13,7 @@ export function requireAward(condition: unknown, message: string, status = 400):
 export type AwardHost = {
   revision: number;
   sources: Source[];
-  applications: { id: string; projectId: string; revision: number; provenance: "demo" | "researcher" }[];
+  applications: { id: string; projectId: string; revision: number; provenance: "demo" | "researcher"; cycleId?: string; originAttemptId?: string | null }[];
   projects: { id: string; revision: number }[];
 };
 export function collectCitations(value: unknown): AwardCitation[] {

@@ -50,7 +50,7 @@ export function AwardPanel(props: AwardPanelProps) {
         {current.payload.identity.evidence.map((c, i) => <CitationView key={i} citation={c} state={state} />)}
         <details><summary>Immutable terms and amendment history</summary>{awards.termsVersions.filter(t => t.awardId === award?.id).map(t => <p key={t.id}>Version {t.ordinal} · {t.payload.changeKind.replaceAll("_", " ")} · {t.payload.sponsorActionId} · {t.id === current.id ? "Current terms" : "Historical or pending"} · confirmed locally by {t.confirmedBy}</p>)}</details>
       </>}
-      {award?.localState !== "archived" && <AwardNoticeEditor key={award?.id ?? `intake-${applicationId}`} {...props} send={send} />}
+      {award?.localState !== "archived" && <AwardNoticeEditor key={`notice-${applicationId}`} {...props} send={send} />}
       {award?.localState === "recorded" && <button disabled={busy} type="button" onClick={() => void send({ type: "archiveAward", awardId: award.id, expectedAwardRevision: award.revision, actor: "Local preparer", reason: "Hide ordinary editing; preserve all award/report history" })}>Archive local award record</button>}
     </div>
     {award && award.localState === "recorded" ? <>
@@ -72,7 +72,7 @@ function AwardNoticeEditor({ state, awards, applicationId, busy, send }: AwardPa
   const [sourceId, setSourceId] = useState(""), [sourceVersion, setSourceVersion] = useState<number | undefined>(), [quote, setQuote] = useState(""), [fields, setFields] = useState<IntakeFields>(blankIntake),
     [actor, setActor] = useState(""), [reason, setReason] = useState(""), [confirmed, setConfirmed] = useState(false), [error, setError] = useState(""),
     [kind, setKind] = useState<"numbered_amendment" | "documented_administrative_change" | "transcription_correction">("numbered_amendment"),
-    [proposalSourceId, setProposalSourceId] = useState(""), [proposalQuote, setProposalQuote] = useState(""), [requested, setRequested] = useState(""), [historicalReason, setHistoricalReason] = useState(""), [supersedesCandidateId, setSupersedesCandidateId] = useState<string | null>(null);
+    [proposalSourceId, setProposalSourceId] = useState(""), [proposalQuote, setProposalQuote] = useState(""), [requested, setRequested] = useState(""), [historicalReason, setHistoricalReason] = useState(""), [supersedesCandidateId, setSupersedesCandidateId] = useState<string | null>(null), [submissionSnapshotId, setSubmissionSnapshotId] = useState("");
   const [markDirty] = useEditorDirty(`award-notice-${applicationId}`);
   const source = sources.find(s => s.id === sourceId);
   const change = <K extends keyof IntakeFields>(key: K, value: IntakeFields[K]) => { setFields(f => ({ ...f, [key]: value })); markDirty(true); };
@@ -99,9 +99,9 @@ function AwardNoticeEditor({ state, awards, applicationId, busy, send }: AwardPa
           value: { state: "known" as const, currency: "USD" as const, scale: 2 as const, minorUnits: parseRequested(requested) },
           evidence: [cite(proposedSource, proposalQuote)], periodId: null, confirmedBy: actor, confirmedAt: at }] : [];
         const result = await send({ type: "confirmInitialAward", applicationId, expectedApplicationRevision: originRevisions.application, expectedProjectRevision: originRevisions.project,
-          payload, originSelection: { draftIds: application.sections.flatMap(s => s.revisions.at(-1) ? [s.revisions.at(-1)!.id] : []), proposedMoneyFacts, packetId: null, submissionEvidence: { state: "unknown" } },
+          payload, originSelection: { draftIds: application.sections.flatMap(s => s.revisions.at(-1) ? [s.revisions.at(-1)!.id] : []), proposedMoneyFacts, packetId: null, submissionSnapshotId: submissionSnapshotId || null, submissionEvidence: { state: "unknown" } },
           selectInitialCurrent: true, transcriptionConfirmed: true, actor, reason });
-        if (result) { markDirty(false); setError(""); }
+        if (result) { setBaseTermsId(result.resultIds[1]!); setFields(blankIntake()); setSourceId(""); setSourceVersion(undefined); setQuote(""); setConfirmed(false); markDirty(false); setError(""); }
       }
     } catch (e) { setError((e as Error).message); }
   }
@@ -120,6 +120,7 @@ function AwardNoticeEditor({ state, awards, applicationId, busy, send }: AwardPa
     <Field label="Approved scope goals · one per line"><textarea value={fields.goals} maxLength={5000} onChange={e => change("goals", e.target.value)} rows={4} /></Field>
     <label><input type="checkbox" checked={fields.explicitUsd} onChange={e => change("explicitUsd", e.target.checked)} /> The source explicitly states USD and the amount basis; a dollar sign alone is insufficient.</label>
     {!award && <details><summary>Optional: freeze a separately supported proposed request</summary><p>Only use explicit proposal-request evidence. Profile funding need is not a default request.</p><Field label="Proposed budget evidence"><select value={proposalSourceId} onChange={e => { setProposalSourceId(e.target.value); markDirty(true); }}><option value="">Unknown</option>{sources.map(s => <option key={s.id} value={s.id}>{s.title}</option>)}</select></Field><Field label="Exact quote explicitly supporting requested USD"><textarea value={proposalQuote} onChange={e => { setProposalQuote(e.target.value); markDirty(true); }} /></Field><Field label="Requested USD decimal text"><input value={requested} onChange={e => { setRequested(e.target.value); markDirty(true); }} /></Field></details>}
+    {!award && <Field label="Optional attested submitted snapshot for this awarded application"><select value={submissionSnapshotId} onChange={e=>{setSubmissionSnapshotId(e.target.value);markDirty(true);}}><option value="">Submission evidence unknown · saved proposal context only</option>{state.resubmissions.snapshots.filter(s=>s.projectId===project.id&&s.originalApplicationId===applicationId).map(s=><option key={s.id} value={s.id}>Human-attested {s.id} · {s.coverage.extent} · {s.attestation.submittedOn}</option>)}</select></Field>}
     <Field label="Local preparer name"><input value={actor} onChange={e => { setActor(e.target.value); markDirty(true); }} maxLength={500} /></Field>
     <Field label="Review note / applicability / correction reason"><textarea value={reason} maxLength={500} onChange={e => { setReason(e.target.value); markDirty(true); }} /></Field>
     <label><input type="checkbox" checked={confirmed} onChange={e => { setConfirmed(e.target.checked); markDirty(true); }} /> I reviewed the quoted transcription and applicability. This is a local record.</label>

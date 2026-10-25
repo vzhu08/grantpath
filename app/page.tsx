@@ -13,6 +13,7 @@ import { Checklist } from "../components/checklist";
 import { Drafts } from "../components/drafts";
 import { ProposalPanel } from "../components/proposal-panel";
 import { ResubmissionsPanel } from "../components/resubmissions";
+import { AwardPanel } from "../components/awards/panel";
 import { Badge, Field, download, EditorRegistry } from "../components/common";
 
 const steps = [
@@ -46,7 +47,7 @@ export default function Workspace() {
     [projectId, setProjectId] = useState("demo-project"),
     [appId, setAppId] = useState(""),
     [tab, setTab] = useState("project"),
-    [draftView,setDraftView]=useState<"proposal"|"resubmission">("proposal"),
+    [draftView,setDraftView]=useState<"proposal"|"resubmission"|"award">("proposal"),
     [creating, setCreating] = useState(false),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
@@ -115,7 +116,7 @@ export default function Workspace() {
     setError("");
     action();
   }
-  async function mutate(command: Command) {
+  async function mutate(command: Command, expectedRevision?: number) {
     if (!state) return null;
     setBusy(true);
     setError("");
@@ -124,7 +125,7 @@ export default function Workspace() {
       const response = await fetch("/api/workspace", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ expectedRevision: state.revision, command }),
+        body: JSON.stringify({ expectedRevision: expectedRevision ?? state.revision, command }),
       });
       const result = await response.json();
       if (!response.ok) {
@@ -143,6 +144,7 @@ export default function Workspace() {
       return {
         state: parsed,
         selectedId: result.selectedId as string | undefined,
+        resultIds: result.resultIds as string[] | undefined,
       };
     } catch (e) {
       setError((e as Error).message);
@@ -533,7 +535,7 @@ export default function Workspace() {
                           </div>
                         )}
                       </section>
-                      {tab==="drafts"&&<div className="button-row" aria-label="Drafting views"><button type="button" className={draftView==="proposal"?"primary":"secondary"} aria-pressed={draftView==="proposal"} onClick={()=>navigate(()=>setDraftView("proposal"))}>Proposal drafting</button><button type="button" className={draftView==="resubmission"?"primary":"secondary"} aria-pressed={draftView==="resubmission"} onClick={()=>navigate(()=>setDraftView("resubmission"))}>Resubmission matrix</button></div>}
+                      {tab==="drafts"&&<div className="button-row" aria-label="Drafting views"><button type="button" className={draftView==="proposal"?"primary":"secondary"} aria-pressed={draftView==="proposal"} onClick={()=>navigate(()=>setDraftView("proposal"))}>Proposal drafting</button><button type="button" className={draftView==="resubmission"?"primary":"secondary"} aria-pressed={draftView==="resubmission"} onClick={()=>navigate(()=>setDraftView("resubmission"))}>Resubmission matrix</button><button type="button" className={draftView==="award"?"primary":"secondary"} aria-pressed={draftView==="award"} onClick={()=>navigate(()=>setDraftView("award"))}>Award &amp; progress</button></div>}
                       {app &&
                         call &&
                         (tab === "application" ? (
@@ -557,6 +559,7 @@ export default function Workspace() {
                           </>
                         ):null)}
                       {tab==="drafts"&&draftView==="resubmission"&&project&&<ResubmissionsPanel state={state} projectId={project.id} applicationId={app?.id} onCommand={mutate} onSelectApplication={id=>navigate(()=>{setAppId(id);setTab("drafts");setDraftView("proposal");})}/>}
+                      {tab==="drafts"&&draftView==="award"&&app&&<AwardPanel key={app.id} state={state} awards={state.awards} applicationId={app.id} busy={busy} refresh={()=>load(true)} mutateAward={async input=>{const result=await mutate({type:"awardMutation",operationId:input.operationId,action:input.command},input.expectedRevision);return result?{resultIds:result.resultIds??[]}:null;}}/>}
                     </>
                   )}
                 </>

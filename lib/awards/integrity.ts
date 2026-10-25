@@ -5,6 +5,16 @@ import { validateTerms } from "./terms";
 import { validateProgress } from "./progress";
 import { validateReportContext, reportIssues, sectionFingerprint } from "./reporting";
 import { externalAwardKey } from "./identity";
+import { snapshotDigest } from "../resubmissions/snapshots";
+
+function validateOriginSubmission(origin: AwardsState["originSnapshots"][number]["payload"]) {
+  const snapshot = origin.submittedSnapshot;
+  if (snapshot) {
+    const { digest, ...payload } = snapshot;
+    requireAward(snapshot.projectId === origin.projectId && snapshot.originalApplicationId === origin.applicationId && snapshotDigest(payload) === digest, "Frozen origin attested submission identity/digest is invalid.");
+    requireAward(origin.submissionEvidence.state === "human_attested_snapshot" && origin.submissionEvidence.snapshotId === snapshot.id && origin.submissionEvidence.digest === digest, "Origin submission attribution does not match its selected snapshot.");
+  } else requireAward(origin.submissionEvidence.state !== "human_attested_snapshot", "Origin claims a missing attested submission snapshot.");
+}
 
 function assertAcyclic(ids: string[], next: (id: string) => string[]) {
   const done = new Set<string>(), active = new Set<string>();
@@ -18,6 +28,7 @@ export function validateFrozenReport(snapshot: ReportSnapshot) {
   const p = snapshot.payload, a = p.award;
   requireAward(snapshot.awardId === a.id && snapshot.reportId === p.reportRevision.reportId && snapshot.reportRevisionId === p.reportRevision.id, "Frozen report identity does not match its payload.");
   requireAward(contentDigest(p.origin.payload) === p.origin.digest && a.originContext.id === p.origin.id && a.originContext.digest === p.origin.digest, "Frozen origin digest/reference is invalid.");
+  validateOriginSubmission(p.origin.payload);
   const host = frozenHost(p.sources, a.projectId);
   const allowed = originGlobalSources(p.origin.payload);
   validateEvidence(p, host, a.projectId, allowed);
@@ -76,6 +87,8 @@ export function validateAwardsIntegrity(raw: AwardsState, host: AwardHost): Awar
     const origin = state.originSnapshots.find(o => o.id === award.originContext.id);
     requireAward(origin && origin.digest === award.originContext.digest && contentDigest(origin.payload) === origin.digest, "Award origin snapshot is missing or corrupt.");
     requireAward(origin.payload.applicationId === app.id && origin.payload.projectId === app.projectId, "Origin binding is invalid.");
+    requireAward(origin.payload.applicationCycleId === (app.cycleId ?? "initial") && origin.payload.originAttemptId === (app.originAttemptId ?? null), "Origin application cycle binding is invalid.");
+    validateOriginSubmission(origin.payload);
     validateEvidence(origin.payload, host, award.projectId, originGlobalSources(origin.payload));
     const frozen = frozenHost(origin.payload.sources, award.projectId);
     validateEvidence(origin.payload, frozen, award.projectId, originGlobalSources(origin.payload));

@@ -32,6 +32,7 @@ export function fixture() {
     sourceRefs: [sourceRef], historicalSourceReviews: [], unresolved: ["Applicable conditions and approved category budget not supplied."],
   };
   const origin: OriginPayload = { version: "award-origin-v1", applicationId: "application", projectId: "project", applicationRevision: 1, projectRevision: 1,
+    applicationCycleId: "initial", originAttemptId: null, submittedSnapshot: null,
     callId: "call", callRevision: 1, callSourceRef: { sourceId: call.id, version: 1, hash: call.versions[0]!.hash, role: "originating call" },
     capturedAt: CLOCK.toISOString(), provenance: "demo", sections: [], proposedMoneyFacts: [money("request", "proposal_requested", "30000000", [cite(call, call.versions[0]!.text)])],
     packet: null, submissionEvidence: { state: "unknown" }, sources: [{ sourceId: call.id, version: 1, hash: call.versions[0]!.hash, role: "originating call", projectId: null, title: call.title, provenance: "demo", text: call.versions[0]!.text }] };
