@@ -39,7 +39,7 @@ jobs:
           node-version: "24.12.0"
           cache: npm
       - name: Verify merge automation policy
-        run: node --test .github/scripts/merge-policy.test.mjs
+        run: node --test .github/scripts/merge-policy.checks.mjs
       - name: Validate GitHub workflow syntax
         run: bash .github/scripts/check-workflows.sh
       - name: Install the locked dependencies
@@ -60,4 +60,3 @@ jobs:
           path: test-results/
           if-no-files-found: ignore
           retention-days: 7
-

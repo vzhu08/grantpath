@@ -28,7 +28,10 @@ Protect main with strict up-to-date checks, no force-pushes/deletion and no bypa
 
 ```json
 {
-  "required_status_checks": {"strict": true, "contexts": ["Validate (types, tests, build, browser)"]},
+  "required_status_checks": {
+    "strict": true,
+    "contexts": ["Validate (types, tests, build, browser)"]
+  },
   "enforce_admins": true,
   "required_pull_request_reviews": null,
   "restrictions": null,

@@ -45,4 +45,3 @@ jobs:
             const policyUrl = pathToFileURL(`${process.env.GITHUB_WORKSPACE}/.github/scripts/merge-policy.mjs`);
             const { runMergePolicy } = await import(policyUrl.href);
             await runMergePolicy({ github, core, context });
-
