@@ -30,9 +30,16 @@ Latest human priority: finish08; complete03's in-flight handoff/integration, the
 
 ## Queued whole-product UI break
 
-Human-requested redesign prompt: [GrantPath UI redesign](prompts/GRANTPATH_UI_REDESIGN.md). Prepared now; not dispatched. Launch after the current selected implementation pipeline is merged/checked and frontend scopes are released, before research 11–13. Requires distinctive product-derived identity/signature interaction, agents with isolated ownership, actual rendered/browser verification, final local review and a design system mandatory for subsequent frontend work. Task10 is skipped; 11–13 also require their actual merged code prerequisites.
+Human-requested redesign prompt: [GrantPath UI redesign](prompts/GRANTPATH_UI_REDESIGN.md). Prepared now; not dispatched. Launch after the current selected implementation pipeline is merged/checked and frontend scopes are released. Requires distinctive product-derived identity/signature interaction, agents with isolated ownership, actual rendered/browser verification, final local review and a design system mandatory for subsequent frontend work. Task10 is skipped. The newer human instruction starts research now, before this UI break; later frontend implementation must adopt the accepted redesign.
 
-At the **same time as UI launch**, dispatch a separate [real grant data feasibility researcher](prompts/REAL_GRANT_DATA_FEASIBILITY.md) with useful read-only source/code reviewers, GPT-6.1 Sol / Extra High and Standard/Fast off. Extend the actual checked task-09 baseline: distinguish broader real opportunities, award history and authoritative solicitation text; verify free access/coverage/freshness/provenance and recommend a small high-value next increment. Own only new research docs, with no frontend/backend/shared writes or heavy verification. Research does not block UI, authorize every suggested integration or release 11–13. Currently queued, not started.
+## Immediate research — latest human override
+
+- Real data: active chat `01a1722e-688c-7253-a330-a4bbff107f78`, checkout21b7; [dispatch scope](prompts/REAL_GRANT_DATA_FEASIBILITY.md). Broader opportunities, award history and authoritative solicitation text; access/cost/coverage/freshness/provenance and incremental code fit. Task09 source is unmerged at launch, so final adapter notes require reconciliation.
+- 11 GrantWeave: active chat `01a1722e-8b65-7443-843c-55b03fb4758a`, checkoutd80b; compatible funding constraints/small exact solver and source-traceable infeasibility. Own11 implementation doc/research notes only.
+- 12 AimFit: active chat `01a1722e-c293-7cf1-aec7-b4adbd4fc5f6`, checkout80d1; human-selected validated study family, affordability/sensitivity and changed claim scope. Own12 implementation doc/research notes only.
+- 13 Bootstrap: active chat `01a1722e-c38e-7e12-84e1-c30606142796`, checkoutb22b; human-reviewed computational evidence candidates, costs/resources/uncertainty and gap relevance. Own13 implementation doc/research notes only.
+
+All start NOW under the latest human instruction, with agents, GPT-6.1 Sol/xhigh and Standard/Fast off. Frontend code may change; no fixed layout/component plan, app writes or heavy checks. Required human questions remain human-owned. Independent research can finish now; dependent implementation sections stay provisional until actual checked merged contracts are inspected. These tasks do not interrupt05→06→08 or start UI early. See the authoritative registry in ORCHESTRATION.md; do not duplicate at UI launch.
 
 ## Historical initial and roadmap 01 board
 

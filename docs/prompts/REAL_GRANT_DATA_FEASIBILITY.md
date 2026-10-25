@@ -1,6 +1,6 @@
 # Real grant data feasibility dispatch prompt
 
-Status: human now requests a **separate research chat immediately**, before the UI break and before task09 is merged. This supersedes the earlier launch-at-UI timing. Research11–13 are also authorized separately. No application writes or heavy checks compete with current implementation; UI does not wait for this research. No new ingestion implementation is selected by the feasibility study.
+Status: dispatched as chat `01a1722e-688c-7253-a330-a4bbff107f78`, managed checkout `21b7/grantguide`. The human requests research immediately, before UI/task09 completion; this supersedes the earlier launch-at-UI timing. Research11–13 are separately active. No application writes or heavy checks compete with implementation; UI does not wait for this study, which selects no new ingestion implementation by itself.
 
 ## Prompt for the new researcher
 
@@ -12,7 +12,7 @@ Use **GPT-6.1 Sol / Extra High, Standard speed/Fast off** and useful independent
 
 ### Start from the existing product
 
-Read project/scoped instructions, selected modules, quickstart, ownership, human workflow, current task/coordination/status records, `docs/PROJECT_BRIEF.md`, the completed task-09 specification/release, and the actual merged discovery, call intake, evidence and extraction code. Cite exact file paths/interfaces and the inspected revision. Inspect design-system documentation only if it already exists; the redesign is running concurrently, so do not wait for unfinished tokens/components or invent their final contracts.
+Read project/scoped instructions, selected modules, quickstart, ownership, human workflow, current task/coordination/status records, `docs/PROJECT_BRIEF.md`, task09's specification/source-checkpoint report, and actual merged call intake/evidence/extraction code. Discovery runtime is not merged at launch; inspect its unmerged source separately and label it provisional. Cite exact file paths/interfaces and inspected revisions. Inspect design-system documentation only if already accepted; the redesign is forthcoming, so do not wait for or invent final tokens/components.
 
 The human prioritizes **technical impressiveness, clarity, impact and novelty** in a time-constrained hackathon. Focus on a small real-data increment that makes the source-to-researcher-decision workflow convincing. Preserve integration/rehearsal time. Do not propose an exhaustive aggregator or add sources merely to increase a count.
 

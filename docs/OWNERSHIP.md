@@ -22,6 +22,19 @@ The user authorized two independent implementation chats and useful subagents in
 | New `lib/discovery/**`, `components/discovery/**`, `app/api/discovery/**`, `tests/discovery/**`, `scripts/discovery-*` and task 09 implementation/release docs | Task 09 implementation lead | Requesting user | Managed `93cb/grantguide`, `feature/09-nsf-grant-discovery`; NSF/Grants.gov manual-only scope |
 | Independent subagent reviews | Each task lead's assigned reviewer | Requesting user | Read-only unless assigned an exclusive file set in another isolated checkout/branch |
 
+## Immediate research ownership
+
+The human now requests these four research chats before the UI break; older research-start timing is superseded. Frontend code may change. No application/shared writes or heavy checks are assigned; all final implementation details depending on unfinished runtime remain provisional.
+
+| Exclusive document scope | Lead chat / checkout | Human owner |
+| --- | --- | --- |
+| `docs/research/REAL_GRANT_DATA_FEASIBILITY.md`, `docs/research/real-grant-data/**` | `01a1722e-688c-7253-a330-a4bbff107f78`; `21b7/grantguide` | Requesting user |
+| `docs/implementation/11_GRANTWEAVE_IMPLEMENTATION.md`, `docs/research/11/**` | `01a1722e-8b65-7443-843c-55b03fb4758a`; `d80b/grantguide` | Requesting user |
+| `docs/implementation/12_AIMFIT_IMPLEMENTATION.md`, `docs/research/12/**` | `01a1722e-c293-7cf1-aec7-b4adbd4fc5f6`; `80d1/grantguide` | Requesting user |
+| `docs/implementation/13_BOOTSTRAP_IMPLEMENTATION.md`, `docs/research/13/**` | `01a1722e-c38e-7e12-84e1-c30606142796`; `b22b/grantguide` | Requesting user |
+
+Each lead is sole document writer with useful read-only agents. No worker account is treated as a human expert or approval owner. Parent coordinates actual merged prerequisites and collects reviewed docs; agents do not answer required human choices.
+
 ## Research-only tasks 05–09
 
 The user authorized separate research chats, useful agents, GPT-6.1 Sol / Extra High (latest override: Standard/Fast off), implementation documents, brief explanations in chat and human answers to consequential questions. Research 05, 07 and 09 is complete and collected; separate implementation leads now own those scopes. Independent review accepted 05's settled logical award contract and released 06 research. Hold 08 until 06 supplies the necessary settled ledger contract and decisions. Actual implementation-dependent facts remain later integration gates. See ORCHESTRATION.md for chat IDs and unlock criteria.
