@@ -130,7 +130,7 @@ Completed [implementation specification](implementation/09_LIVE_GRANT_DISCOVERY_
 
 ## 11 — GrantWeave: compatible funding combinations
 
-**Research gate:** authorized after the requested infrastructure review and actual necessary award/budget/provenance prerequisites are checked and merged into main. Do not begin with guessed unimplemented interfaces. The implementation doc must reference the merged codebase.
+**Latest research authorization:** start now under the human's newer instruction, before the UI redesign. Research domain restrictions/solver methods/current code now; actual award/budget/provenance integration sections remain provisional until required checked contracts are merged/re-inspected. Do not invent exports or call the implementation handoff ready with unmet gates. Frontend code may change; describe required behavior without freezing layout/components.
 
 **Decision:** can three to five particular calls/awards jointly support a researcher-confirmed work plan, and which restrictions bind? Output feasible alternatives or unsatisfied constraints, never treat summed maxima as secured funds.
 
@@ -142,7 +142,7 @@ Completed [implementation specification](implementation/09_LIVE_GRANT_DISCOVERY_
 
 ## 12 — AimFit: study design under a funding ceiling
 
-**Research gate:** authorized after the requested infrastructure review and actual necessary cost/budget/versioned-assumption prerequisites are checked and merged into main. Human design-family/statistical validation choices remain explicit; the doc must cite real code interfaces.
+**Latest research authorization:** start now, before the UI redesign. Investigate design families/reference methods/current code and ask human statistical choices; actual cost/budget/versioned-assumption integration sections remain provisional until checked contracts are merged/re-inspected. The doc must cite real code interfaces and distinguish proposed contracts. Frontend code may change.
 
 **Decision:** which affordable study options still address the research question, and which conclusions can each support? Expose scope changes and infeasible targets.
 
@@ -154,7 +154,7 @@ Completed [implementation specification](implementation/09_LIVE_GRANT_DISCOVERY_
 
 ## 13 — Bootstrap: cheapest credible preliminary-evidence plan
 
-**Research gate:** authorized after the infrastructure review and actual necessary evidence-gap/review/resource-cost prerequisites are checked and merged. Do not assume optional GrantWeave/AimFit scenarios are mandatory or implemented. Ground the doc in actual merged code and human-approved scientific candidates.
+**Latest research authorization:** start now, before the UI redesign, using actual merged evidence/resubmission gaps and researching human-approved candidate/workflow choices. Unmerged review/resource-cost integration sections remain provisional until checked contracts are inspected. Optional GrantWeave/AimFit scenarios are not mandatory predecessors. Frontend code may change; do not freeze its implementation plan.
 
 **Decision:** which next affordable piece of evidence is worth obtaining to address a specific proposal gap? Optimize useful evidence rather than favorable findings.
 

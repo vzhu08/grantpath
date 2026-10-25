@@ -43,7 +43,7 @@ try {
   assert.equal(health?.service, "grantpath");
   const r = await fetch(origin + "/api/workspace");
   assert.equal(r.status, 200);
-  assert.equal((await r.json()).schemaVersion, 4);
+  assert.equal((await r.json()).schemaVersion, 5);
   await writeFile(
     "test-results/vault-dev-smoke.json",
     JSON.stringify(

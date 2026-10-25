@@ -348,7 +348,7 @@ describe("repository mutations and snapshots", () => {
         JSON.parse(
           await readFile(path.join(directory, "workspace.json"), "utf8"),
         ).schemaVersion,
-      ).toBe(4);
+      ).toBe(5);
     } finally {
       await rm(directory, { recursive: true, force: true });
     }
