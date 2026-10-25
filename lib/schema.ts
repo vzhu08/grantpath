@@ -1,3 +1,4 @@
+import { RequirementVaultSchema, FileOriginSchema, VaultCollections, VaultCommandOptions } from "./vault/schema";
 import { z } from "zod";
 import { ProposalBlockSchema } from "./proposals/blocks";
 import {
@@ -106,6 +107,7 @@ export const SourceSchema = z.object({
   versions: z
     .array(
       z.object({
+        fileOrigin: FileOriginSchema.optional(),
         version: z.number().int().positive(),
         hash: z.string(),
         text,
@@ -181,6 +183,7 @@ export const OpportunitySchema = z.object({
 });
 export type Opportunity = z.infer<typeof OpportunitySchema>;
 export const RequirementSchema = z.object({
+  vault: RequirementVaultSchema.optional(),
   id: Id,
   category: z.enum(["section", "document", "task"]),
   description: z.string().min(1).max(2000),
@@ -439,7 +442,7 @@ export const LegacyStateSchema = z.object({
     }),
   ),
 });
-export const StateSchema = z.object({
+export const V2StateSchema = z.object({
   schemaVersion: z.literal(2),
   revision: z.number().int().nonnegative(),
   projects: z.array(ProjectSchema),
@@ -450,6 +453,7 @@ export const StateSchema = z.object({
   packetSnapshots: z.array(PacketSnapshotSchema).default([]),
   proposalExports: z.array(ProposalExportSchema).default([]),
 });
+export const StateSchema = V2StateSchema.extend({ schemaVersion: z.literal(3), ...VaultCollections });
 export type State = z.infer<typeof StateSchema>;
 export const ProposalSchema = z.object({
   text: text.min(1),
@@ -469,6 +473,7 @@ export const GenerationInputSchema = z
   .strict();
 export type GenerationInput = z.infer<typeof GenerationInputSchema>;
 export const CommandSchema = z.discriminatedUnion("type", [
+  ...VaultCommandOptions,
   z.object({
     type: z.literal("saveProject"),
     id: Id.optional(),

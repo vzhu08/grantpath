@@ -143,7 +143,8 @@ export function createDemo(): State {
     };
   });
   return {
-    schemaVersion: 2,
+    schemaVersion: 3,
+    documents: [], documentVersions: [], parseAttempts: [], attachmentSelections: [], ethicsRecords: [], ethicsTasks: [], handoffs: [], operationReceipts: [],
     contentLibrary: [],
     packetSnapshots: [],
     proposalExports: [],
