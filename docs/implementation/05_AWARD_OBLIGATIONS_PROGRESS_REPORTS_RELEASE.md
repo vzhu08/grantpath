@@ -4,7 +4,7 @@ Status: **independent feature code checked; shared application integration pendi
 
 Lead checkout: `C:/Users/vzhu0/.codex/worktrees/2123/grantguide`; branch `feature/05-awards-progress`; starting revision `4b7d2059957d92d75f18984685a25bb2324a8b54`. Commands explicitly use this checkout. The copied implementation specification has SHA-256 `A9B9D79613EAD6A70EF408629AD85C7209CAAD443A16989082883F5B6C7C3EF1`, matching the supplied research handoff. Its historical research-only authorization/deadline text is superseded by the implementation assignment and approximate October 26 demo context.
 
-Initial local feature checkpoint: `1bc24c496a4e30a6ca95b8a9bf52440ecb8acae4`. A subsequent independent-review fix preserves unchanged replacement period/goal predecessor lineage across a third terms version while rejecting changed lineage under reused IDs. Finance contract schema SHA-256: `98989CA42E78E651BE816AF52ECBEE07335EBFF3679089F0553D61AD1CCE1830`.
+Initial local feature checkpoint: `1bc24c496a4e30a6ca95b8a9bf52440ecb8acae4`. Final checked code revision: `9524c97d9587f158fe8842d738dfcb643736d508`. Its independent-review fix preserves unchanged replacement period/goal predecessor lineage across a third terms version while rejecting changed lineage under reused IDs. Finance contract schema SHA-256: `98989CA42E78E651BE816AF52ECBEE07335EBFF3679089F0553D61AD1CCE1830`.
 
 ## Researcher benefit and implemented mechanism
 
