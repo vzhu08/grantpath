@@ -1,3 +1,4 @@
+import { sourceFileStale, sourceFileExcluded } from "./vault/domain";
 import { FakeAI } from "../modules/ai/src/index";
 import { createLiveAI } from "../modules/ai/src/server";
 import { KitError } from "../packages/runtime/src/index";
@@ -45,6 +46,23 @@ export function generationContext(state: State, input: GenerationInput) {
   if (new Set(input.sourceIds).size !== input.sourceIds.length)
     throw new KitError("EVIDENCE", "Choose each evidence source once.", 400);
   const selected = sources.filter((s) => !!s);
+  if (
+    selected.some(
+      (s) =>
+        sourceFileStale(s, state) ||
+        sourceFileExcluded(s, state) ||
+        (!!latest(s).fileOrigin &&
+          !latest(s).fileOrigin?.manualEdit &&
+          state.documentVersions.find(
+            (v) => v.id === latest(s).fileOrigin?.documentVersionId,
+          )?.integrity !== "available"),
+    )
+  )
+    throw new KitError(
+      "EVIDENCE_REVIEW",
+      "A newer original file exists. Review the file evidence again before generation.",
+      409,
+    );
   const requirements = app.requirements.filter(
     (r) => r.origin === "sponsor" && r.review === "confirmed",
   );
@@ -64,6 +82,11 @@ export function generationContext(state: State, input: GenerationInput) {
       version: latest(s).version,
       hash: latest(s).hash,
       text: latest(s).text,
+      origin: latest(s).fileOrigin?.manualEdit
+        ? "manually edited evidence"
+        : latest(s).fileOrigin
+          ? "reviewed file excerpt"
+          : "researcher evidence",
     })),
   };
   const instruction =

@@ -2,6 +2,8 @@
 
 A local, single-user workspace for source-checkable research-grant applications. Create a project, add evidence, inspect eligibility, confirm requirements, prepare a full NSF narrative and export editable DOCX/PDF files with a separate review packet. Manual editing works without API credentials.
 
+This is a time-constrained hackathon project focused on **technical impressiveness, clarity, impact and novelty**. Development should strengthen a clear, distinctive, working demonstration of researcher value. Prioritize complete workflows and demonstrable engineering depth; keep feature breadth and infrastructure proportional to the remaining time. See the standing [project goals](docs/PROJECT_BRIEF.md) and [current task coordination](docs/ORCHESTRATION.md).
+
 ## Run
 
 Node **22.23+** and npm are required.

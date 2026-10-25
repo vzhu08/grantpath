@@ -1,3 +1,9 @@
+import {
+  attachmentIssues,
+  phaseApplies,
+  ethicsFingerprint,
+} from "./vault/domain";
+import type { Phase } from "./vault/schema";
 import { activeSectionKeys, proposalIssues } from "./proposals/checks";
 import { matchOpportunities } from "./calls";
 import { citationStale, latest, validCitation } from "./evidence";
@@ -15,7 +21,11 @@ export type Issue = {
 };
 export const wordCount = (text: string) =>
   text.trim() ? text.trim().split(/\s+/u).length : 0;
-export function readiness(state: State, app: Application) {
+export function readiness(
+  state: State,
+  app: Application,
+  phase: Phase = "application",
+) {
   const issues: Issue[] = [];
   const add = (
     id: string,
@@ -23,9 +33,10 @@ export function readiness(state: State, app: Application) {
     location: string,
     message: string,
     fix: string,
+    context?: unknown,
   ) => {
     const fingerprint = contentHash(
-      JSON.stringify({ severity, location, message, fix }),
+      JSON.stringify({ severity, location, message, fix, context }),
     );
     issues.push({
       id,
@@ -34,7 +45,7 @@ export function readiness(state: State, app: Application) {
       location,
       message,
       fix,
-      waived: /^(scope-|condition-|pages-)/.test(id)
+      waived: /^(scope-|condition-|pages-|vault-)/.test(id)
         ? null
         : (app.waivers.find(
             (w) => w.issueId === id && w.fingerprint === fingerprint,
@@ -126,6 +137,54 @@ export function readiness(state: State, app: Application) {
         "Linked evidence is unavailable for this project.",
         "Choose an evidence note in this project.",
       );
+    if (req.obligation === "required" && req.category !== "section") {
+      for (const [i, message] of attachmentIssues(
+        state,
+        app,
+        req,
+        phase,
+      ).entries())
+        add(
+          `vault-${req.id}-${i}`,
+          "blocker",
+          location,
+          message,
+          "Review the phase, selected file and constraints.",
+          {
+            vault: req.vault,
+            selection: state.attachmentSelections
+              .filter(
+                (s) => s.applicationId === app.id && s.requirementId === req.id,
+              )
+              .at(-1),
+          },
+        );
+    }
+    const today = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "America/New_York",
+    }).format(new Date());
+    if (
+      req.vault &&
+      !phaseApplies(req.vault.phase, phase, req.vault.requiredDate, today)
+    )
+      continue;
+    if (req.obligation === "required" && req.vault?.ethicsRecordId) {
+      const e = state.ethicsRecords
+        .find((e) => e.id === req.vault!.ethicsRecordId)
+        ?.revisions.at(-1);
+      if (
+        !e ||
+        e.phase !== req.vault.phase ||
+        e.requiredDate !== req.vault.requiredDate
+      )
+        add(
+          `vault-ethics-link-${req.id}`,
+          "blocker",
+          location,
+          "Linked ethics timing differs from the confirmed requirement.",
+          "Review and align the requirement timing and ethics scope confirmation.",
+        );
+    }
     if (req.obligation === "required" && req.review === "confirmed") {
       if (req.category === "section") {
         const section = app.sections.find((s) => s.key === req.sectionKey);
@@ -155,6 +214,40 @@ export function readiness(state: State, app: Application) {
           "Record document/task progress; Ready is a researcher status, not certification.",
         );
     }
+  }
+  const today = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/New_York",
+  }).format(new Date());
+  for (const record of state.ethicsRecords.filter(
+    (r) => r.projectId === app.projectId,
+  )) {
+    const e = record.revisions.at(-1)!;
+    if (!phaseApplies(e.phase, phase, e.requiredDate, today)) continue;
+    const relevantDate =
+      e.requiredDate ||
+      (e.phase === "before-research" ? project.profile.startDate : "") ||
+      today;
+    if (
+      e.phase === "unknown" ||
+      !e.confirmation ||
+      e.confirmation.fingerprint !== ethicsFingerprint(e, state) ||
+      !["approved", "exempt", "not-applicable"].includes(e.status) ||
+      e.expiry.kind === "unknown" ||
+      e.supportingVersionIds.some(
+        (id) =>
+          state.documentVersions.find((v) => v.id === id)?.integrity !==
+          "available",
+      ) ||
+      (e.expiry.kind === "date" &&
+        (e.expiry.date < today || e.expiry.date < relevantDate))
+    )
+      add(
+        `vault-ethics-${record.id}`,
+        "blocker",
+        e.category,
+        `Ethics scope, status, timing or expiry needs review (revision ${e.revision}).`,
+        "Record and confirm current scope and supporting versions; no institutional certification is inferred.",
+      );
   }
   const activeKeys = activeSectionKeys(app);
   for (const section of app.sections.filter((section) =>
@@ -270,7 +363,7 @@ export function readiness(state: State, app: Application) {
   for (const issue of proposalIssues(state, app))
     add(issue.id, issue.severity, issue.location, issue.message, issue.fix);
   return {
-    rulesVersion: "grantpath-readiness-2",
+    rulesVersion: "grantpath-readiness-3",
     applicationRevision: app.revision,
     evaluatedAt: new Date().toISOString(),
     issues,

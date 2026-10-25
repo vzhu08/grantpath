@@ -2,11 +2,23 @@
 
 Canonical runtime schemas: lib/schema.ts; fixtures: lib/fixtures.ts.
 
-- GET /api/workspace: current schemaVersion=2 state; no-store. Initializes only absent storage with synthetic demo records. Existing v1 files are validated and receive an exclusive byte-identical backup before atomic migration. Corrupt and unknown schemas are preserved.
+- GET /api/workspace: current schemaVersion=3 state; no-store. Initializes only genuinely absent storage with synthetic demo records. Existing v1/v2 files are validated and receive an exclusive byte-identical backup before atomic migration. Missing metadata beside vault/backups, corrupt state and unknown schemas fail closed and are preserved.
 - POST /api/workspace: {expectedRevision, command}; command is a discriminated schema. Returns {state, selectedId?}. Same-origin JSON, loopback host, 120 KB byte bound. Serialized atomic writes. Revision conflicts return 409 and preserve client buffers. Invalid inputs 400, absent IDs 404, oversized bodies 413, wrong content type 415, unreadable storage 503. Never reset corrupt data.
 - POST /api/generate: application/section/evidence IDs, expected revision, explicit fixture/live mode and usage consent. Returns a validated proposal preview and expiring server token; never saves a draft. No arbitrary tools or fetches from source content. 50,000-character full prompt, 120 KB raw body, timeout/cancellation and process rate limit. Live failure never falls back to fixtures.
 
 Quotes identify source ID, version/hash and normalized UTF-16 end-exclusive offsets. Dates are unresolved, confirmed date-only, or confirmed timestamp with explicit matching offset. Date-only cutoff remains unknown. Provider keys and file I/O never enter client imports. The JSON repository is for one process and one user; hosted/multi-process access is outside scope.
+
+## Document vault and handoffs
+
+Schema 3 adds document/version/parse, attachment selection, manual ethics/task, handoff and operation-receipt collections. Source versions may retain exact reviewed `fileOrigin`; requirements may retain delivery/phase/constraints. Historical proposal snapshots keep their original payloads and digests. Workspace metadata commands cover document metadata/archive, attachment selection/review, reviewed-excerpt promotion and ethics save/confirmation. All references are validated on reads/writes; changing a version never silently relinks a selection.
+
+- `POST /api/documents`: raw bounded binary body; base64url JSON `X-Upload-Metadata` up to 4,096 encoded bytes, including project/replacement IDs, expected revision and idempotency key. Input cap 10,000,000 bytes, 15-second body deadline; extension/MIME/content structure and quotas checked before immutable publication. Exact replay recovers before stale revision checks; changed input under a key conflicts.
+- `GET /api/documents/{id}/versions/{versionId}` and `/text?attemptId=...`: project-scoped metadata and bounded immutable extraction. `POST .../parse` queues a bounded append-only retry. One parsing worker/four waiting slots/20-second termination; failure retains original bytes.
+- `GET .../download`: verifies selected original bytes against size/SHA-256, uses attachment/no-store/nosniff and no arbitrary paths. Cross-site reads are rejected.
+- `POST /api/applications/{id}/handoffs`: same-origin JSON expected revision, phase and retry key; freezes instructions, exact selected versions/hashes, reviews, mapped answer text, warnings and later-phase tasks.
+- `GET /api/applications/{id}/handoffs/{snapshotId}`: saved manifest and original-file download targets. Snapshot/version-specific downloads preserve old bytes after replacement; invalid bytes remain unavailable rather than becoming waived into a green result.
+
+Attachment parsing, human relevance/format review and manual ethics confirmation are independent. Future-phase ethics does not block current submission; finite before-research expiry considers the explicit required date or known project start. Readiness and generation use current physical integrity and reviewed-source-head checks. Archive retains referenced originals; demo reset cannot orphan researcher work. No sponsor submission or institutional approval occurs. See [checked release](implementation/02_DOCUMENT_VAULT_RELEASE.md) for exact bounds, checks and limitations.
 
 ## Proposal preparation
 

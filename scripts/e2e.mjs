@@ -198,6 +198,12 @@ try {
     .filter({ hasText: "Edit status, support and target" })
     .click();
   await cv
+    .getByLabel("Delivery method", { exact: true })
+    .selectOption("file-upload");
+  await cv
+    .getByLabel("Required phase", { exact: true })
+    .selectOption("application");
+  await cv
     .getByLabel("Document / task status", { exact: true })
     .selectOption("Ready");
   await cv
@@ -205,6 +211,84 @@ try {
     .fill("Researcher confirms the CV document is prepared.");
   await saveClick(
     cv.getByRole("button", { name: "Save checklist item", exact: true }),
+  );
+  await cv
+    .locator("summary")
+    .filter({ hasText: "Upload a file for this requirement" })
+    .click();
+  await cv
+    .getByLabel("Original file", { exact: true })
+    .setInputFiles("modules/documents/fixtures/text.pdf");
+  await cv
+    .getByLabel("Document title", { exact: true })
+    .fill("Synthetic applicant CV");
+  const storedResponse = page.waitForResponse(
+    (r) =>
+      r.url().endsWith("/api/documents") && r.request().method() === "POST",
+  );
+  await cv
+    .getByRole("button", { name: "Upload original file", exact: true })
+    .click();
+  assert.equal((await storedResponse).status(), 201);
+  const uploadedState = await (
+    await page.request.get(origin + "/api/workspace")
+  ).json();
+  const uploadedDoc = uploadedState.documents.find(
+    (d) => d.title === "Synthetic applicant CV",
+  );
+  const stored = { versionId: uploadedDoc?.versionIds.at(-1) };
+  if (!stored.versionId) throw new Error(JSON.stringify(stored));
+  for (let i = 0; i < 150; i++) {
+    const value = await (
+      await page.request.get(origin + "/api/workspace")
+    ).json();
+    if (
+      value.parseAttempts.some(
+        (p) => p.documentVersionId === stored.versionId,
+      ) &&
+      !value.parseAttempts.some(
+        (p) =>
+          p.documentVersionId === stored.versionId &&
+          ["pending", "running"].includes(p.status),
+      )
+    )
+      break;
+    await new Promise((r) => setTimeout(r, 100));
+  }
+  await cv
+    .getByRole("button", { name: "Refresh saved file status", exact: true })
+    .click();
+  await cv
+    .getByLabel("Choose a project file version", { exact: true })
+    .selectOption(stored.versionId);
+  await saveClick(
+    cv.getByRole("button", { name: "Select exact file version", exact: true }),
+  );
+  await cv
+    .locator("summary")
+    .filter({ hasText: "Review selected original file" })
+    .click();
+  await cv
+    .getByLabel("Attachment reviewer label", { exact: true })
+    .fill("Synthetic researcher");
+  await cv
+    .getByLabel("Attachment review reason", { exact: true })
+    .fill("Opened original and reviewed the synthetic CV requirement.");
+  await cv
+    .getByLabel("I opened the original file and it is readable", {
+      exact: true,
+    })
+    .check();
+  await cv
+    .getByLabel("This version is relevant to the requirement", { exact: true })
+    .check();
+  await cv
+    .getByLabel("I checked the sponsor's remaining manual format rules", {
+      exact: true,
+    })
+    .check();
+  await saveClick(
+    cv.getByRole("button", { name: "Accept reviewed selection", exact: true }),
   );
   await saveClick(
     page.getByRole("button", {
@@ -460,7 +544,7 @@ try {
   assert.deepEqual(pageErrors, [], "No uncaught browser errors");
   // The persistent review helper must exit cleanly and reuse its own server.
   const reviewDirectory = path.join(data, "review-helper"),
-    reviewPort = port + 1;
+    reviewPort = Number(process.env.GRANTPATH_REVIEW_TEST_PORT || port + 1);
   const reviewEnvironment = {
     ...process.env,
     PORT: String(reviewPort),

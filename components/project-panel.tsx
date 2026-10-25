@@ -1,4 +1,6 @@
 "use client";
+import { VaultPanel } from "./documents/vault-panel";
+import { EthicsPanel } from "./ethics/ethics-panel";
 import { useEffect, useState } from "react";
 import { latest } from "../lib/evidence";
 import {
@@ -377,43 +379,48 @@ export function ProjectPanel(
     (s) => s.projectId === props.project.id,
   );
   return (
-    <div className="two-column">
-      <ProfileEditor {...props} key={props.project.id} />
-      <section className="card">
-        <p className="eyebrow">SOURCE LIBRARY</p>
-        <h2>Evidence you can inspect</h2>
-        <p className="muted">
-          {sources.length} / 10 sources. Pasted text or UTF-8 TXT/Markdown only.
-          Material edits preserve old versions and mark dependent drafts stale.
-        </p>
-        {sources.length === 0 && (
-          <div className="empty">
-            Add methods, preliminary work, team or facilities notes to support
-            this project.
+    <div>
+      <div className="two-column">
+        <ProfileEditor {...props} key={props.project.id} />
+        <section className="card">
+          <p className="eyebrow">SOURCE LIBRARY</p>
+          <h2>Evidence you can inspect</h2>
+          <p className="muted">
+            {sources.length} / 10 sources. Pasted text or UTF-8 TXT/Markdown
+            only. Material edits preserve old versions and mark dependent drafts
+            stale.
+          </p>
+          {sources.length === 0 && (
+            <div className="empty">
+              Add methods, preliminary work, team or facilities notes to support
+              this project.
+            </div>
+          )}
+          <div className="source-list">
+            {sources.map((source) => (
+              <article key={source.id}>
+                <div className="row spread">
+                  <h3>{source.title}</h3>
+                  <Badge>
+                    {source.type} · v{latest(source).version}
+                  </Badge>
+                </div>
+                <SourceText source={source} key={latest(source).hash} />
+                <details>
+                  <summary>Edit source / preserve previous version</summary>
+                  <SourceEditor {...props} source={source} key={source.id} />
+                </details>
+              </article>
+            ))}
           </div>
-        )}
-        <div className="source-list">
-          {sources.map((source) => (
-            <article key={source.id}>
-              <div className="row spread">
-                <h3>{source.title}</h3>
-                <Badge>
-                  {source.type} · v{latest(source).version}
-                </Badge>
-              </div>
-              <SourceText source={source} key={latest(source).hash} />
-              <details>
-                <summary>Edit source / preserve previous version</summary>
-                <SourceEditor {...props} source={source} key={source.id} />
-              </details>
-            </article>
-          ))}
-        </div>
-        <details open={sources.length === 0}>
-          <summary>Add a source</summary>
-          <SourceEditor {...props} />
-        </details>
-      </section>
+          <details open={sources.length === 0}>
+            <summary>Add a source</summary>
+            <SourceEditor {...props} />
+          </details>
+        </section>
+      </div>
+      <VaultPanel {...props} projectId={props.project.id} />
+      <EthicsPanel {...props} projectId={props.project.id} />
     </div>
   );
 }

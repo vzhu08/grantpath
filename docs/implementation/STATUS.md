@@ -1,5 +1,15 @@
 # Actual implementation status
 
+## Roadmap 02 document vault
+
+Implemented in the checked Task 02 handoff `d3c252b8a0ab7874e76d32570ab89c5042d9af5e` (application code `6a8360cccefe792197323ed1f2fe6aa34f3d70af`), integrated with the project goals/researched specs in the orchestrator's review branch for normal CI-gated main integration. Schema 3, immutable file versions, bounded extraction, exact reviewed file origins, phase-aware attachment/ethics checks and immutable original-byte handoffs are implemented. See [release evidence](02_DOCUMENT_VAULT_RELEASE.md).
+
+Task-local final checks passed: locked install; TypeScript, **152 tests in 14 suites**, production build; documents module tests/demo; baseline/proposal and vault Chromium journeys including replacement visibility, dirty editors, 14 sections, downloads and actual process restart; dev Webpack smoke; review `/api/health` and `/api/ready`. Parent independently verified the task review's build `gSTs2gM9dcPGB89b5e6T4`, code revision, schema 3/readiness and saved handoff, and independently reviewed critical graph/refresh/expiry fixes. The task review is `http://127.0.0.1:3002`; it uses isolated synthetic data. Parent's primary-main build/revision/health is verified separately at integration handoff, not inferred from this feature server.
+
+Canonical CI now includes the isolated vault browser journey in the existing required validation job. No test/check gate is weakened; test workers are bounded to two for local resource constraints. Source credentials, local data, uploads and test artifacts remain ignored. Public deployment, sponsor submission, paid live testing, OCR/hosted isolation and real-applicant evaluation remain unperformed.
+
+Tasks 03/04 and later features have independent work/checkpoints but are not represented here as integrated application behavior. Task 04's app-owned ChatGPT-plan access smoke was independently verified; full semantic review and application integration remain pending. Research handoffs are documentation, not runtime acceptance.
+
 ## Current release Roadmap 01
 
 Implemented on October 25, 2026: versioned NSF Research narrative preparation, explicit applicability/call mapping, all 14 editors, structured content, researcher reviews, approved scoped reusable content, preserved provenance/history, schema 1-to-2 byte-backup migration, immutable packets and verified component downloads. See [release details](PROPOSAL_WORKFLOW.md). Item 02 application work has not started; the user requested stopping after 01. The item 02–04 planning documents from other chats remain separate work.

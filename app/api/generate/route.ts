@@ -1,3 +1,5 @@
+import { vaultRuntimeState } from "../../../lib/vault/service";
+import { storage } from "../../../lib/vault/storage";
 import { readJSON } from "../../../packages/runtime/src/body";
 import { errorResponse, KitError } from "../../../packages/runtime/src/index";
 import { GenerationInputSchema } from "../../../lib/schema";
@@ -29,7 +31,21 @@ export async function POST(request: Request) {
     limits.inFlight = true;
     limits.attempts.push(Date.now());
     acquired = true;
-    const state = await repository().read();
+    const repo = repository(),
+      state = await vaultRuntimeState(await repo.read(), repo.directory);
+    for (const source of state.sources.filter((s) =>
+      input.sourceIds.includes(s.id),
+    )) {
+      const o = source.versions.at(-1)?.fileOrigin;
+      if (!o || o.manualEdit) continue;
+      const attempt = state.parseAttempts.find(
+        (p) => p.id === o.parseAttemptId,
+      );
+      if (!attempt)
+        throw new KitError("EVIDENCE", "File extraction is unavailable.", 422);
+      await storage(repo.directory).readText(attempt);
+    }
+
     const { proposal, revision } = await generateProposal(state, input, signal);
     for (const [token, pending] of pendingProposals)
       if (pending.expires < Date.now()) pendingProposals.delete(token);

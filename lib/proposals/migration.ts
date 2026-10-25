@@ -28,7 +28,7 @@ export function migrateV1(input: unknown): State {
   return validateStateIntegrity(
     StateSchema.parse({
       ...old,
-      schemaVersion: 2,
+      schemaVersion: 3,
       applications,
       contentLibrary: [],
       packetSnapshots: [],
