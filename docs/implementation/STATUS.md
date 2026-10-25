@@ -1,5 +1,13 @@
 # Actual implementation status
 
+## Roadmap 03 resubmission response matrix
+
+Final checked feature handoff `506ce80619cbdfa6613b075c66cfc5e487cf23b0`, application code `ca8e5882eb2dc1598879e582efab52dd3add3a79`, stacks checked main22404. Schema4 preserves vault/proposal data and frozen payloads while adding submitted baselines, independent target cycles, exact reviewer quotations, concerns/actions/evidence/response histories, targeted human-review staleness, comparisons and immutable internal Markdown/JSON response packets. See [release evidence](03_RESUBMISSION_RESPONSE_MATRIX_RELEASE.md).
+
+Actual task-local verification: locked install, TypeScript,223 tests in23 suites and production build; baseline/full-proposal, vault and resubmission browser journeys with process restarts; ordered frozen packet download/restart; final typecheck and dev smoke. Parent independently inspected committed migration/receipt/atomic/reset/API seams without finding a new P0/P1, and personally verified `http://127.0.0.1:3003` health at revisionca8e588/build `Xc_OZwZpfMJfBVtjH4YQW`, readiness and schema4. The task instance uses synthetic private review data. Parent CI/main integration and the main review refresh have their own exact-revision gates.
+
+The canonical required CI job now runs the resubmission feature journey and bounded ordered-packet restart in addition to existing types/tests/build and baseline/vault browser gates. Optional AI controls, NIH-specific/sponsor DOCX/PDF output, live AI and measured human impact are not claimed. The manual resubmission workflow is available. Current integration priority is05→06→08; their independently checked source is not yet integrated application behavior. Task04 continues independently.
+
 ## Roadmap 02 document vault
 
 Implemented in the checked Task 02 handoff `d3c252b8a0ab7874e76d32570ab89c5042d9af5e` (application code `6a8360cccefe792197323ed1f2fe6aa34f3d70af`), integrated with the project goals/researched specs in the orchestrator's review branch for normal CI-gated main integration. Schema 3, immutable file versions, bounded extraction, exact reviewed file origins, phase-aware attachment/ethics checks and immutable original-byte handoffs are implemented. See [release evidence](02_DOCUMENT_VAULT_RELEASE.md).
@@ -8,7 +16,7 @@ Task-local final checks passed: locked install; TypeScript, **152 tests in 14 su
 
 Canonical CI now includes the isolated vault browser journey in the existing required validation job. No test/check gate is weakened; test workers are bounded to two for local resource constraints. Source credentials, local data, uploads and test artifacts remain ignored. Public deployment, sponsor submission, paid live testing, OCR/hosted isolation and real-applicant evaluation remain unperformed.
 
-Tasks 03/04 and later features have independent work/checkpoints but are not represented here as integrated application behavior. Task 04's app-owned ChatGPT-plan access smoke was independently verified; full semantic review and application integration remain pending. Research handoffs are documentation, not runtime acceptance.
+Task03's checked integrated feature evidence is above. Task04 and later features still have independent checkpoints; Task04's app-owned ChatGPT-plan access smoke was independently verified, while full semantic review/application integration remain pending. Research handoffs are documentation, not runtime acceptance.
 
 ## Current release Roadmap 01
 

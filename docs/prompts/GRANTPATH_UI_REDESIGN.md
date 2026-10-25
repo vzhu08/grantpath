@@ -9,6 +9,7 @@ Status: prepared for a later implementation break. **Do not dispatch this chat y
 - Reserve an implementation break for the redesign. Pause competing frontend/shared-style/layout writers and new product implementation; backend contracts remain stable. Do not start research 11–13 until the UI baseline is accepted and merged, and those tasks' own required implementations are merged.
 - Start a **new implementation chat** with useful agents, separate writer checkouts/branches, GPT-6.1 Sol / Extra High unless the human changes the model preference, and Standard speed/Fast off. Assign the requesting user as human owner and the UI lead as steward for layout, global styles, fonts, shared components and any necessary manifest changes.
 - Supply the exact merged main SHA, working local URL, current acceptance commands and explicit file/resource lease. This is implementation authorization under the human's requested UI task; routine design choices do not need another approval round.
+- At the same launch point, start a separate **real grant data feasibility researcher** using [its dispatch prompt](REAL_GRANT_DATA_FEASIBILITY.md). It inspects the checked task-09 baseline and owns only new research documents; it can run alongside the redesign without frontend/backend writes or heavy checks. The UI must not wait for this research. This parallel feasibility task does not release research 11–13.
 
 ---
 

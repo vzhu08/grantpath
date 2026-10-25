@@ -2,7 +2,9 @@
 
 Reviewed October 25, 2026. Source: `b4485b6730dac3585a33ebc1e1bfe739af20cc21`; review branch: `review/infrastructure-b4485b6`. Lead is sole report/evidence writer. Two independent agents audited API/dependency wiring and document/evidence integrity read-only. No application source, dependencies, shared tests, central documentation or workflows were changed.
 
-## Verdict and demo impact
+**Latest disposition:** the focused closure below rechecks merged main `22404b6c4af23e56b70b9abb28019c86417d1cef`. F1–F3 are repaired and verified within the stated coverage; no unresolved P0/P1 remains in the reviewed boundaries. F4 remains a documented operational backup limitation. The original b4485b6 observations and evidence are retained below as historical results.
+
+## Initial b4485b6 verdict and demo impact
 
 The implemented frontend, routes, domain commands and local persistence form a connected application. The checked main supports manual/no-key preparation, 14 NSF proposal editors, reviewed reuse, immutable document versions and handoffs. The judge-visible mechanism is a reviewed requirement tied to retained original bytes and a frozen handoff, including explicit decisions after replacement.
 
@@ -170,3 +172,37 @@ The later tasks may define their own bounded new models after these predecessor 
 Preserve this report as evidence for the specified revision. Any repair on Task 03 or later branches must pass its own regression/integration gates and be merged before main is described as repaired. A newer main requires a focused recheck of affected boundaries, not retroactive rewriting of this review's test results.
 
 Remaining deliberate limits: one trusted local OS user/process, full source/runtime installation, bounded worker threads without OS containment, no hosted authorization/malware certification, no native OCR, no real-provider or sponsor-portal tests in this review, approximate PDF/DOCX extraction layout and human responsibility for scientific/ethics/sponsor decisions. These are proportional to the October 26 hackathon demo, whose exact cutoff was not supplied. Optional infrastructure expansion is deferred in favor of repairing the concrete integrity path and rehearsing the known-good demo.
+
+## Fixed-main closure — 22404b6
+
+Rechecked October 25, 2026 against exact merged main **`22404b6c4af23e56b70b9abb28019c86417d1cef`**. The lead did not merge, change application source, build, start a server/browser, call a provider or mutate normal workspace data during closure. A new ignored source snapshot was exported from this commit. All 112 exported tracked files were checked against their Git blob identities; Windows archive CRLF conversion was restored to canonical Git bytes where necessary, with zero remaining mismatches. No `.next` directory was present or used in the fixed snapshot. The old b4485b6 build was not treated as evidence for repaired behavior.
+
+### Findings disposition
+
+| Finding | Fixed-main evidence | Disposition |
+| --- | --- | --- |
+| F1: missing/corrupt original and selected-only replacement readiness | Original legal-state setup still passes all three schema/graph validators and has zero healthy blockers. Each corrupt/missing variant now produces three unwaivable `vault-evidence-*` blockers, covering quoted summary and selected-only significance/approach. Both Ready attempts and waiver attempts throw. Replacement also blocks all three sections. Generation remains consistent; frozen packet bytes remain unchanged. Legitimate manual-origin behavior remains allowed, while excluded approval/ethics origins still block. Rules version is `grantpath-readiness-3.1`. | **Closed on 22404b6** for the reproduced integrity paths. |
+| F2: malformed upload metadata returned 500 | Actual fixed upload handler, invoked with the same synthetic `Request`/`X-Upload-Metadata: ew`/body `x`, returns 400 with code `METADATA`. This exits before repository access. | **Closed on 22404b6**. |
+| F3: structured API errors became `[object Object]` | Actual `apiErrorMessage` preserves structured manual-workflow and stale-revision guidance and gives a useful fallback for unknown objects. Source inspection confirms the full NSF generation and export status/start/cancel consumers all use it (`components/proposal-panel.tsx:606`, `:1890`, `:1927`, `:1991`). | **Closed on 22404b6** through helper execution and consumer inspection; no new personal browser session. |
+| F4: backup helper lacks proposal-export bytes | The helper implementation remains limited to metadata/vault data. Main `docs/API_CONTRACT.md` now explicitly documents the limitation and requires stopping the app and preserving the complete data directory plus any separately configured export output directory for full restoration. | **Tracked operational limitation**, not repaired code or a complete helper-restore claim. The documented interim procedure is required. |
+
+No unresolved P0/P1 was identified in this focused closure. This conclusion applies to the inspected local implementation and reproduced paths, not arbitrary future features, hosted access, scientific validity or every possible parser input.
+
+### Closure verification ledger
+
+| Personally inspected/executed evidence | Result / coverage |
+| --- | --- |
+| PR #8 required-check diagnostics and validation log | Independently read success on exact PR head `8e903eb7120537bc93418ef2e174a95df8772bc1`: 171 tests in 17 suites, production compilation, baseline/proposal browser journey and vault browser acceptance. [Validation job](https://github.com/vzhu08/grantpath/actions/runs/40173146660/job/121108068171). CI execution is attributed to CI, not the review process. |
+| `git rev-parse` main/PR tree plus `git diff --exit-code` | Both trees are `6ea8f6bcbf8acb5c3d00b2b7510b147d3eabe832`; diff exit 0. Required CI tested the same source tree as fixed main. |
+| `git archive` fixed source plus Git blob verification | 112 tracked snapshot files verified; 107 Windows-exported text files restored to canonical line endings; zero mismatches. Only the ignored snapshot changed. |
+| `node --import tsx .test-data/infra-review-b4485b6/fixed-main-recheck.ts 22404b6c4af23e56b70b9abb28019c86417d1cef`, cwd the fixed snapshot | Exit 0. Actual pure domain functions plus direct actual route `Request`/`Response`; missing/corrupt/selected-only replacement, Ready/waiver rejection, manual/excluded origins, retained frozen packet, metadata 400 and API error decoding pass. Repeated after canonical-byte verification, exit 0. |
+| Read-only static scan against fixed source and borrowed installed dependencies | Exit 0; client closure now 30 files due to the browser-safe error helper; no missing relative import or Node builtin, no manifest/lock/installed direct-version mismatch. |
+| GET normal local page and `/api/health` | Both personally verified 200; expected revision `22404b6c4af23e56b70b9abb28019c86417d1cef`, build **`CA2Oh0NNgjIpjST4c8SZg`**, health no-store. Parent separately reports its completed production build/review refresh and ready 200. No normal workspace endpoint/mutation was used by this closure. |
+
+The pure source command used `TSX_DISABLE_CACHE=1` and snapshot-local TEMP/TMP. Dependencies were borrowed for read-only import through a temporary junction; no install or cache write into primary dependencies occurred. The junction was removed as a link only after checks. No full local suite, browser, renderer or physical-file HTTP journey was rerun for this small patch: PR #8 covers repeatable integrated regression, while the earlier physical-file journey remains evidence for its explicitly recorded b4485b6 build.
+
+Sanitized closure artifacts: [recheck source](evidence-b4485b6/fixed-main-22404b6-recheck.ts.txt), [domain/route result](evidence-b4485b6/fixed-main-22404b6-result.json), [source verification](evidence-b4485b6/fixed-main-22404b6-source.json), [static scan result](evidence-b4485b6/fixed-main-22404b6-static.json), [health identity](evidence-b4485b6/fixed-main-22404b6-health.json). To reproduce the source probe, copy the text file to `.test-data/infra-review-b4485b6/fixed-main-recheck.ts` under a checkout/snapshot of the exact revision, with the normal full locked dependency installation; run the command above. Its synthetic records do not initialize or mutate an on-disk repository.
+
+### Current research and UI gate
+
+The concrete 11–13 predecessor interfaces in the original matrix are still not merged by this hotfix. F1's repair gate is now satisfied; this does not unlock those missing interfaces. The newer direct human instruction adds another gate: finish the current 02–09 implementation batch through checked merges, release frontend ownership, complete the whole-product redesign from `docs/prompts/GRANTPATH_UI_REDESIGN.md`, and accept/merge that UI baseline **before** research 11–13. Later frontend work must read the resulting actual `docs/DESIGN_SYSTEM.md` and `docs/UI_COMPONENT_MAP.md` when those files exist. This review launches neither the redesign nor big-move research. Task 10 remains skipped, and optional live feeds/scenarios remain optional within each bounded future scope.

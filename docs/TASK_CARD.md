@@ -6,6 +6,8 @@ Current speed preference supersedes earlier dispatch settings: Standard mode / F
 
 Parent orchestrator owns incremental main updates and a local deployment of the most recent checked main. Integrate each finished feature through required CI/branch gates, preserve user WIP, build/refresh the owned local review server and verify its revision/build identity/working URL. Do not wait for all concurrent features to finish before integrating a ready feature.
 
+Latest human priority is finishing task08. After the in-flight03 checked handoff/main integration, prioritize exclusive shared integration05→06→08;04continues independent semantic-reference work and receives a later shared lease. This supersedes historical02→03→04→05 scheduling. Actual checked award05 runtime and ledger06 runtime remain mandatory for downstream finance/report integration. Source-only tests/checkpoints are not completed running features. The whole-UI/parallel-real-data-research gate still waits for the full selected02–09batch.
+
 ## Authorized tasks 02 and 03
 
 On October 25, 2026 the requesting user authorized implementation of roadmap 02 and 03 in independent chats, with useful subagents in both, coordinated from parent chat `01a17191-e455-7b93-8c8e-54ebcf12741d`. This supersedes the earlier roadmap-01-only and serial-work scope below. Specifications: [Document Vault](implementation/02_DOCUMENT_VAULT_IMPLEMENTATION.md) and [Resubmission Response Matrix](implementation/03_RESUBMISSION_RESPONSE_MATRIX_IMPLEMENTATION.md).
