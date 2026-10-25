@@ -1,5 +1,13 @@
 # Actual implementation status
 
+## Roadmap05 awards and progress worksheets
+
+Final checked feature handoff `3abe165ba5a3ce2b8f7cfb6329bb5a906ae4b173`, application code `6c7ad9118130bb7d2388a1b9d30c35b7442e64cb`, stacks checked main2da6a31. Schema5 preserves prior histories and adds source-confirmed award terms/amendments, exact originating application/submission evidence, separately retained proposed/approved money, milestones, actual progress, reviewed NSF annual narrative worksheets and immutable Markdown/JSON evidence closures. See [release details](05_AWARD_OBLIGATIONS_PROGRESS_REPORTS_RELEASE.md).
+
+Actual task checks passed: locked install, TypeScript,253 tests/30 suites, final production build; documents/extraction examples; full award HTTP/UI/process-restart and saved-byte tests; baseline/proposal, vault and resubmission journeys plus ordered-packet restart; dev smoke. Parent independently reviewed the migration/receipt/atomic/retention/finance-context seams and final UI/intake delta, and verified private `http://127.0.0.1:3005` at app6c7ad91/build `nGNJFMjUnaTg-QjKGO56i`, expected instance, ready/schema5. Parent's exact-head CI/main build/local refresh is a separate integration gate, not inferred from the feature server. No liveAI/paid/provider/sponsor/public deployment is claimed.
+
+The required CI job now repeats award acceptance after existing regression journeys.05released shared/heavy ownership;06owns shared SOURCE from the frozen handoff while parent completes05 main integration/build.06must stack resulting checkedmain before final acceptance;08follows. UI is planning-only, and its implementation still needs the final combined functional/rendered GO.
+
 ## Roadmap 03 resubmission response matrix
 
 Final checked feature handoff `506ce80619cbdfa6613b075c66cfc5e487cf23b0`, application code `ca8e5882eb2dc1598879e582efab52dd3add3a79`, stacks checked main22404. Schema4 preserves vault/proposal data and frozen payloads while adding submitted baselines, independent target cycles, exact reviewer quotations, concerns/actions/evidence/response histories, targeted human-review staleness, comparisons and immutable internal Markdown/JSON response packets. See [release evidence](03_RESUBMISSION_RESPONSE_MATRIX_RELEASE.md).
