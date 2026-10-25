@@ -19,7 +19,8 @@ function encodedMetadata(value: unknown) {
 }
 export function DocumentUpload(props: Props & { document?: Document; onUploaded?: (id: string) => void }) {
   const [file, setFile] = useState<File | null>(null), [title, setTitle] = useState(props.document?.title ?? ""), [category, setCategory] = useState(props.document?.category ?? "CV"), [owner, setOwner] = useState(props.document?.owner ?? ""), [uploading, setUploading] = useState(false), [error, setError] = useState(""), [notice, setNotice] = useState("");
-  const [markDirty] = useEditorDirty(`upload-${props.document?.id ?? props.projectId}`);
+  const uploadId = useId();
+  const [markDirty] = useEditorDirty(`upload-${uploadId}`);
   const categoryList = useId();
   const input = useRef<HTMLInputElement>(null), receipt = useRef<{payload: string; key: string; revision:number} | null>(null);
   async function upload(event: React.FormEvent) {
@@ -43,9 +44,9 @@ export function DocumentUpload(props: Props & { document?: Document; onUploaded?
     <p className="muted">PDF, TXT, Markdown and DOCX Â· up to 10 MB. Files stay in this local workspace until it is explicitly removed. Archive hides a document and retains all versions. Uploads are researcher-provided, including uploads to a synthetic project.</p>
     <Field label={props.document ? "Replacement original file" : "Original file"}><input ref={input} type="file" accept=".pdf,.txt,.md,.docx" required disabled={uploading} onChange={event => {setFile(event.target.files?.[0] ?? null); markDirty(true); if (!title) setTitle(event.target.files?.[0]?.name ?? "");}} /></Field>
     <div className="form-grid">
-      <Field label="Document title"><input required maxLength={500} value={title} onChange={e => {setTitle(e.target.value); markDirty(true);}} /></Field>
-      <Field label="Document category"><input required maxLength={500} value={category} onChange={e => {setCategory(e.target.value); markDirty(true);}} list={categoryList} /></Field>
-      <Field label="Owner label"><input maxLength={500} value={owner} onChange={e => {setOwner(e.target.value); markDirty(true);}} /></Field>
+      <Field label="Document title"><input required disabled={uploading} maxLength={500} value={title} onChange={e => {setTitle(e.target.value); markDirty(true);}} /></Field>
+      <Field label="Document category"><input required disabled={uploading} maxLength={500} value={category} onChange={e => {setCategory(e.target.value); markDirty(true);}} list={categoryList} /></Field>
+      <Field label="Owner label"><input disabled={uploading} maxLength={500} value={owner} onChange={e => {setOwner(e.target.value); markDirty(true);}} /></Field>
     </div>
     <datalist id={categoryList}><option value="CV"/><option value="Support letter"/><option value="Methods"/><option value="Ethics approval"/><option value="Other"/></datalist>
     <p className="muted">Parsing does not certify safety, readability, sponsor formatting or approval. Files are not sent to an AI provider by uploading them.</p>
@@ -80,6 +81,7 @@ function VersionView(props: Props & {document: Document; versionId: string}) {
     <p><strong>{version.filename}</strong> Â· {version.mime} Â· {version.bytes.toLocaleString()} bytes Â· uploaded {version.createdAt}</p>
     <p style={{overflowWrap:"anywhere"}}>Original SHA-256: <code>{version.sha256}</code></p>
     <div className="row"><Badge tone={version.integrity==="available"?"green":"amber"}>Integrity: {version.integrity}</Badge><a href={`${documentUrl(props.document.id,version.id)}/download`}>Download original v{version.version}</a></div>
+    {props.state.sources.filter(s=>s.projectId===props.projectId&&s.versions.some(v=>v.fileOrigin?.documentVersionId===version.id)).map(s=><details key={s.id}><summary>Promoted evidence: {s.title}</summary>{s.versions.filter(v=>v.fileOrigin?.documentVersionId===version.id).map(v=>{const origin=v.fileOrigin!;return <p key={v.version}>Evidence source v{v.version} · extraction {origin.parseAttemptId} · offsets {origin.start}–{origin.end} · reviewed by {origin.reviewedBy}{origin.manualEdit?" · manually edited source revision":" · exact reviewed excerpt"}{origin.reviewedHeadId!==props.document.versionIds.at(-1)?" · original file head changed; review required":""}</p>;})}</details>)}
     {version.integrity!=="available"&&<p className="muted">Downloads verify the saved byte length and SHA-256. Missing or changed bytes cannot satisfy a requirement.</p>}
     <Field label="Extraction attempt"><select value={attempt?.id ?? ""} onChange={e=>setAttemptId(e.target.value)}><option value="">No extraction yet</option>{attempts.map(a=><option key={a.id} value={a.id}>{a.status} Â· {a.startedAt} Â· {a.parser}</option>)}</select></Field>
     {attempt&&<><p>Extraction: <strong>{attempt.status}</strong>{attempt.pages?` Â· ${attempt.pages} pages`:""} Â· {attempt.textLength.toLocaleString()} UTF-16 units</p>{attempt.warnings.map((warning,i)=><p key={i} className="muted">{warning}</p>)}</>}
